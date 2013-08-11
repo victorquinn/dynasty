@@ -29,7 +29,7 @@ body {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   padding: 15px 0 30px 30px;
-  border-right: 1px solid #95a5a6;
+  border-right: 1px solid #e67e22;
 }
 a.toc_title, a.toc_title:visited {
   display: block;
@@ -75,7 +75,7 @@ p {
   margin: 20px 0;
 }
 a, a:visited {
-  color: #c0392b;
+  color: #d35400;
 }
 a:active, a:hover {
   color: #f39c12;
@@ -176,7 +176,7 @@ article.method h3 .emoji { display: none }
   font-size: 28px;
   cursor: default;
 }
-article.method p { margin: .5em 0 }
+article.method p { margin: 1.5em 0 }
 article.method .warning, article.method .version {
   margin: 0;
   font: bold 11px Arial;
@@ -317,7 +317,7 @@ p.compat a {
     border-right: none;
     border-left: 1px solid #d4b4ff;
     color: #ecf0f1;
-    background: #c0392b;
+    background: #d35400;
   }
   .navigating #sidebar {
     -webkit-transform: translateX(0);
@@ -405,6 +405,7 @@ p.compat a {
 }
 
 /* syntax */
+code, .highlight { color: #3498db;}
 .hll { background-color: #ffffdd }
 .c { color: #888888 } /* Comment */
 .err { color: #a61717; background-color: #e3d2d2 } /* Error */

@@ -22,7 +22,7 @@ github_url: https://github.com/victorquinn/dynasty
     <li><a href="#thanks">Acknowledgements</a></li>
   </ul>
 
-  <a class=toc_title href="#usage">Usage</a>
+  <a class=toc_title href="#usage">Getting Started</a>
   {% assign posts = site.categories.usage %}
   {% include methods_sidebar.html %}
 
@@ -31,10 +31,12 @@ github_url: https://github.com/victorquinn/dynasty
 <div class="container">
 
   <header>
-  <h1><img src=logo.png alt=Chance.js></h1>
+  <h1><img src=logo.png alt=Dynasty.js></h1>
 
+  <p><b>Dynasty</b> is a promise-based <a href="https://aws.amazon.com/dynamodb/">Amazon DynamoDB</a> client for Node.</p>
+  <p><a href="https://aws.amazon.com/dynamodb/">DynamoDB</a> is Amazon's super high performance, fully managed NoSQL database offering. This library was built in an attempt to make it a bit more easy to work with.</p>
   <p>
-    <b>Dynasty</b> is a promise-based DynamoDB client for Node. Focus on code cleanliness.
+    This library is a bit in its early stages, so if you're looking for things to be 100% stable and feature complete, it may be worth looking at other options unless you're somewhat adventurous.
   </p>
   <p>
     Dynasty is open source software and is released under the
@@ -42,9 +44,11 @@ github_url: https://github.com/victorquinn/dynasty
     <a href="http://en.wikipedia.org/wiki/MIT_License">MIT license</a>.
   </p>
   <p>
-    <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://dynastyjs.com/" data-text="Dynasty: Promise-based DynamoDB Client for Node" data-count="horizontal" data-via="victorquinn">Tweet</a>
+    <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://dynastyjs.com/" data-text="Dynasty: Promise-based DynamoDB Client for Node" data-count="horizontal" data-via="victorquinn">Tweet</a><a href="https://coderwall.com/victorquinn"><img alt="Endorse victorquinn on Coderwall" src="https://api.coderwall.com/victorquinn/endorsecount.png" /></a>
   </p>
-
+  <p>
+    Written by <a href="http://victorquinn.com">Victor Quinn</a>
+  </p>
   <!--
   <h3 id=download>Download Chance</h3>
 
@@ -75,7 +79,7 @@ github_url: https://github.com/victorquinn/dynasty
   <section id=documentation>
     <hr>
 
-    <h2 id="usage">Usage</h2>
+    <h2 id="usage">Getting Started</h2>
     {% assign posts = site.categories.usage %}
     {% include methods_full.html %}
 
@@ -110,7 +114,7 @@ github_url: https://github.com/victorquinn/dynasty
   </p>
   <p>
     <small>
-      &copy; 2013 <a href="http://victorquinn.com">Victor Quinn</a><a href="https://coderwall.com/victorquinn"><img alt="Endorse victorquinn on Coderwall" src="https://api.coderwall.com/victorquinn/endorsecount.png" /></a><br>
+      &copy; 2013 <a href="http://victorquinn.com">Victor Quinn</a><br />Like this? Also check out <a href="http://chancejs.com">Chance</a><br><a href="https://coderwall.com/victorquinn"><img alt="Endorse victorquinn on Coderwall" src="https://api.coderwall.com/victorquinn/endorsecount.png" /></a><br>
       Dynasty and this documentation are released under the terms of the <a href="{{ page.github_url }}/blob/master/MIT-LICENSE">MIT license</a>.
     </small>
   </p>
