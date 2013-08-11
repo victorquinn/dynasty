@@ -1,0 +1,2 @@
+class Dynasty
+  constructor: () ->

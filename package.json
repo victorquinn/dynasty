@@ -1,0 +1,47 @@
+{
+  "name": "dynasty",
+  "main": "dynasty.js",
+  "version": "0.0.1",
+  "description": "Dynasty - Promise-based DynamoDB API",
+  "homepage": "http://dynastyjs.com",
+  "author": "Victor Quinn <mail@victorquinn.com>",
+  "bugs": {
+    "url": "https://github.com/victorquinn/dynastyjs/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/victorquinn/dynastyjs.git"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://dynastyjs.com/license/"
+    }
+  ],
+  "devDependencies": {
+    "chai": "1.5",
+    "grunt": "*",
+    "grunt-coffeelint": "*",
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-contrib-uglify": "*",
+    "grunt-contrib-watch": "*",
+    "grunt-mocha-phantomjs": "*",
+    "grunt-shell": "*",
+    "mocha": "1.8",
+    "mocha-phantomjs": "2.0.3",
+    "phantomjs": "1.9.0-2",
+    "requirejs": "2.1.6",
+    "uglify-js": "1.2.6",
+    "underscore": "*"
+  },
+  "scripts": {
+  },
+  "keywords": [
+    "dynamodb",
+    "aws",
+    "amazon",
+    "promise",
+    "dynasty",
+    "database"
+  ]
+}
