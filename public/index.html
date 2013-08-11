@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name=viewport content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <title>Dynasty: Promise-based DynamoDB Client for Node</title>
+  
+  <meta name=description content="Dynasty: Promise-based DynamoDB Client for Node
+">
+  
+  <link rel=stylesheet href=style.css>
+
+  <meta name=apple-mobile-web-app-capable content=yes>
+  <meta name=apple-mobile-web-app-status-bar-style content=white>
+  <meta name=format-detection content="telephone=no">
+
+  <link rel=apple-touch-icon-precomposed href=icon.png>
+  <link rel=icon type=image/png href=favicon.png>
+</head>
+<body>
+
+  <div id="menu_icon">≣</div>
+
+<aside id="sidebar" class="interface">
+
+  <a class="toc_title" href="#">
+    Dynasty.js <span class="version">(0.0.1)</span>
+  </a>
+
+  <ul class=toc_section>
+    <li><a href="#download">Download</a></li>
+    <li><a href="#todo">Todo</a></li>
+    <li><a href="#changelog">Change Log</a></li>
+    <li><a href="#thanks">Acknowledgements</a></li>
+  </ul>
+
+  <a class=toc_title href="#usage">Usage</a>
+  
+  <ul class=toc_section>
+  
+  <li><a href="#node">node</a></li>
+  
+</ul>
+
+
+</aside>
+
+<div class="container">
+
+  <header>
+  <h1><img src=logo.png alt=Chance.js></h1>
+
+  <p>
+    <b>Dynasty</b> is a promise-based DynamoDB client for Node. Focus on code cleanliness.
+  </p>
+  <p>
+    Dynasty is open source software and is released under the
+    developer and business-friendly
+    <a href="http://en.wikipedia.org/wiki/MIT_License">MIT license</a>.
+  </p>
+  <p>
+    <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://dynastyjs.com/" data-text="Dynasty: Promise-based DynamoDB Client for Node" data-count="horizontal" data-via="victorquinn">Tweet</a>
+  </p>
+
+  <!--
+  <h3 id=download>Download Chance</h3>
+
+  <ul class=downloads>
+    <li>
+      <a href="chance.js" class="download" download="chance.js">chance.js v0.0.1 (for development)</a>
+      - <i>41.0kB uncompressed</i>
+    </li>
+    <li>
+      <a href="chance.min.js" class="download">chance.min.js v0.0.1 (for production)</a>
+      – <i>5.9kB when gzipped</i>
+    </li>
+  </ul>
+  -->
+  <p>
+    Or <b><a href="https://github.com/victorquinn/dynasty">grab the latest version on Github</a></b>.
+  </p>
+  
+  <ul class=downloads>
+    <li>
+      <iframe src="http://ghbtns.com/github-btn.html?user=victorquinn&repo=dynasty&type=watch&count=true"
+      allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
+      <iframe src="http://ghbtns.com/github-btn.html?user=victorquinn&repo=dynasty&type=fork&count=true"
+      allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
+    </li>
+  </ul>
+
+  <section id=documentation>
+    <hr>
+
+    <h2 id="usage">Usage</h2>
+    
+    
+<article class=method id="node">
+  <h3>node
+  
+   
+  </h3>
+  
+  
+  <p>Easy to install in <a href="http://nodejs.org">Node.js</a></p>
+
+<div class="highlight"><pre><code class="bash">  npm install dynasty
+</code></pre></div>
+
+
+<p>then in your app</p>
+
+<div class="highlight"><pre><code class="js">  <span class="c1">// Load Dynasty</span>
+  <span class="kd">var</span> <span class="nx">Dynasty</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;dynasty&#39;</span><span class="p">);</span>
+
+  <span class="c1">// Instantiate Dynasty so it can be used</span>
+  <span class="kd">var</span> <span class="nx">dynasty</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Dynasty</span><span class="p">();</span>
+  <span class="c1">// TODO: UPDATE THIS, just a stub for now...</span>
+  <span class="c1">// Start using it!</span>
+</code></pre></div>
+
+
+
+
+</article>
+
+
+
+    <hr>
+    <h2 id="changelog">Change Log</h2>
+    
+  </section>
+
+  <h2 id="thanks">Acknowledgements & Thanks</h2>
+  <p>
+    This documentation is based on the layout of the
+    <a href="https://zeptojs.com">Zepto.js</a> which itself is based on the layout of the
+    <a href="https://github.com/documentcloud/backbone/">Backbone.js</a>
+    documentation, which is released under the
+    <a href="https://github.com/documentcloud/backbone/blob/master/LICENSE">MIT license</a>.
+  </p>
+  <p>
+    This library is built on top of <a href="https://github.com/teleportd">@teleportd</a>'s <a href="https://npmjs.org/package/dynamodb">node-dynamodb</a> library.
+  </p>
+  <p>
+    And of course a monster thank you to all of the <a href="https://github.com/victorquinn/dynasty/graphs/contributors">Contributors</a> to this project!
+  </p>
+  <p>
+    <small>
+      &copy; 2013 <a href="http://victorquinn.com">Victor Quinn</a><a href="https://coderwall.com/victorquinn"><img alt="Endorse victorquinn on Coderwall" src="https://api.coderwall.com/victorquinn/endorsecount.png" /></a><br>
+      Dynasty and this documentation are released under the terms of the <a href="https://github.com/victorquinn/dynasty/blob/master/MIT-LICENSE">MIT license</a>.
+    </small>
+  </p>
+
+  <footer>
+  </footer>
+</div>
+
+<script src="zepto.min.js"></script>
+<script src="touch.js"></script>
+
+<script>
+  var reflowTimeout;
+  
+  function injectScript(src) {
+    var s = document.createElement('script')
+    s.src = src; s.async = true
+    $('script').first().before(s)
+  }
+
+  // Reflow all elements on the page.
+  function reflowFixedPositions() {
+    var docStyle = document.documentElement.style
+    docStyle.paddingRight = '1px'
+    setTimeout(function(){ docStyle.paddingRight = '' }, 0)
+  }
+
+  $('.signature code').html(function(i, html){
+    return html
+      .replace(/\[([^\[]+)\]$/mg, '<span class=version>$1+</span>')
+      .replace(/\)([^()]+)$/mg, ') <span class=return>$1</span>')
+  })
+
+  $(document).on('mouseover', 'span.version', function(){
+    var el = $(this)
+    if (!el.attr('title'))
+      el.attr('title', "This feature is only available in Zepto " + el.text())
+  })
+
+  if ($.os.ios || /\bMac.+\bSafari\b/.test(navigator.userAgent))
+    $(document.body).addClass('emoji-enabled')
+    
+  // don't follow links when the sidebar is tap-enabled
+  $('#sidebar').on('click', 'a', function(e){
+    return !$('body').hasClass('navigating')
+  })
+
+  $('#sidebar').on('tap', 'a', function(e){
+    location.href = this.href;
+
+    closeMenu()
+    setTimeout(function(){
+      // fixes sidebar becoming unscrollable in Safari 6
+      reflowFixedPositions()
+    }, 10)    
+    return false
+  })
+  
+  $(window).on('scroll', function(){
+    if(reflowTimeout) clearTimeout(reflowTimeout)
+    reflowTimeout = setTimeout(reflowFixedPositions, 200)
+  })
+  
+  function closeMenu(){
+    if ($('body').hasClass('navigating')) {
+      $('body').removeClass('navigating')
+      setTimeout(function(){
+        $('#sidebar').css('display','none')
+      }, 350)
+    }
+  }
+  
+  // show/hide menu on mobile
+  $('#menu_icon').on('tap', function(){
+    if ($('body').hasClass('navigating')) {
+      closeMenu()
+    } else {
+      $('#sidebar').css('display','block')
+      $('#sidebar')[0].offsetLeft // force render
+      $('body').addClass('navigating')
+    }
+    return false
+  })
+
+  // change the title of the page so bookmarks have a better default
+  if ($.os.ios || $.os.android)
+    document.title = 'Dynasty Docs'
+
+  // For retina screens, use a hi-res version of the tour image.
+  // We're swapping this out on-demand (not an ideal solution)
+  // to avoid rendering bugs on iOS.
+  /*
+  $('#tour > img')[0].src =
+    ('devicePixelRatio' in window && devicePixelRatio > 1) ?
+    'intro2x.jpg' : 'intro.jpg'
+  */
+  var tour = $('#tour'), tourSlides = tour.children(),
+      tourSlide = 0, tourSlidesTotal = 5
+
+  function advanceTourSlide(delta){
+    tourSlide = (tourSlide + delta + tourSlidesTotal) % tourSlidesTotal
+    var offset = tourSlide * tour.width()
+    tourSlides.animate({ translateX: -offset + 'px' })
+  }
+
+  tour.on('click swipeLeft', function(){ advanceTourSlide(+1) })
+      .on('swipeRight', function(){ advanceTourSlide(-1) })
+
+  if (/^(localhost|dynasty)|\.(dev|local)$/.test(location.hostname) && $.os.iphone && !/Simulator/.test(navigator.userAgent))
+    injectScript('livereload.js')
+
+  injectScript('livereload.js')
+
+  injectScript('http://platform.twitter.com/widgets.js')
+</script>
+
+<script type="text/javascript">
+  var _gauges = _gauges || [];
+  (function() {
+    var t   = document.createElement('script');
+    t.type  = 'text/javascript';
+    t.async = true;
+    t.id    = 'gauges-tracker';
+    t.setAttribute('data-site-id', '5207a188f5a1f572b7000002');
+    t.src = '//secure.gaug.es/track.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(t, s);
+  })();
+</script>
+
+
+</body>
+</html>
