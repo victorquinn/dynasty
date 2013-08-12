@@ -23,12 +23,10 @@ class Table
   constructor: (@parent, @name) ->
 
   # Wrapper around DynamoDB's getItem
-  find: (params, opts = {}, callback = null) ->
-    if _.isFunction opts
-      callback = opts
-      opts = {}
-
-    deferred = Q.defer()
+  find: (params, options = {}, callback = null) ->
+    if _.isFunction options
+      callback = options
+      options = {}
 
     if _.isString params
       hash = params
@@ -37,14 +35,32 @@ class Table
 
     range = null if not range
 
-    @parent.ddb.getItem @name, hash, range, opts, (err, resp, cap) ->
+    deferred = Q.defer()
+
+    @parent.ddb.getItem @name, hash, range, options, (err, resp, cap) ->
       if err
-        deferred.reject(err)
+        deferred.reject err
       else
         deferred.resolve resp
       callback(err, resp) if callback isnt null
 
     deferred.promise
 
+  insert: (obj, options = {}, callback = null) ->
+    if _.isFunction options
+      callback = options
+      options = {}
+
+    deferred = Q.defer()
+
+    @parent.ddb.putItem @name, obj, options, (err, resp, cap) ->
+      if err
+        deferred.reject err
+      else
+        deferred.resolve resp
+      callback(err, resp) if callback isnt null
+
+    deferred.promise
+    
 
 module.exports = Dynasty

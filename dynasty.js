@@ -31,19 +31,18 @@
       this.name = name;
     }
 
-    Table.prototype.find = function(params, opts, callback) {
+    Table.prototype.find = function(params, options, callback) {
       var deferred, hash, range;
-      if (opts == null) {
-        opts = {};
+      if (options == null) {
+        options = {};
       }
       if (callback == null) {
         callback = null;
       }
-      if (_.isFunction(opts)) {
-        callback = opts;
-        opts = {};
+      if (_.isFunction(options)) {
+        callback = options;
+        options = {};
       }
-      deferred = Q.defer();
       if (_.isString(params)) {
         hash = params;
       } else {
@@ -52,7 +51,34 @@
       if (!range) {
         range = null;
       }
-      this.parent.ddb.getItem(this.name, hash, range, opts, function(err, resp, cap) {
+      deferred = Q.defer();
+      this.parent.ddb.getItem(this.name, hash, range, options, function(err, resp, cap) {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve(resp);
+        }
+        if (callback !== null) {
+          return callback(err, resp);
+        }
+      });
+      return deferred.promise;
+    };
+
+    Table.prototype.insert = function(obj, options, callback) {
+      var deferred;
+      if (options == null) {
+        options = {};
+      }
+      if (callback == null) {
+        callback = null;
+      }
+      if (_.isFunction(options)) {
+        callback = options;
+        options = {};
+      }
+      deferred = Q.defer();
+      this.parent.ddb.putItem(this.name, obj, options, function(err, resp, cap) {
         if (err) {
           deferred.reject(err);
         } else {
