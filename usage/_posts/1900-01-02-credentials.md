@@ -51,7 +51,7 @@ var credentials = {
 };
 {% endhighlight %}
 
-Only this short string is necessary to specify the region, *Dynasty* will convert
+Only this short string is necessary to specify the region, **Dynasty** will convert
 it into the full endpoint URL for you.
 
 [AWS]: https://console.aws.amazon.com/iam/home?#users
