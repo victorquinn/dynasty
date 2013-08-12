@@ -26,6 +26,10 @@ github_url: https://github.com/victorquinn/dynasty
   {% assign posts = site.categories.usage %}
   {% include methods_sidebar.html %}
 
+  <a class=toc_title href="#basic">Basic</a>
+  {% assign posts = site.categories.basic %}
+  {% include methods_sidebar.html %}
+
 </aside>
 
 <div class="container">
@@ -33,10 +37,10 @@ github_url: https://github.com/victorquinn/dynasty
   <header>
   <h1><img src=logo.png alt=Dynasty.js></h1>
 
-  <p><b>Dynasty</b> is a promise-based <a href="https://aws.amazon.com/dynamodb/">Amazon DynamoDB</a> client for Node.</p>
-  <p><a href="https://aws.amazon.com/dynamodb/">DynamoDB</a> is Amazon's super high performance, fully managed NoSQL database offering. This library was built in an attempt to make it a bit more easy to work with.</p>
+  <p><b>Dynasty</b> is a promise-based <a href="https://aws.amazon.com/dynamodb/">Amazon DynamoDB</a> client for <a href="http://nodejs.org">Node</a>.</p>
+  <p><a href="https://aws.amazon.com/dynamodb/">DynamoDB</a> is Amazon's high performance, all SSD backed, fully managed NoSQL database offering. This library was built in an attempt to make it a bit more easy to work with.</p>
   <p>
-    This library is a bit in its early stages, so if you're looking for things to be 100% stable and feature complete, it may be worth looking at other options unless you're somewhat adventurous.
+    This library is a bit in its early stages, so if you're looking for things to be 100% stable and feature complete, it may be worth looking at other options unless you're somewhat adventurous. And if you're the adventurous type, please help out and send some pull requests!
   </p>
   <p>
     Dynasty is open source software and is released under the
@@ -81,6 +85,10 @@ github_url: https://github.com/victorquinn/dynasty
 
     <h2 id="usage">Getting Started</h2>
     {% assign posts = site.categories.usage %}
+    {% include methods_full.html %}
+
+    <h2 id="basic">Basic</h2>
+    {% assign posts = site.categories.basic %}
     {% include methods_full.html %}
 
     <hr>
