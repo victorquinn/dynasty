@@ -26,16 +26,17 @@
     "grunt-contrib-coffee": "~0.7.0",
     "grunt-contrib-uglify": "*",
     "grunt-contrib-watch": "*",
-    "grunt-mocha-phantomjs": "*",
+    "grunt-simple-mocha": "*",
     "grunt-shell": "*",
     "mocha": "1.8",
-    "mocha-phantomjs": "2.0.3",
     "phantomjs": "1.9.0-2",
     "requirejs": "2.1.6",
     "uglify-js": "1.2.6",
     "underscore": "*"
   },
-  "scripts": {},
+  "scripts": {
+    "test": "grunt test"
+  },
   "keywords": [
     "dynamodb",
     "aws",

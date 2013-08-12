@@ -11,6 +11,7 @@
         credentials.endpoint = "dynamodb." + credentials.region + ".amazonaws.com";
       }
       this.ddb = dynamodb.ddb(credentials);
+      this.name = 'Dynasty';
       this.tables = {};
     }
 

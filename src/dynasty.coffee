@@ -10,6 +10,7 @@ class Dynasty
       credentials.endpoint = "dynamodb.#{credentials.region}.amazonaws.com"
 
     @ddb = dynamodb.ddb credentials
+    @name = 'Dynasty'
     @tables = {}
 
   # Given a name, return a Table object
