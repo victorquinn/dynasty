@@ -1,9 +1,11 @@
 (function() {
-  var Dynasty, Table, dynamodb, _;
+  var Dynasty, Q, Table, dynamodb, _;
 
   dynamodb = require('dynamodb');
 
   _ = require('underscore');
+
+  Q = require('Q');
 
   Dynasty = (function() {
     function Dynasty(credentials) {
@@ -29,17 +31,38 @@
       this.name = name;
     }
 
-    Table.prototype.find = function(opts, callback) {
-      var hash, range;
+    Table.prototype.find = function(params, opts, callback) {
+      var deferred, hash, range;
+      if (opts == null) {
+        opts = {};
+      }
       if (callback == null) {
         callback = null;
       }
-      if (_.isString(opts)) {
-        hash = opts;
-      } else {
-        hash = opts.hash, range = opts.range;
+      if (_.isFunction(opts)) {
+        callback = opts;
+        opts = {};
       }
-      return console.log([hash, range]);
+      deferred = Q.defer();
+      if (_.isString(params)) {
+        hash = params;
+      } else {
+        hash = params.hash, range = params.range;
+      }
+      if (!range) {
+        range = null;
+      }
+      this.parent.ddb.getItem(this.name, hash, range, opts, function(err, resp, cap) {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve(resp);
+        }
+        if (callback !== null) {
+          return callback(err, resp);
+        }
+      });
+      return deferred.promise;
     };
 
     return Table;
