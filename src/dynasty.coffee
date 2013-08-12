@@ -2,7 +2,7 @@
 
 dynamodb = require('dynamodb')
 _ = require('underscore')
-Q = require('Q')
+Q = require('q')
 
 class Dynasty
 

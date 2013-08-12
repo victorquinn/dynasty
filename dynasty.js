@@ -5,7 +5,7 @@
 
   _ = require('underscore');
 
-  Q = require('Q');
+  Q = require('q');
 
   Dynasty = (function() {
     function Dynasty(credentials) {
