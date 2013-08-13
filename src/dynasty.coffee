@@ -81,7 +81,7 @@ class Table
 
   # Wrapper around DynamoDB's deleteItem
   remove: (params, options = {}, callback = null) ->
-    [hash, range, options, callback] = @init params, options, callback
+    [hash, range, deferred, options, callback] = @init params, options, callback
 
     @parent.ddb.deleteItem @name, hash, range, options, (err, resp, cap) ->
       if err
