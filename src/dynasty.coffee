@@ -27,8 +27,8 @@ class Table
 
   constructor: (@parent, @name) ->
 
-  # Wrapper around DynamoDB's getItem
-  find: (params, options = {}, callback = null) ->
+  # Add some DRY
+  init: (params, options, callback) ->
     if _.isFunction options
       callback = options
       options = {}
@@ -41,6 +41,17 @@ class Table
     range = null if not range
 
     deferred = Q.defer()
+
+    [hash, range, deferred, options, callback]
+
+  ###
+  Item Operations
+  ###
+
+
+  # Wrapper around DynamoDB's getItem
+  find: (params, options = {}, callback = null) ->
+    [hash, range, deferred, options, callback] = @init params, options, callback
 
     @parent.ddb.getItem @name, hash, range, options, (err, resp, cap) ->
       if err
@@ -70,18 +81,7 @@ class Table
 
   # Wrapper around DynamoDB's deleteItem
   remove: (params, options = {}, callback = null) ->
-    if _.isFunction options
-      callback = options
-      options = {}
-
-    if _.isString params
-      hash = params
-    else
-      {hash, range} = params
-
-    range = null if not range
-
-    deferred = Q.defer()
+    [hash, range, options, callback] = @init params, options, callback
 
     @parent.ddb.deleteItem @name, hash, range, options, (err, resp, cap) ->
       if err
@@ -92,5 +92,33 @@ class Table
 
     deferred.promise
 
+  ###
+  Table Operations
+  ###
+
+  # create
+  create: (params) ->
+    {name, keyschema, throughput, callback} = params
+
+    deferred = Q.defer()
+
+    if throughput is null
+      throughput =
+        write: 10
+        read: 10
+
+    @ddb.createTable name, keyschema, throughput, (err, resp, cap) ->
+      if err
+        deferred.reject err
+      else
+        deferred.resolve resp
+      callback(err, resp) if callback isnt null
+
+    deferred.promise
+
+  # drop
+  drop: (params) ->
+    # TODO
+    
 
 module.exports = Dynasty.generator

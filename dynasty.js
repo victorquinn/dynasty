@@ -37,14 +37,8 @@
       this.name = name;
     }
 
-    Table.prototype.find = function(params, options, callback) {
+    Table.prototype.init = function(params, options, callback) {
       var deferred, hash, range;
-      if (options == null) {
-        options = {};
-      }
-      if (callback == null) {
-        callback = null;
-      }
       if (_.isFunction(options)) {
         callback = options;
         options = {};
@@ -58,6 +52,23 @@
         range = null;
       }
       deferred = Q.defer();
+      return [hash, range, deferred, options, callback];
+    };
+
+    /*
+    Item Operations
+    */
+
+
+    Table.prototype.find = function(params, options, callback) {
+      var deferred, hash, range, _ref;
+      if (options == null) {
+        options = {};
+      }
+      if (callback == null) {
+        callback = null;
+      }
+      _ref = this.init(params, options, callback), hash = _ref[0], range = _ref[1], deferred = _ref[2], options = _ref[3], callback = _ref[4];
       this.parent.ddb.getItem(this.name, hash, range, options, function(err, resp, cap) {
         if (err) {
           deferred.reject(err);
@@ -98,26 +109,14 @@
     };
 
     Table.prototype.remove = function(params, options, callback) {
-      var deferred, hash, range;
+      var hash, range, _ref;
       if (options == null) {
         options = {};
       }
       if (callback == null) {
         callback = null;
       }
-      if (_.isFunction(options)) {
-        callback = options;
-        options = {};
-      }
-      if (_.isString(params)) {
-        hash = params;
-      } else {
-        hash = params.hash, range = params.range;
-      }
-      if (!range) {
-        range = null;
-      }
-      deferred = Q.defer();
+      _ref = this.init(params, options, callback), hash = _ref[0], range = _ref[1], options = _ref[2], callback = _ref[3];
       this.parent.ddb.deleteItem(this.name, hash, range, options, function(err, resp, cap) {
         if (err) {
           deferred.reject(err);
@@ -130,6 +129,36 @@
       });
       return deferred.promise;
     };
+
+    /*
+    Table Operations
+    */
+
+
+    Table.prototype.create = function(params) {
+      var callback, deferred, keyschema, name, throughput;
+      name = params.name, keyschema = params.keyschema, throughput = params.throughput, callback = params.callback;
+      deferred = Q.defer();
+      if (throughput === null) {
+        throughput = {
+          write: 10,
+          read: 10
+        };
+      }
+      this.ddb.createTable(name, keyschema, throughput, function(err, resp, cap) {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve(resp);
+        }
+        if (callback !== null) {
+          return callback(err, resp);
+        }
+      });
+      return deferred.promise;
+    };
+
+    Table.prototype.drop = function(params) {};
 
     return Table;
 
