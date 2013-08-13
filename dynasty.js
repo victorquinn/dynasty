@@ -97,6 +97,40 @@
       return deferred.promise;
     };
 
+    Table.prototype.remove = function(params, options, callback) {
+      var deferred, hash, range;
+      if (options == null) {
+        options = {};
+      }
+      if (callback == null) {
+        callback = null;
+      }
+      if (_.isFunction(options)) {
+        callback = options;
+        options = {};
+      }
+      if (_.isString(params)) {
+        hash = params;
+      } else {
+        hash = params.hash, range = params.range;
+      }
+      if (!range) {
+        range = null;
+      }
+      deferred = Q.defer();
+      this.parent.ddb.deleteItem(this.name, hash, range, options, function(err, resp, cap) {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve(resp);
+        }
+        if (callback !== null) {
+          return callback(err, resp);
+        }
+      });
+      return deferred.promise;
+    };
+
     return Table;
 
   })();

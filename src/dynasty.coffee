@@ -51,6 +51,7 @@ class Table
 
     deferred.promise
 
+  # Wrapper around DynamoDB's putItem
   insert: (obj, options = {}, callback = null) ->
     if _.isFunction options
       callback = options
@@ -66,5 +67,30 @@ class Table
       callback(err, resp) if callback isnt null
 
     deferred.promise
+
+  # Wrapper around DynamoDB's deleteItem
+  remove: (params, options = {}, callback = null) ->
+    if _.isFunction options
+      callback = options
+      options = {}
+
+    if _.isString params
+      hash = params
+    else
+      {hash, range} = params
+
+    range = null if not range
+
+    deferred = Q.defer()
+
+    @parent.ddb.deleteItem @name, hash, range, options, (err, resp, cap) ->
+      if err
+        deferred.reject err
+      else
+        deferred.resolve resp
+      callback(err, resp) if callback isnt null
+
+    deferred.promise
+
 
 module.exports = Dynasty.generator
