@@ -3,11 +3,17 @@
 
   dynamodb = require('dynamodb');
 
-  _ = require('underscore');
+  _ = require('lodash');
 
   Q = require('q');
 
   Dynasty = (function() {
+    Dynasty.generator = function(credentials) {
+      if (!(this instanceof Dynasty)) {
+        return new Dynasty(credentials);
+      }
+    };
+
     function Dynasty(credentials) {
       if (credentials.region) {
         credentials.endpoint = "dynamodb." + credentials.region + ".amazonaws.com";
@@ -95,6 +101,6 @@
 
   })();
 
-  module.exports = Dynasty;
+  module.exports = Dynasty.generator;
 
 }).call(this);

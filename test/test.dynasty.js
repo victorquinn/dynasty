@@ -23,26 +23,25 @@
 
   describe('Dynasty', function() {
     describe('Base', function() {
-      it('constructor exists', function() {
-        expect(Dynasty).to.be.a('function');
-        return expect(Dynasty.name).to.equal('Dynasty');
+      it('constructor exists and is a function', function() {
+        return expect(require('../dynasty')).to.be.a('function');
       });
       it('can construct', function() {
         var dynasty;
-        dynasty = new Dynasty(getCredentials());
+        dynasty = require('../dynasty')(getCredentials());
         expect(dynasty).to.exist;
         return expect(dynasty.tables).to.exist;
       });
       return it('can retrieve a table object', function() {
         var dynasty, t;
-        dynasty = new Dynasty(getCredentials());
+        dynasty = require('../dynasty')(getCredentials());
         t = dynasty.table(chance.name());
         return expect(t).to.be.an('object');
       });
     });
     return describe('find()', function() {
       beforeEach(function() {
-        this.dynasty = new Dynasty(getCredentials());
+        this.dynasty = require('../dynasty')(getCredentials());
         return this.table = this.dynasty.table(chance.name());
       });
       it('works with just a string', function() {

@@ -1,12 +1,17 @@
 # Main Dynasty Class
 
 dynamodb = require('dynamodb')
-_ = require('underscore')
+_ = require('lodash')
 Q = require('q')
 
 class Dynasty
 
+  @generator: (credentials) ->
+    if not (this instanceof Dynasty)
+      return new Dynasty(credentials)
+
   constructor: (credentials) ->
+
     if credentials.region
       credentials.endpoint = "dynamodb.#{credentials.region}.amazonaws.com"
 
@@ -61,6 +66,5 @@ class Table
       callback(err, resp) if callback isnt null
 
     deferred.promise
-    
 
-module.exports = Dynasty
+module.exports = Dynasty.generator

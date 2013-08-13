@@ -13,23 +13,22 @@ getCredentials = () ->
 
 describe 'Dynasty', () ->
   describe 'Base', () ->
-    it 'constructor exists', () ->
-      expect(Dynasty).to.be.a('function')
-      expect(Dynasty.name).to.equal('Dynasty')
+    it 'constructor exists and is a function', () ->
+      expect(require('../dynasty')).to.be.a('function')
 
     it 'can construct', () ->
-      dynasty = new Dynasty getCredentials()
+      dynasty = require('../dynasty')(getCredentials())
       expect(dynasty).to.exist
       expect(dynasty.tables).to.exist
 
     it 'can retrieve a table object', () ->
-      dynasty = new Dynasty getCredentials()
+      dynasty = require('../dynasty')(getCredentials())
       t = dynasty.table chance.name()
       expect(t).to.be.an('object')
 
   describe 'find()', () ->
     beforeEach () ->
-      @dynasty = new Dynasty getCredentials()
+      @dynasty = require('../dynasty')(getCredentials())
       @table = @dynasty.table chance.name()
 
     it 'works with just a string', () ->
