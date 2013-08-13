@@ -30,12 +30,12 @@ github_url: https://github.com/victorquinn/dynasty
   {% assign posts = site.categories.general %}
   {% include methods_sidebar.html %}
 
-  <a class=toc_title href="#item">Item</a>
-  {% assign posts = site.categories.item %}
-  {% include methods_sidebar.html %}
-
   <a class=toc_title href="#table">Table</a>
   {% assign posts = site.categories.table %}
+  {% include methods_sidebar.html %}
+
+  <a class=toc_title href="#item">Item</a>
+  {% assign posts = site.categories.item %}
   {% include methods_sidebar.html %}
 
 </aside>
@@ -99,12 +99,12 @@ github_url: https://github.com/victorquinn/dynasty
     {% assign posts = site.categories.general %}
     {% include methods_full.html %}
 
-    <h2 id="item">Item</h2>
-    {% assign posts = site.categories.item %}
-    {% include methods_full.html %}
-
     <h2 id="table">Table</h2>
     {% assign posts = site.categories.table %}
+    {% include methods_full.html %}
+
+    <h2 id="item">Item</h2>
+    {% assign posts = site.categories.item %}
     {% include methods_full.html %}
 
     <hr>
