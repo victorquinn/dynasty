@@ -32,8 +32,7 @@
     "mocha": "1.8",
     "phantomjs": "1.9.0-2",
     "requirejs": "2.1.6",
-    "uglify-js": "1.2.6",
-    "underscore": "*"
+    "uglify-js": "1.2.6"
   },
   "scripts": {
     "test": "grunt test"
