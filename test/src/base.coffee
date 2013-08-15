@@ -26,22 +26,31 @@ describe 'Dynasty', () ->
       t = dynasty.table chance.name()
       expect(t).to.be.an('object')
 
-  describe 'find()', () ->
+  describe 'Table', () ->
+
     beforeEach () ->
       @dynasty = require('../dynasty')(getCredentials())
       @table = @dynasty.table chance.name()
 
-    it 'works with just a string', () ->
-      promise = @table.find chance.name()
-      expect(promise).to.be.an('object')
+    describe 'find()', () ->
 
-    it 'works with an object with just a hash key', () ->
-      promise = @table.find
-        hash: chance.name()
-      expect(promise).to.be.an('object')
+      it 'works with just a string', () ->
+        promise = @table.find chance.name()
+        expect(promise).to.be.an('object')
 
-    it 'works with an object with both a hash and range key', () ->
-      promise = @table.find
-        hash: chance.name()
-        range: chance.name()
-      expect(promise).to.be.an('object')
+      it 'works with an object with just a hash key', () ->
+        promise = @table.find
+          hash: chance.name()
+        expect(promise).to.be.an('object')
+
+      it 'works with an object with both a hash and range key', () ->
+        promise = @table.find
+          hash: chance.name()
+          range: chance.name()
+        expect(promise).to.be.an('object')
+
+    describe 'describe()', () ->
+
+      it 'returns an object', () ->
+        promise = @table.describe()
+        expect(promise).to.be.an('object')
