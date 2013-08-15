@@ -30,7 +30,7 @@ class Dynasty
   add: (name, params, callback = null) ->
     deferred = Q.defer()
 
-    ddb.createTable(name, params.key_schema, params.throughput, (err, resp, cap) ->
+    @ddb.createTable name, params.key_schema, params.throughput, (err, resp, cap) ->
       if err
         deferred.reject err
       else
@@ -39,10 +39,11 @@ class Dynasty
 
     deferred.promise
 
+
   drop: (name, callback = null) ->
     deferred = Q.defer()
 
-    ddb.deleteTable(name, (err, resp, cap) ->
+    @ddb.deleteTable name, (err, resp, cap) ->
       if err
         deferred.reject err
       else
@@ -57,7 +58,7 @@ class Dynasty
     # an object with the throughput info
     throughput = params.throughput || params
 
-    ddb.updateTable(name, throughput, (err, resp, cap) ->
+    @ddb.updateTable name, throughput, (err, resp, cap) ->
       if err
         deferred.reject err
       else
