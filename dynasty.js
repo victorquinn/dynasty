@@ -27,6 +27,66 @@
       return this.tables[name] = this.tables[name] || new Table(this, name);
     };
 
+    /*
+    Table Operations
+    */
+
+
+    Dynasty.prototype.create = function(name, params, callback) {
+      var deferred;
+      if (callback == null) {
+        callback = null;
+      }
+      deferred = Q.defer();
+      this.ddb.createTable(name, params.key_schema, params.throughput, function(err, resp, cap) {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve(resp);
+        }
+        if (callback !== null) {
+          return callback(err, resp);
+        }
+      });
+      return deferred.promise;
+    };
+
+    Dynasty.prototype.drop = function(name, callback) {
+      var deferred;
+      if (callback == null) {
+        callback = null;
+      }
+      deferred = Q.defer();
+      this.ddb.deleteTable(name, function(err, resp, cap) {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve(resp);
+        }
+        if (callback !== null) {
+          return callback(err, resp);
+        }
+      });
+      return deferred.promise;
+    };
+
+    Dynasty.prototype.alter = function(name, params, callback) {
+      var deferred, throughput;
+      deferred = Q.defer();
+      throughput = params.throughput || params;
+      this.ddb.updateTable(name, throughput, function(err, resp, cap) {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve(resp);
+        }
+        if (callback !== null) {
+          return callback(err, resp);
+        }
+      });
+      return deferred.promise;
+    };
+
     return Dynasty;
 
   })();
@@ -109,14 +169,14 @@
     };
 
     Table.prototype.remove = function(params, options, callback) {
-      var hash, range, _ref;
+      var deferred, hash, range, _ref;
       if (options == null) {
         options = {};
       }
       if (callback == null) {
         callback = null;
       }
-      _ref = this.init(params, options, callback), hash = _ref[0], range = _ref[1], options = _ref[2], callback = _ref[3];
+      _ref = this.init(params, options, callback), hash = _ref[0], range = _ref[1], deferred = _ref[2], options = _ref[3], callback = _ref[4];
       this.parent.ddb.deleteItem(this.name, hash, range, options, function(err, resp, cap) {
         if (err) {
           deferred.reject(err);

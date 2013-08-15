@@ -27,7 +27,7 @@ class Dynasty
   Table Operations
   ###
 
-  add: (name, params, callback = null) ->
+  create: (name, params, callback = null) ->
     deferred = Q.defer()
 
     @ddb.createTable name, params.key_schema, params.throughput, (err, resp, cap) ->
