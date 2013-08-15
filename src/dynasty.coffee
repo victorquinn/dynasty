@@ -23,6 +23,50 @@ class Dynasty
   table: (name) ->
     @tables[name] = @tables[name] || new Table this, name
 
+  ###
+  Table Operations
+  ###
+
+  add: (name, params, callback = null) ->
+    deferred = Q.defer()
+
+    ddb.createTable(name, params.key_schema, params.throughput, (err, resp, cap) ->
+      if err
+        deferred.reject err
+      else
+        deferred.resolve resp
+      callback(err, resp) if callback isnt null
+
+    deferred.promise
+
+  drop: (name, callback = null) ->
+    deferred = Q.defer()
+
+    ddb.deleteTable(name, (err, resp, cap) ->
+      if err
+        deferred.reject err
+      else
+        deferred.resolve resp
+      callback(err, resp) if callback isnt null
+
+    deferred.promise
+
+  alter: (name, params, callback) ->
+    deferred = Q.defer()
+    # We'll except either an object with a key of throughput or just
+    # an object with the throughput info
+    throughput = params.throughput || params
+
+    ddb.updateTable(name, throughput, (err, resp, cap) ->
+      if err
+        deferred.reject err
+      else
+        deferred.resolve resp
+      callback(err, resp) if callback isnt null
+
+    deferred.promise
+
+
 class Table
 
   constructor: (@parent, @name) ->
