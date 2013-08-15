@@ -143,6 +143,18 @@ class Table
   Table Operations
   ###
 
+  # describe
+  describe: (callback = null) ->
+    promise = Q.nfcall(@parent.ddb.describeTable, @name)
+
+    if callback is not null
+      promise.then (res) ->
+        callback(null, res)
+      (err) ->
+        callback(err)
+
+    promise
+
   # create
   create: (params) ->
     {name, keyschema, throughput, callback} = params

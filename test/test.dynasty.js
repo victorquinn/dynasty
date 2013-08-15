@@ -39,30 +39,39 @@
         return expect(t).to.be.an('object');
       });
     });
-    return describe('find()', function() {
+    return describe('Table', function() {
       beforeEach(function() {
         this.dynasty = require('../dynasty')(getCredentials());
         return this.table = this.dynasty.table(chance.name());
       });
-      it('works with just a string', function() {
-        var promise;
-        promise = this.table.find(chance.name());
-        return expect(promise).to.be.an('object');
-      });
-      it('works with an object with just a hash key', function() {
-        var promise;
-        promise = this.table.find({
-          hash: chance.name()
+      describe('find()', function() {
+        it('works with just a string', function() {
+          var promise;
+          promise = this.table.find(chance.name());
+          return expect(promise).to.be.an('object');
         });
-        return expect(promise).to.be.an('object');
-      });
-      return it('works with an object with both a hash and range key', function() {
-        var promise;
-        promise = this.table.find({
-          hash: chance.name(),
-          range: chance.name()
+        it('works with an object with just a hash key', function() {
+          var promise;
+          promise = this.table.find({
+            hash: chance.name()
+          });
+          return expect(promise).to.be.an('object');
         });
-        return expect(promise).to.be.an('object');
+        return it('works with an object with both a hash and range key', function() {
+          var promise;
+          promise = this.table.find({
+            hash: chance.name(),
+            range: chance.name()
+          });
+          return expect(promise).to.be.an('object');
+        });
+      });
+      return describe('describe()', function() {
+        return it('returns an object', function() {
+          var promise;
+          promise = this.table.describe();
+          return expect(promise).to.be.an('object');
+        });
       });
     });
   });
