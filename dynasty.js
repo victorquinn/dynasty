@@ -199,6 +199,23 @@
     */
 
 
+    Table.prototype.describe = function(callback) {
+      var promise;
+      if (callback == null) {
+        callback = null;
+      }
+      promise = Q.nfcall(this.parent.ddb.describeTable, this.name);
+      if (callback === !null) {
+        promise.then(function(res) {
+          return callback(null, res);
+        });
+        (function(err) {
+          return callback(err);
+        });
+      }
+      return promise;
+    };
+
     Table.prototype.create = function(params) {
       var callback, deferred, keyschema, name, throughput;
       name = params.name, keyschema = params.keyschema, throughput = params.throughput, callback = params.callback;
