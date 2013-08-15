@@ -30,7 +30,9 @@ class Dynasty
   create: (name, params, callback = null) ->
     deferred = Q.defer()
 
-    @ddb.createTable name, params.key_schema, params.throughput, (err, resp, cap) ->
+    throughput = params.throughput || {read: 10, write: 5}
+
+    @ddb.createTable name, params.key_schema, throughput, (err, resp, cap) ->
       if err
         deferred.reject err
       else
@@ -38,7 +40,6 @@ class Dynasty
       callback(err, resp) if callback isnt null
 
     deferred.promise
-
 
   drop: (name, callback = null) ->
     deferred = Q.defer()
@@ -99,6 +100,7 @@ class Table
     [hash, range, deferred, options, callback] = @init params, options, callback
 
     @parent.ddb.getItem @name, hash, range, options, (err, resp, cap) ->
+
       if err
         deferred.reject err
       else

@@ -33,12 +33,16 @@
 
 
     Dynasty.prototype.create = function(name, params, callback) {
-      var deferred;
+      var deferred, throughput;
       if (callback == null) {
         callback = null;
       }
       deferred = Q.defer();
-      this.ddb.createTable(name, params.key_schema, params.throughput, function(err, resp, cap) {
+      throughput = params.throughput || {
+        read: 10,
+        write: 5
+      };
+      this.ddb.createTable(name, params.key_schema, throughput, function(err, resp, cap) {
         if (err) {
           deferred.reject(err);
         } else {
