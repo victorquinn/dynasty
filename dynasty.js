@@ -1,5 +1,5 @@
 (function() {
-  var Dynasty, Q, Table, aws, dynamodb, _;
+  var Dynasty, Q, Table, aws, dynamodb, typeToAwsType, _;
 
   aws = require('aws-sdk');
 
@@ -8,6 +8,12 @@
   _ = require('lodash');
 
   Q = require('q');
+
+  typeToAwsType = {
+    string: 'S',
+    number: 'N',
+    byte: 'B'
+  };
 
   Dynasty = (function() {
     Dynasty.generator = function(credentials) {
@@ -37,26 +43,39 @@
 
 
     Dynasty.prototype.create = function(name, params, callback) {
-      var deferred, throughput;
+      var attributeDefinitions, awsParams, keySchema, promise, throughput;
       if (callback == null) {
         callback = null;
       }
-      deferred = Q.defer();
       throughput = params.throughput || {
         read: 10,
         write: 5
       };
-      this.ddb.createTable(name, params.key_schema, throughput, function(err, resp, cap) {
-        if (err) {
-          deferred.reject(err);
-        } else {
-          deferred.resolve(resp);
+      keySchema = [
+        {
+          KeyType: 'HASH',
+          AttributeName: params.key_schema.hash[0]
         }
-        if (callback !== null) {
-          return callback(err, resp);
+      ];
+      attributeDefinitions = [
+        {
+          AttributeName: params.key_schema.hash[0],
+          AttributeType: typeToAwsType[params.keySchema.hash[1]]
         }
-      });
-      return deferred.promise;
+      ];
+      awsParams = {
+        TableName: name,
+        KeySchema: params.key_schema,
+        ProvisionedThroughput: {
+          ReadCapacityUnits: throughput.read,
+          WriteCapacityUnits: throughput.write
+        }
+      };
+      promise = Q.nfcall(this.dynamo.createTable, awsParams);
+      if (callback === !null) {
+        promise = promise.nodeify(callback);
+      }
+      return promise;
     };
 
     Dynasty.prototype.drop = function(name, callback) {

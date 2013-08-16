@@ -5,6 +5,11 @@ dynamodb = require('dynamodb')
 _ = require('lodash')
 Q = require('q')
 
+typeToAwsType =
+  string: 'S'
+  number: 'N'
+  byte: 'B'
+
 class Dynasty
 
   @generator: (credentials) ->
@@ -32,18 +37,31 @@ class Dynasty
   ###
 
   create: (name, params, callback = null) ->
-    deferred = Q.defer()
-
     throughput = params.throughput || {read: 10, write: 5}
 
-    @ddb.createTable name, params.key_schema, throughput, (err, resp, cap) ->
-      if err
-        deferred.reject err
-      else
-        deferred.resolve resp
-      callback(err, resp) if callback isnt null
+    keySchema = [
+      KeyType: 'HASH'
+      AttributeName: params.key_schema.hash[0]
+    ]
 
-    deferred.promise
+    attributeDefinitions = [
+      AttributeName: params.key_schema.hash[0]
+      AttributeType: typeToAwsType[params.keySchema.hash[1]]
+    ]
+
+    awsParams =
+      TableName: name
+      KeySchema: params.key_schema
+      ProvisionedThroughput:
+        ReadCapacityUnits: throughput.read
+        WriteCapacityUnits: throughput.write
+
+    promise = Q.nfcall(@dynamo.createTable, awsParams)
+
+    if callback is not null
+      promise = promise.nodeify(callback)
+
+    promise
 
   drop: (name, callback = null) ->
     deferred = Q.defer()
