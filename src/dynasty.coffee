@@ -156,26 +156,6 @@ class Table
 
     promise
 
-  # create
-  create: (params) ->
-    {name, keyschema, throughput, callback} = params
-
-    deferred = Q.defer()
-
-    if throughput is null
-      throughput =
-        write: 10
-        read: 10
-
-    @ddb.createTable name, keyschema, throughput, (err, resp, cap) ->
-      if err
-        deferred.reject err
-      else
-        deferred.resolve resp
-      callback(err, resp) if callback isnt null
-
-    deferred.promise
-
   # drop
   drop: (params) ->
     # TODO

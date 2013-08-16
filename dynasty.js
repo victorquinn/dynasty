@@ -215,29 +215,6 @@
       return promise;
     };
 
-    Table.prototype.create = function(params) {
-      var callback, deferred, keyschema, name, throughput;
-      name = params.name, keyschema = params.keyschema, throughput = params.throughput, callback = params.callback;
-      deferred = Q.defer();
-      if (throughput === null) {
-        throughput = {
-          write: 10,
-          read: 10
-        };
-      }
-      this.ddb.createTable(name, keyschema, throughput, function(err, resp, cap) {
-        if (err) {
-          deferred.reject(err);
-        } else {
-          deferred.resolve(resp);
-        }
-        if (callback !== null) {
-          return callback(err, resp);
-        }
-      });
-      return deferred.promise;
-    };
-
     Table.prototype.drop = function(params) {};
 
     return Table;
