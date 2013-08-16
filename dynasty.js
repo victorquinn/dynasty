@@ -1,11 +1,19 @@
 (function() {
-  var Dynasty, Q, Table, dynamodb, _;
+  var Dynasty, Q, Table, aws, dynamodb, typeToAwsType, _;
+
+  aws = require('aws-sdk');
 
   dynamodb = require('dynamodb');
 
   _ = require('lodash');
 
   Q = require('q');
+
+  typeToAwsType = {
+    string: 'S',
+    number: 'N',
+    byte: 'B'
+  };
 
   Dynasty = (function() {
     Dynasty.generator = function(credentials) {
@@ -18,6 +26,8 @@
       if (credentials.region) {
         credentials.endpoint = "dynamodb." + credentials.region + ".amazonaws.com";
       }
+      aws.config.update(credentials);
+      this.dynamo = new aws.DynamoDB();
       this.ddb = dynamodb.ddb(credentials);
       this.name = 'Dynasty';
       this.tables = {};
@@ -33,45 +43,55 @@
 
 
     Dynasty.prototype.create = function(name, params, callback) {
-      var deferred, throughput;
+      var attributeDefinitions, awsParams, keySchema, promise, throughput;
       if (callback == null) {
         callback = null;
       }
-      deferred = Q.defer();
       throughput = params.throughput || {
         read: 10,
         write: 5
       };
-      this.ddb.createTable(name, params.key_schema, throughput, function(err, resp, cap) {
-        if (err) {
-          deferred.reject(err);
-        } else {
-          deferred.resolve(resp);
+      keySchema = [
+        {
+          KeyType: 'HASH',
+          AttributeName: params.key_schema.hash[0]
         }
-        if (callback !== null) {
-          return callback(err, resp);
+      ];
+      attributeDefinitions = [
+        {
+          AttributeName: params.key_schema.hash[0],
+          AttributeType: typeToAwsType[params.key_schema.hash[1]]
         }
-      });
-      return deferred.promise;
+      ];
+      awsParams = {
+        AttributeDefinitions: attributeDefinitions,
+        TableName: name,
+        KeySchema: keySchema,
+        ProvisionedThroughput: {
+          ReadCapacityUnits: throughput.read,
+          WriteCapacityUnits: throughput.write
+        }
+      };
+      promise = Q.ninvoke(this.dynamo, 'createTable', awsParams);
+      if (callback === !null) {
+        promise = promise.nodeify(callback);
+      }
+      return promise;
     };
 
     Dynasty.prototype.drop = function(name, callback) {
-      var deferred;
+      var params, promise;
       if (callback == null) {
         callback = null;
       }
-      deferred = Q.defer();
-      this.ddb.deleteTable(name, function(err, resp, cap) {
-        if (err) {
-          deferred.reject(err);
-        } else {
-          deferred.resolve(resp);
-        }
-        if (callback !== null) {
-          return callback(err, resp);
-        }
-      });
-      return deferred.promise;
+      params = {
+        TableName: name
+      };
+      promise = Q.ninvoke(this.dynamo, 'deleteTable', params);
+      if (callback === !null) {
+        promise = promise.nodeify(callback);
+      }
+      return promise;
     };
 
     Dynasty.prototype.alter = function(name, params, callback) {
@@ -206,40 +226,17 @@
       }
       promise = Q.nfcall(this.parent.ddb.describeTable, this.name);
       if (callback === !null) {
-        promise.then(function(res) {
-          return callback(null, res);
-        });
-        (function(err) {
-          return callback(err);
-        });
+        promise = promise.nodeify(callback);
       }
       return promise;
     };
 
-    Table.prototype.create = function(params) {
-      var callback, deferred, keyschema, name, throughput;
-      name = params.name, keyschema = params.keyschema, throughput = params.throughput, callback = params.callback;
-      deferred = Q.defer();
-      if (throughput === null) {
-        throughput = {
-          write: 10,
-          read: 10
-        };
+    Table.prototype.drop = function(callback) {
+      if (callback == null) {
+        callback = null;
       }
-      this.ddb.createTable(name, keyschema, throughput, function(err, resp, cap) {
-        if (err) {
-          deferred.reject(err);
-        } else {
-          deferred.resolve(resp);
-        }
-        if (callback !== null) {
-          return callback(err, resp);
-        }
-      });
-      return deferred.promise;
+      return this.parent.drop(this.name(callback));
     };
-
-    Table.prototype.drop = function(params) {};
 
     return Table;
 
