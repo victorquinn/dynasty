@@ -1,5 +1,7 @@
 (function() {
-  var Dynasty, Q, Table, dynamodb, _;
+  var Dynasty, Q, Table, aws, dynamodb, _;
+
+  aws = require('aws-sdk');
 
   dynamodb = require('dynamodb');
 
@@ -18,6 +20,8 @@
       if (credentials.region) {
         credentials.endpoint = "dynamodb." + credentials.region + ".amazonaws.com";
       }
+      aws.config.update(credentials);
+      this.dynamo = new aws.DynamoDB();
       this.ddb = dynamodb.ddb(credentials);
       this.name = 'Dynasty';
       this.tables = {};
@@ -206,12 +210,7 @@
       }
       promise = Q.nfcall(this.parent.ddb.describeTable, this.name);
       if (callback === !null) {
-        promise.then(function(res) {
-          return callback(null, res);
-        });
-        (function(err) {
-          return callback(err);
-        });
+        promise = promise.nodeify(callback);
       }
       return promise;
     };

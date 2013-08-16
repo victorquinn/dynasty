@@ -1,5 +1,6 @@
 # Main Dynasty Class
 
+aws = require('aws-sdk')
 dynamodb = require('dynamodb')
 _ = require('lodash')
 Q = require('q')
@@ -15,6 +16,9 @@ class Dynasty
     if credentials.region
       credentials.endpoint = "dynamodb.#{credentials.region}.amazonaws.com"
 
+    aws.config.update credentials
+
+    @dynamo = new aws.DynamoDB()
     @ddb = dynamodb.ddb credentials
     @name = 'Dynasty'
     @tables = {}
@@ -148,10 +152,7 @@ class Table
     promise = Q.nfcall(@parent.ddb.describeTable, @name)
 
     if callback is not null
-      promise.then (res) ->
-        callback(null, res)
-      (err) ->
-        callback(err)
+      promise = promise.nodeify callback
 
     promise
 
