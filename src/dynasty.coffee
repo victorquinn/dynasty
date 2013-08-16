@@ -167,7 +167,7 @@ class Table
 
   # describe
   describe: (callback = null) ->
-    promise = Q.nfcall(@parent.ddb.describeTable, @name)
+    promise = Q.ninvoke @parent.dynamo, 'describeTable', TableName: @name
 
     if callback is not null
       promise = promise.nodeify callback
