@@ -224,7 +224,9 @@
       if (callback == null) {
         callback = null;
       }
-      promise = Q.nfcall(this.parent.ddb.describeTable, this.name);
+      promise = Q.ninvoke(this.parent.dynamo, 'describeTable', {
+        TableName: this.name
+      });
       if (callback === !null) {
         promise = promise.nodeify(callback);
       }
