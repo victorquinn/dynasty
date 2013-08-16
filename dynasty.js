@@ -60,18 +60,19 @@
       attributeDefinitions = [
         {
           AttributeName: params.key_schema.hash[0],
-          AttributeType: typeToAwsType[params.keySchema.hash[1]]
+          AttributeType: typeToAwsType[params.key_schema.hash[1]]
         }
       ];
       awsParams = {
+        AttributeDefinitions: attributeDefinitions,
         TableName: name,
-        KeySchema: params.key_schema,
+        KeySchema: keySchema,
         ProvisionedThroughput: {
           ReadCapacityUnits: throughput.read,
           WriteCapacityUnits: throughput.write
         }
       };
-      promise = Q.nfcall(this.dynamo.createTable, awsParams);
+      promise = Q.ninvoke(this.dynamo, 'createTable', awsParams);
       if (callback === !null) {
         promise = promise.nodeify(callback);
       }
@@ -79,22 +80,18 @@
     };
 
     Dynasty.prototype.drop = function(name, callback) {
-      var deferred;
+      var params, promise;
       if (callback == null) {
         callback = null;
       }
-      deferred = Q.defer();
-      this.ddb.deleteTable(name, function(err, resp, cap) {
-        if (err) {
-          deferred.reject(err);
-        } else {
-          deferred.resolve(resp);
-        }
-        if (callback !== null) {
-          return callback(err, resp);
-        }
-      });
-      return deferred.promise;
+      params = {
+        TableName: name
+      };
+      promise = Q.ninvoke(this.dynamo, 'deleteTable', params);
+      if (callback === !null) {
+        promise = promise.nodeify(callback);
+      }
+      return promise;
     };
 
     Dynasty.prototype.alter = function(name, params, callback) {
@@ -234,7 +231,12 @@
       return promise;
     };
 
-    Table.prototype.drop = function(params) {};
+    Table.prototype.drop = function(callback) {
+      if (callback == null) {
+        callback = null;
+      }
+      return this.parent.drop(this.name(callback));
+    };
 
     return Table;
 

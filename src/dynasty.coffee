@@ -46,17 +46,18 @@ class Dynasty
 
     attributeDefinitions = [
       AttributeName: params.key_schema.hash[0]
-      AttributeType: typeToAwsType[params.keySchema.hash[1]]
+      AttributeType: typeToAwsType[params.key_schema.hash[1]]
     ]
 
     awsParams =
+      AttributeDefinitions: attributeDefinitions
       TableName: name
-      KeySchema: params.key_schema
+      KeySchema: keySchema
       ProvisionedThroughput:
         ReadCapacityUnits: throughput.read
         WriteCapacityUnits: throughput.write
 
-    promise = Q.nfcall(@dynamo.createTable, awsParams)
+    promise = Q.ninvoke(@dynamo, 'createTable', awsParams)
 
     if callback is not null
       promise = promise.nodeify(callback)
@@ -64,16 +65,15 @@ class Dynasty
     promise
 
   drop: (name, callback = null) ->
-    deferred = Q.defer()
+    params =
+      TableName: name
 
-    @ddb.deleteTable name, (err, resp, cap) ->
-      if err
-        deferred.reject err
-      else
-        deferred.resolve resp
-      callback(err, resp) if callback isnt null
+    promise = Q.ninvoke(@dynamo, 'deleteTable', params)
 
-    deferred.promise
+    if callback is not null
+      promise = promise.nodeify(callback)
+
+    promise
 
   alter: (name, params, callback) ->
     deferred = Q.defer()
@@ -175,8 +175,8 @@ class Table
     promise
 
   # drop
-  drop: (params) ->
-    # TODO
+  drop: (callback = null) ->
+    @parent.drop @name callback
     
 
 module.exports = Dynasty.generator
