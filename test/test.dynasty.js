@@ -32,11 +32,25 @@
         expect(dynasty).to.exist;
         return expect(dynasty.tables).to.exist;
       });
-      return it('can retrieve a table object', function() {
+      it('can retrieve a table object', function() {
         var dynasty, t;
         dynasty = require('../dynasty')(getCredentials());
         t = dynasty.table(chance.name());
         return expect(t).to.be.an('object');
+      });
+      return describe('create()', function() {
+        beforeEach(function() {
+          return this.dynasty = require('../dynasty')(getCredentials());
+        });
+        return it('should return an object with valid key_schema', function() {
+          var promise;
+          promise = this.dynasty.create(chance.name(), {
+            key_schema: {
+              hash: [chance.name(), 'string']
+            }
+          });
+          return expect(promise).to.be.an('object');
+        });
       });
     });
     return describe('Table', function() {
@@ -67,7 +81,7 @@
         });
       });
       return describe('describe()', function() {
-        return it('returns an object', function() {
+        return it('should return an object', function() {
           var promise;
           promise = this.table.describe();
           return expect(promise).to.be.an('object');

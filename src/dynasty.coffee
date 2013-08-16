@@ -1,8 +1,14 @@
 # Main Dynasty Class
 
+aws = require('aws-sdk')
 dynamodb = require('dynamodb')
 _ = require('lodash')
 Q = require('q')
+
+typeToAwsType =
+  string: 'S'
+  number: 'N'
+  byte: 'B'
 
 class Dynasty
 
@@ -15,6 +21,9 @@ class Dynasty
     if credentials.region
       credentials.endpoint = "dynamodb.#{credentials.region}.amazonaws.com"
 
+    aws.config.update credentials
+
+    @dynamo = new aws.DynamoDB()
     @ddb = dynamodb.ddb credentials
     @name = 'Dynasty'
     @tables = {}
@@ -28,30 +37,43 @@ class Dynasty
   ###
 
   create: (name, params, callback = null) ->
-    deferred = Q.defer()
-
     throughput = params.throughput || {read: 10, write: 5}
 
-    @ddb.createTable name, params.key_schema, throughput, (err, resp, cap) ->
-      if err
-        deferred.reject err
-      else
-        deferred.resolve resp
-      callback(err, resp) if callback isnt null
+    keySchema = [
+      KeyType: 'HASH'
+      AttributeName: params.key_schema.hash[0]
+    ]
 
-    deferred.promise
+    attributeDefinitions = [
+      AttributeName: params.key_schema.hash[0]
+      AttributeType: typeToAwsType[params.key_schema.hash[1]]
+    ]
+
+    awsParams =
+      AttributeDefinitions: attributeDefinitions
+      TableName: name
+      KeySchema: keySchema
+      ProvisionedThroughput:
+        ReadCapacityUnits: throughput.read
+        WriteCapacityUnits: throughput.write
+
+    promise = Q.ninvoke(@dynamo, 'createTable', awsParams)
+
+    if callback is not null
+      promise = promise.nodeify(callback)
+
+    promise
 
   drop: (name, callback = null) ->
-    deferred = Q.defer()
+    params =
+      TableName: name
 
-    @ddb.deleteTable name, (err, resp, cap) ->
-      if err
-        deferred.reject err
-      else
-        deferred.resolve resp
-      callback(err, resp) if callback isnt null
+    promise = Q.ninvoke(@dynamo, 'deleteTable', params)
 
-    deferred.promise
+    if callback is not null
+      promise = promise.nodeify(callback)
+
+    promise
 
   alter: (name, params, callback) ->
     deferred = Q.defer()
@@ -148,36 +170,13 @@ class Table
     promise = Q.nfcall(@parent.ddb.describeTable, @name)
 
     if callback is not null
-      promise.then (res) ->
-        callback(null, res)
-      (err) ->
-        callback(err)
+      promise = promise.nodeify callback
 
     promise
 
-  # create
-  create: (params) ->
-    {name, keyschema, throughput, callback} = params
-
-    deferred = Q.defer()
-
-    if throughput is null
-      throughput =
-        write: 10
-        read: 10
-
-    @ddb.createTable name, keyschema, throughput, (err, resp, cap) ->
-      if err
-        deferred.reject err
-      else
-        deferred.resolve resp
-      callback(err, resp) if callback isnt null
-
-    deferred.promise
-
   # drop
-  drop: (params) ->
-    # TODO
+  drop: (callback = null) ->
+    @parent.drop @name callback
     
 
 module.exports = Dynasty.generator

@@ -26,6 +26,19 @@ describe 'Dynasty', () ->
       t = dynasty.table chance.name()
       expect(t).to.be.an('object')
 
+    describe 'create()', () ->
+
+      beforeEach () ->
+        @dynasty = require('../dynasty')(getCredentials())
+
+      it 'should return an object with valid key_schema', () ->
+        promise = @dynasty.create chance.name(),
+          key_schema:
+            hash: [chance.name(), 'string']
+
+        expect(promise).to.be.an('object')
+
+
   describe 'Table', () ->
 
     beforeEach () ->
@@ -51,6 +64,6 @@ describe 'Dynasty', () ->
 
     describe 'describe()', () ->
 
-      it 'returns an object', () ->
+      it 'should return an object', () ->
         promise = @table.describe()
         expect(promise).to.be.an('object')
