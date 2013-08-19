@@ -98,6 +98,8 @@ class Dynasty
 
   # List tables. Wrapper around AWS listTables
   list: (params, callback) ->
+    awsParams = {}
+
     if params is not null
       if _.isString params
         awsParams.ExclusiveStartTableName = params

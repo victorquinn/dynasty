@@ -112,7 +112,8 @@
     };
 
     Dynasty.prototype.list = function(params, callback) {
-      var promise;
+      var awsParams, promise;
+      awsParams = {};
       if (params === !null) {
         if (_.isString(params)) {
           awsParams.ExclusiveStartTableName = params;
