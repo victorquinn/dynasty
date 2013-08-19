@@ -36,6 +36,26 @@ class Dynasty
   Table Operations
   ###
 
+  # Alter an existing table. Wrapper around AWS updateTable
+  alter: (name, params, callback) ->
+    # We'll except either an object with a key of throughput or just
+    # an object with the throughput info
+    throughput = params.throughput || params
+
+    awsParams =
+      TableName: name
+      ProvisionedThroughput:
+        ReadCapacityUnits: throughput.read
+        WriteCapacityUnits: throughput.write
+
+    promise = Q.ninvoke(@dynamo, 'updateTable', awsParams)
+
+    if callback is not null
+      promise = promise.nodeify(callback)
+
+    promise
+
+  # Create a new table. Wrapper around AWS createTable
   create: (name, params, callback = null) ->
     throughput = params.throughput || {read: 10, write: 5}
 
@@ -64,6 +84,7 @@ class Dynasty
 
     promise
 
+  # Drop a table. Wrapper around AWS deleteTable
   drop: (name, callback = null) ->
     params =
       TableName: name
@@ -74,22 +95,6 @@ class Dynasty
       promise = promise.nodeify(callback)
 
     promise
-
-  alter: (name, params, callback) ->
-    deferred = Q.defer()
-    # We'll except either an object with a key of throughput or just
-    # an object with the throughput info
-    throughput = params.throughput || params
-
-    @ddb.updateTable name, throughput, (err, resp, cap) ->
-      if err
-        deferred.reject err
-      else
-        deferred.resolve resp
-      callback(err, resp) if callback isnt null
-
-    deferred.promise
-
 
 class Table
 
@@ -112,10 +117,10 @@ class Table
 
     [hash, range, deferred, options, callback]
 
+
   ###
   Item Operations
   ###
-
 
   # Wrapper around DynamoDB's getItem
   find: (params, options = {}, callback = null) ->

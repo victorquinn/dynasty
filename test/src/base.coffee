@@ -67,3 +67,9 @@ describe 'Dynasty', () ->
       it 'should return an object', () ->
         promise = @table.describe()
         expect(promise).to.be.an('object')
+
+    describe 'alter()', () ->
+
+      it 'should return an object', () ->
+        promise = @table.describe()
+        expect(promise).to.be.an('object')

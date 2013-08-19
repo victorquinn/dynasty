@@ -42,6 +42,23 @@
     */
 
 
+    Dynasty.prototype.alter = function(name, params, callback) {
+      var awsParams, promise, throughput;
+      throughput = params.throughput || params;
+      awsParams = {
+        TableName: name,
+        ProvisionedThroughput: {
+          ReadCapacityUnits: throughput.read,
+          WriteCapacityUnits: throughput.write
+        }
+      };
+      promise = Q.ninvoke(this.dynamo, 'updateTable', awsParams);
+      if (callback === !null) {
+        promise = promise.nodeify(callback);
+      }
+      return promise;
+    };
+
     Dynasty.prototype.create = function(name, params, callback) {
       var attributeDefinitions, awsParams, keySchema, promise, throughput;
       if (callback == null) {
@@ -92,23 +109,6 @@
         promise = promise.nodeify(callback);
       }
       return promise;
-    };
-
-    Dynasty.prototype.alter = function(name, params, callback) {
-      var deferred, throughput;
-      deferred = Q.defer();
-      throughput = params.throughput || params;
-      this.ddb.updateTable(name, throughput, function(err, resp, cap) {
-        if (err) {
-          deferred.reject(err);
-        } else {
-          deferred.resolve(resp);
-        }
-        if (callback !== null) {
-          return callback(err, resp);
-        }
-      });
-      return deferred.promise;
     };
 
     return Dynasty;

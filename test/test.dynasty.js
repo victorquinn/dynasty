@@ -80,7 +80,14 @@
           return expect(promise).to.be.an('object');
         });
       });
-      return describe('describe()', function() {
+      describe('describe()', function() {
+        return it('should return an object', function() {
+          var promise;
+          promise = this.table.describe();
+          return expect(promise).to.be.an('object');
+        });
+      });
+      return describe('alter()', function() {
         return it('should return an object', function() {
           var promise;
           promise = this.table.describe();
