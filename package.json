@@ -37,6 +37,7 @@
   "scripts": {
     "test": "grunt test"
   },
+  "main": "lib/dynasty.js",
   "keywords": [
     "dynamodb",
     "aws",

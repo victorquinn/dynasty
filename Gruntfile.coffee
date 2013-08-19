@@ -3,7 +3,7 @@ module.exports = (grunt) ->
     coffee:
       compile:
         files: [
-          'dynasty.js': ['src/**/*.coffee']
+          'lib/dynasty.js': ['src/**/*.coffee']
           'test/test.dynasty.js': ['test/src/**/*.coffee']
         ]
     coffeelint:
