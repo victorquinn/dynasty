@@ -34,7 +34,7 @@
     "uglify-js": "1.2.6"
   },
   "scripts": {
-    "install": "grunt coffee",
+    "install": "./node_modules/coffee-script/bin/coffee --compile --output lib src",
     "test": "grunt test"
   },
   "main": "lib/dynasty.js",
@@ -50,6 +50,7 @@
     "aws-sdk": "~1.5.0",
     "dynamodb": "~0.3.6",
     "q": "~0.9.6",
-    "lodash": "~1.3.1"
+    "lodash": "~1.3.1",
+    "coffee-script": "~1.6.3"
   }
 }
