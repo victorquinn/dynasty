@@ -23,9 +23,8 @@
     };
 
     function Dynasty(credentials) {
-      if (credentials.region) {
-        credentials.endpoint = "dynamodb." + credentials.region + ".amazonaws.com";
-      }
+      credentials.region = credentials.region || 'us-east-1';
+      credentials.apiVersion = '2012-08-10';
       aws.config.update(credentials);
       this.dynamo = new aws.DynamoDB();
       this.ddb = dynamodb.ddb(credentials);

@@ -18,8 +18,10 @@ class Dynasty
 
   constructor: (credentials) ->
 
-    if credentials.region
-      credentials.endpoint = "dynamodb.#{credentials.region}.amazonaws.com"
+    credentials.region = credentials.region || 'us-east-1'
+
+    # Lock API version
+    credentials.apiVersion = '2012-08-10'
 
     aws.config.update credentials
 
