@@ -1,5 +1,6 @@
 ## Dynasty
 
+[![Dynasty](http://dynastyjs.com/logobg.png)](http://dynastyjs.com)
 
 [![Build Status](https://travis-ci.org/victorquinn/dynasty.png?branch=master)](https://travis-ci.org/victorquinn/dynasty)
 
