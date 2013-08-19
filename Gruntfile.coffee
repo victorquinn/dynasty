@@ -26,6 +26,6 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-simple-mocha'
   grunt.loadNpmTasks 'grunt-contrib-watch'
 
-  grunt.registerTask 'test', ['simplemocha']
+  grunt.registerTask 'test', ['coffee', 'simplemocha']
   grunt.registerTask 'default', ['watch']
         

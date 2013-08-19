@@ -1,6 +1,6 @@
 expect = require('chai').expect
 Chance = require('chance')
-Dynasty = require('../dynasty')
+Dynasty = require('../lib/dynasty')
 
 chance = new Chance()
 
@@ -14,22 +14,22 @@ getCredentials = () ->
 describe 'Dynasty', () ->
   describe 'Base', () ->
     it 'constructor exists and is a function', () ->
-      expect(require('../dynasty')).to.be.a('function')
+      expect(require('../lib/dynasty')).to.be.a('function')
 
     it 'can construct', () ->
-      dynasty = require('../dynasty')(getCredentials())
+      dynasty = require('../lib/dynasty')(getCredentials())
       expect(dynasty).to.exist
       expect(dynasty.tables).to.exist
 
     it 'can retrieve a table object', () ->
-      dynasty = require('../dynasty')(getCredentials())
+      dynasty = require('../lib/dynasty')(getCredentials())
       t = dynasty.table chance.name()
       expect(t).to.be.an('object')
 
     describe 'create()', () ->
 
       beforeEach () ->
-        @dynasty = require('../dynasty')(getCredentials())
+        @dynasty = require('../lib/dynasty')(getCredentials())
 
       it 'should return an object with valid key_schema', () ->
         promise = @dynasty.create chance.name(),
@@ -42,7 +42,7 @@ describe 'Dynasty', () ->
   describe 'Table', () ->
 
     beforeEach () ->
-      @dynasty = require('../dynasty')(getCredentials())
+      @dynasty = require('../lib/dynasty')(getCredentials())
       @table = @dynasty.table chance.name()
 
     describe 'find()', () ->
