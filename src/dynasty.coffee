@@ -96,6 +96,26 @@ class Dynasty
 
     promise
 
+  # List tables. Wrapper around AWS listTables
+  list: (params, callback) ->
+    if params is not null
+      if _.isString params
+        awsParams.ExclusiveStartTableName = params
+      else if _.isFunction params
+        callback = params
+      else if _.isObject params
+        if params.limit is not null
+          awsParams.Limit = params.limit
+        else if params.start is not null
+          awsParams.ExclusiveStartTableName = params.start
+
+    promise = Q.ninvoke(@dynamo, 'listTables', awsParams)
+
+    if callback is not null
+      promise = promise.nodeify(callback)
+
+    promise
+
 class Table
 
   constructor: (@parent, @name) ->

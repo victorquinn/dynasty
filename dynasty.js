@@ -111,6 +111,28 @@
       return promise;
     };
 
+    Dynasty.prototype.list = function(params, callback) {
+      var promise;
+      if (params === !null) {
+        if (_.isString(params)) {
+          awsParams.ExclusiveStartTableName = params;
+        } else if (_.isFunction(params)) {
+          callback = params;
+        } else if (_.isObject(params)) {
+          if (params.limit === !null) {
+            awsParams.Limit = params.limit;
+          } else if (params.start === !null) {
+            awsParams.ExclusiveStartTableName = params.start;
+          }
+        }
+      }
+      promise = Q.ninvoke(this.dynamo, 'listTables', awsParams);
+      if (callback === !null) {
+        promise = promise.nodeify(callback);
+      }
+      return promise;
+    };
+
     return Dynasty;
 
   })();
