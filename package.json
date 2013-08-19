@@ -34,6 +34,7 @@
     "uglify-js": "1.2.6"
   },
   "scripts": {
+    "install": "grunt coffee",
     "test": "grunt test"
   },
   "main": "lib/dynasty.js",
