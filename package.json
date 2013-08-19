@@ -1,7 +1,6 @@
 {
   "name": "dynasty",
-  "main": "dynasty.js",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Dynasty - Promise-based DynamoDB API",
   "homepage": "http://dynastyjs.com",
   "author": "Victor Quinn <mail@victorquinn.com>",
