@@ -93,6 +93,29 @@ describe 'Dynasty', () ->
         expect(params.Key.bar).to.include.keys('S')
         expect(params.Key.bar.S).to.equal('foo')
 
+      it 'should send the hash and range key to AWS', () ->
+        sandbox.spy(Q, 'ninvoke')
+        sandbox.stub(@table, 'key').returns
+          hashKeyName: 'bar'
+          hashKeyType: 'S'
+          rangeKeyName: 'foo'
+          rangeKeyType: 'S'
+
+        promise = @table.remove
+          hash: 'lol',
+          range: 'rofl'
+
+        expect(Q.ninvoke.calledOnce).to.equal(true)
+        params = Q.ninvoke.getCall(0).args[2]
+
+        expect(params.Key).to.include.keys('bar')
+        expect(params.Key.bar).to.include.keys('S')
+        expect(params.Key.bar.S).to.equal('lol')
+
+        expect(params.Key).to.include.keys('foo')
+        expect(params.Key.foo).to.include.keys('S')
+        expect(params.Key.foo.S).to.equal('rofl')
+
     describe 'find()', () ->
 
       it 'works with just a string', () ->

@@ -203,15 +203,21 @@
       }
       keySchema = this.key();
       if (_.isString(params)) {
-        key = {};
-        key[keySchema.hashKeyName] = {};
-        key[keySchema.hashKeyName][keySchema.hashKeyType] = params;
+        params = {
+          hash: params
+        };
+      }
+      key = {};
+      key[keySchema.hashKeyName] = {};
+      key[keySchema.hashKeyName][keySchema.hashKeyType] = params.hash;
+      if (params.range) {
+        key[keySchema.rangeKeyName] = {};
+        key[keySchema.rangeKeyName][keySchema.rangeKeyType] = params.range;
       }
       awsParams = {
         TableName: this.name,
         Key: key
       };
-      awsParams.Key[this.key()];
       promise = Q.ninvoke(this.parent.dynamo, 'deleteItem', awsParams);
       if (callback !== null) {
         promise.nodeify(callback);

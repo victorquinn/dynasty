@@ -163,15 +163,20 @@ class Table
     keySchema = @key()
 
     if _.isString params
-      key = {}
-      key[keySchema.hashKeyName] = {}
-      key[keySchema.hashKeyName][keySchema.hashKeyType] = params
+      params = hash: params
+
+    key = {}
+    key[keySchema.hashKeyName] = {}
+    key[keySchema.hashKeyName][keySchema.hashKeyType] = params.hash
+
+    if params.range
+      key[keySchema.rangeKeyName] = {}
+      key[keySchema.rangeKeyName][keySchema.rangeKeyType] = params.range
 
     awsParams =
       TableName: @name
       Key: key
 
-    awsParams.Key[@key()]
     promise = Q.ninvoke @parent.dynamo, 'deleteItem', awsParams
 
     if callback isnt null

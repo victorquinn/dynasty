@@ -91,7 +91,7 @@
           params = Q.ninvoke.getCall(0).args[2];
           return expect(params.TableName).to.equal(this.table.name);
         });
-        return it('should send the hash key to AWS', function() {
+        it('should send the hash key to AWS', function() {
           var params, promise;
           sandbox.spy(Q, 'ninvoke');
           sandbox.stub(this.table, 'key').returns({
@@ -104,6 +104,28 @@
           expect(params.Key).to.include.keys('bar');
           expect(params.Key.bar).to.include.keys('S');
           return expect(params.Key.bar.S).to.equal('foo');
+        });
+        return it('should send the hash and range key to AWS', function() {
+          var params, promise;
+          sandbox.spy(Q, 'ninvoke');
+          sandbox.stub(this.table, 'key').returns({
+            hashKeyName: 'bar',
+            hashKeyType: 'S',
+            rangeKeyName: 'foo',
+            rangeKeyType: 'S'
+          });
+          promise = this.table.remove({
+            hash: 'lol',
+            range: 'rofl'
+          });
+          expect(Q.ninvoke.calledOnce).to.equal(true);
+          params = Q.ninvoke.getCall(0).args[2];
+          expect(params.Key).to.include.keys('bar');
+          expect(params.Key.bar).to.include.keys('S');
+          expect(params.Key.bar.S).to.equal('lol');
+          expect(params.Key).to.include.keys('foo');
+          expect(params.Key.foo).to.include.keys('S');
+          return expect(params.Key.foo.S).to.equal('rofl');
         });
       });
       describe('find()', function() {
