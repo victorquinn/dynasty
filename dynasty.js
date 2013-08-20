@@ -144,6 +144,10 @@
     */
 
 
+    Table.prototype.key = function() {
+      return {};
+    };
+
     Table.prototype.find = function(params, options, callback) {
       var deferred, hash, range, _ref;
       if (options == null) {
@@ -192,26 +196,27 @@
       return deferred.promise;
     };
 
-    Table.prototype.remove = function(params, options, callback) {
-      var deferred, hash, range, _ref;
-      if (options == null) {
-        options = {};
-      }
+    Table.prototype.remove = function(params, callback) {
+      var awsParams, key, keySchema, promise;
       if (callback == null) {
         callback = null;
       }
-      _ref = this.init(params, options, callback), hash = _ref[0], range = _ref[1], deferred = _ref[2], options = _ref[3], callback = _ref[4];
-      this.parent.ddb.deleteItem(this.name, hash, range, options, function(err, resp, cap) {
-        if (err) {
-          deferred.reject(err);
-        } else {
-          deferred.resolve(resp);
-        }
-        if (callback !== null) {
-          return callback(err, resp);
-        }
-      });
-      return deferred.promise;
+      keySchema = this.key();
+      if (_.isString(params)) {
+        key = {};
+        key[keySchema.hashKeyName] = {};
+        key[keySchema.hashKeyName][keySchema.hashKeyType] = params;
+      }
+      awsParams = {
+        TableName: this.name,
+        Key: key
+      };
+      awsParams.Key[this.key()];
+      promise = Q.ninvoke(this.parent.dynamo, 'deleteItem', awsParams);
+      if (callback !== null) {
+        promise.nodeify(callback);
+      }
+      return promise;
     };
 
     /*

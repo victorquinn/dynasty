@@ -95,6 +95,14 @@ class Table
 
   constructor: (@parent, @name) ->
 
+    #hashAndRangeKey () ->
+    #    describe().then (description) ->
+    #      hashName = _.find(description.Table.KeySchema, (keySchemaElement) ->
+    #        keySchemaElement.KeyType == 'HASH').AttributeName
+    #      hashType = _.find(description.Table.AttributeDefinitions,
+    #        (attributeDefinition) ->
+    #          attributeDefinition.AttributeName == hashName)
+
   # Add some DRY
   init: (params, options, callback) ->
     if _.isFunction options
@@ -115,7 +123,10 @@ class Table
   ###
   Item Operations
   ###
+  #
 
+  key: () ->
+    {}
 
   # Wrapper around DynamoDB's getItem
   find: (params, options = {}, callback = null) ->
@@ -148,18 +159,25 @@ class Table
 
     deferred.promise
 
-  # Wrapper around DynamoDB's deleteItem
-  remove: (params, options = {}, callback = null) ->
-    [hash, range, deferred, options, callback] = @init params, options, callback
+  remove: (params, callback = null) ->
+    keySchema = @key()
 
-    @parent.ddb.deleteItem @name, hash, range, options, (err, resp, cap) ->
-      if err
-        deferred.reject err
-      else
-        deferred.resolve resp
-      callback(err, resp) if callback isnt null
+    if _.isString params
+      key = {}
+      key[keySchema.hashKeyName] = {}
+      key[keySchema.hashKeyName][keySchema.hashKeyType] = params
 
-    deferred.promise
+    awsParams =
+      TableName: @name
+      Key: key
+
+    awsParams.Key[@key()]
+    promise = Q.ninvoke @parent.dynamo, 'deleteItem', awsParams
+
+    if callback isnt null
+      promise.nodeify(callback)
+
+    promise
 
   ###
   Table Operations

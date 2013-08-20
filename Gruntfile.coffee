@@ -11,7 +11,7 @@ module.exports = (grunt) ->
     simplemocha:
       options:
         globals: ['should']
-        timeout: 3000
+        timeout: 300
         ignoreLeaks: false
         ui: 'bdd'
         reporter: 'spec'

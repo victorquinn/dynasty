@@ -32,6 +32,7 @@
     "mocha": "1.8",
     "phantomjs": "1.9.0-2",
     "requirejs": "2.1.6",
+    "sinon": "1.7.3",
     "uglify-js": "1.2.6"
   },
   "scripts": {
