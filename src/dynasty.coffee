@@ -29,8 +29,8 @@ class Dynasty
     @tables = {}
 
   # Given a name, return a Table object
-  table: (name) ->
-    @tables[name] = @tables[name] || new Table this, name
+  table: (name, describe) ->
+    @tables[name] = @tables[name] || new Table this, name, describe
 
   ###
   Table Operations
@@ -93,15 +93,22 @@ class Dynasty
 
 class Table
 
-  constructor: (@parent, @name) ->
+  constructor: (@parent, @name, describe = @describe) ->
+    @key = describe().then (description) ->
+      getKeyAndType = (keyType) ->
+        keyName = _.find description.Table.KeySchema, (key) ->
+          key.KeyType is keyType
+        keyDataType = _.find description.Table.AttributeDefinitions,
+          (attribute) ->
+          attribute.AttributeName is keyName
 
-    #hashAndRangeKey () ->
-    #    describe().then (description) ->
-    #      hashName = _.find(description.Table.KeySchema, (keySchemaElement) ->
-    #        keySchemaElement.KeyType == 'HASH').AttributeName
-    #      hashType = _.find(description.Table.AttributeDefinitions,
-    #        (attributeDefinition) ->
-    #          attributeDefinition.AttributeName == hashName)
+      [hashKeyName, hashKeyType] = getKeyAndType 'HASH'
+      [rangeKeyName, rangeKeyType] = getKeyAndType 'RANGE'
+
+      hashKeyName: hashKeyName
+      hashKeyType: hashKeyType
+      rangeKeyName: rangeKeyName
+      rangeKeyType: rangeKeyType
 
   # Add some DRY
   init: (params, options, callback) ->
@@ -124,9 +131,6 @@ class Table
   Item Operations
   ###
   #
-
-  key: () ->
-    {}
 
   # Wrapper around DynamoDB's getItem
   find: (params, options = {}, callback = null) ->
@@ -160,29 +164,29 @@ class Table
     deferred.promise
 
   remove: (params, callback = null) ->
-    keySchema = @key()
+    @key.then (keySchema) ->
 
-    if _.isString params
-      params = hash: params
+      if _.isString params
+        params = hash: params
 
-    key = {}
-    key[keySchema.hashKeyName] = {}
-    key[keySchema.hashKeyName][keySchema.hashKeyType] = params.hash
+      key = {}
+      key[keySchema.hashKeyName] = {}
+      key[keySchema.hashKeyName][keySchema.hashKeyType] = params.hash
 
-    if params.range
-      key[keySchema.rangeKeyName] = {}
-      key[keySchema.rangeKeyName][keySchema.rangeKeyType] = params.range
+      if params.range
+        key[keySchema.rangeKeyName] = {}
+        key[keySchema.rangeKeyName][keySchema.rangeKeyType] = params.range
 
-    awsParams =
-      TableName: @name
-      Key: key
+      awsParams =
+        TableName: @name
+        Key: key
 
-    promise = Q.ninvoke @parent.dynamo, 'deleteItem', awsParams
+      promise = Q.ninvoke @parent.dynamo, 'deleteItem', awsParams
 
-    if callback isnt null
-      promise.nodeify(callback)
+      if callback isnt null
+        promise.nodeify(callback)
 
-    promise
+      promise
 
   ###
   Table Operations
