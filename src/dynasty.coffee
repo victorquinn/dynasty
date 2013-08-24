@@ -120,6 +120,10 @@ class Dynasty
 
     promise
 
+
+
+
+
 class Table
 
   constructor: (@parent, @name) ->
@@ -181,14 +185,83 @@ class Table
   remove: (params, options = {}, callback = null) ->
     [hash, range, deferred, options, callback] = @init params, options, callback
 
-    @parent.ddb.deleteItem @name, hash, range, options, (err, resp, cap) ->
-      if err
-        deferred.reject err
-      else
-        deferred.resolve resp
-      callback(err, resp) if callback isnt null
+    awsParams =
+      Key: @key_from_hash_range hash range
+      TableName: @name
 
-    deferred.promise
+      #  AttributeType: typeToAwsType[params.key_schema.hash[1]]
+      # Expected: attributeDefinitions
+      # TableName: name
+      # KeySchema: keySchema
+      # ProvisionedThroughput:
+      #   ReadCapacityUnits: throughput.read
+      #   WriteCapacityUnits: throughput.write
+
+
+    promise = Q.ninvoke(@parent.dynamo, 'deleteItem', awsParams)
+
+    # @parent.ddb.deleteItem @name, hash, range, options, (err, resp, cap) ->
+    #   if err
+    #     deferred.reject err
+    #   else
+    #     deferred.resolve resp
+    #   callback(err, resp) if callback isnt null
+
+    # deferred.promise
+
+  key_from_hash_range: (hash, range) ->
+    # First, do we know the hash and range key names for this table yet?
+    @key_names()
+       .then (resp) ->
+         console.log resp
+
+  key_names: () ->
+    @describe()
+       .then (resp) ->
+         schema = resp.Table.KeySchema
+
+         # Do we only have a hash key?
+         if schema.length == 1
+           console.log schema
+
+  convert_to_dynamo: (item) ->
+    if _.isArray item
+      if _.every item, _.isNumber
+        obj =
+          'NS': item
+      else if _.every item, _.isString
+        if _.any(item, (i) -> i.length > 1024)
+          obj =
+            'BS': item
+        else
+          obj =
+            'SS': item
+      else
+        stringify = _.map item, (i) -> JSON.stringify i
+        obj =
+          'BS': stringify
+    else if _.isNumber item
+      obj =
+        'N': item.toString()
+    else if _.isString item
+      # Note: We're kind of arbitrarily defining that a Blob is a string greater
+      # than 1024. This is a soft constraint from Amazon because a range key
+      # cannot exceed 1024 but it is theoretically possible to store a string
+      # greater than that as a string in DynamoDB.
+      if item.length > 1024
+        obj =
+          'B': item
+      else
+        obj =
+          'S': item
+    else if _.isObject item
+      # If it's an object, we will stringify it and put it into the DB as a blob
+      obj =
+        'B': JSON.stringify item
+    else if not item
+      throw new TypeError 'Cannot call convert_to_dynamo() with no arguments'
+
+
 
   ###
   Table Operations

@@ -1,6 +1,7 @@
 expect = require('chai').expect
 Chance = require('chance')
 Dynasty = require('../lib/dynasty')
+_ = require('lodash')
 
 chance = new Chance()
 
@@ -73,3 +74,94 @@ describe 'Dynasty', () ->
       it 'should return an object', () ->
         promise = @table.describe()
         expect(promise).to.be.an('object')
+
+    describe 'remove()', () ->
+
+      it 'should return an object', () ->
+        promise = @table.describe()
+        expect(promise).to.be.an('object')
+
+    describe 'key_names()', () ->
+
+      it 'should return an object', () ->
+        expect(@table.key_names()).to.be.an('object')
+
+    describe 'key_from_hash_range()', () ->
+
+      it 'should return an object', () ->
+        expect(@table.key_from_hash_range()).to.be.an('object')
+
+    describe 'convert_to_dynamo()', () ->
+
+      it 'should throw an error if called with no arguments', () ->
+        table = @table
+        expect(() -> table.convert_to_dynamo()).to.throw('Cannot call convert_to_dynamo() with no arguments');
+
+      it 'looks right when given a number', () ->
+        num = chance.integer()
+        converted = @table.convert_to_dynamo num
+        expect(converted).to.be.an 'object'
+        expect(converted).to.deep.equal
+          'N': num.toString()
+
+      it 'looks right when given a string', () ->
+        str = chance.string()
+        converted = @table.convert_to_dynamo str
+        expect(converted).to.be.an 'object'
+        expect(converted).to.deep.equal
+          'S': str
+
+      it 'looks right when given a blob', () ->
+        str = chance.string
+          length: 1025
+        converted = @table.convert_to_dynamo str
+        expect(converted).to.be.an 'object'
+        expect(converted).to.deep.equal
+          'B': str
+
+      it 'looks right when given a random object', () ->
+        obj = {}
+        _.times 10, () ->
+          obj[chance.string()] = chance.string()
+        converted = @table.convert_to_dynamo obj
+        expect(converted).to.be.an 'object'
+        expect(converted).to.deep.equal
+          'B': JSON.stringify obj
+
+      it 'looks right when given an array of numbers', () ->
+        arr = chance.rpg '10d100'
+        converted = @table.convert_to_dynamo arr
+        expect(converted).to.be.an 'object'
+        expect(converted).to.deep.equal
+          'NS': arr
+
+      it 'looks right when given an array of strings', () ->
+        arr = []
+        _.times 10, () ->
+          arr.push chance.string()
+        converted = @table.convert_to_dynamo arr
+        expect(converted).to.be.an 'object'
+        expect(converted).to.deep.equal
+          'SS': arr
+
+      it 'looks right when given an array of blobs', () ->
+        arr = []
+        _.times 10, () ->
+          arr.push chance.string({length: 1040})
+        converted = @table.convert_to_dynamo arr
+        expect(converted).to.be.an 'object'
+        expect(converted).to.deep.equal
+          'BS': arr
+
+      it 'looks right when given an array of objects', () ->
+        arr = []
+        _.times 10, () ->
+          obj = {}
+          obj[chance.string()] = chance.string()
+          arr.push obj
+
+        stringified = _.map arr, (i) -> JSON.stringify i
+        converted = @table.convert_to_dynamo arr
+        expect(converted).to.be.an 'object'
+        expect(converted).to.deep.equal
+          'BS': stringified
