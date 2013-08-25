@@ -141,6 +141,43 @@ class Dynasty
 
     promise
 
+  # See http://vq.io/19EiASB
+  convert_to_dynamo: (item) ->
+    if _.isArray item
+      if _.every item, _.isNumber
+        obj =
+          'NS': item
+      else if _.every item, _.isString
+        if _.any(item, (i) -> i.length > 1024)
+          obj =
+            'BS': item
+        else
+          obj =
+            'SS': item
+      else
+        stringify = _.map item, (i) -> JSON.stringify i
+        obj =
+          'BS': stringify
+    else if _.isNumber item
+      obj =
+        'N': item.toString()
+    else if _.isString item
+      # Note: We're kind of arbitrarily defining that a Blob is a string greater
+      # than 1024. This is a soft constraint from Amazon because a range key
+      # cannot exceed 1024 but it is theoretically possible to store a string
+      # greater than that as a string in DynamoDB.
+      if item.length > 1024
+        obj =
+          'B': item
+      else
+        obj =
+          'S': item
+    else if _.isObject item
+      # If it's an object, we will stringify it and put it into the DB as a blob
+      obj =
+        'B': JSON.stringify item
+    else if not item
+      throw new TypeError 'Cannot call convert_to_dynamo() with no arguments'
 
 
 
@@ -235,6 +272,7 @@ class Table
     key_object = @key_object
     hash_key = @hash_key
     range_key = @range_key
+    dynasty = @parent
 
     # First, do we know the hash and range key names for this table yet?
     if hash_key
@@ -245,6 +283,7 @@ class Table
         hash: hash
         range_key: range_key
         range: range
+        dynasty: dynasty
 
     # If not, get them
     else
@@ -255,21 +294,22 @@ class Table
              hash: hash
              range_key: resp[1]
              range: range
+             dynasty: dynasty
 
     promise
 
   key_object: (params) ->
-    {hash_key, range_key, hash, range} = params
+    {hash_key, range_key, hash, range, dynasty} = params
 
     debug "key_object() - #{hash} and #{range}"
     obj = {}
 
     if hash_key and not range_key
-      obj[hash_key] = Table.convert_to_dynamo hash
+      obj[hash_key] = dynasty.convert_to_dynamo hash
 
     else
-      obj[hash_key] = Table.convert_to_dynamo hash
-      obj[range_key] = Table.convert_to_dynamo range
+      obj[hash_key] = dynasty.convert_to_dynamo hash
+      obj[range_key] = dynasty.convert_to_dynamo range
 
     obj
     
@@ -288,45 +328,6 @@ class Table
              range_key = key.AttributeName
   
          [hash_key, range_key]
-
-  # See http://vq.io/19EiASB
-  @convert_to_dynamo: (item) ->
-    if _.isArray item
-      if _.every item, _.isNumber
-        obj =
-          'NS': item
-      else if _.every item, _.isString
-        if _.any(item, (i) -> i.length > 1024)
-          obj =
-            'BS': item
-        else
-          obj =
-            'SS': item
-      else
-        stringify = _.map item, (i) -> JSON.stringify i
-        obj =
-          'BS': stringify
-    else if _.isNumber item
-      obj =
-        'N': item.toString()
-    else if _.isString item
-      # Note: We're kind of arbitrarily defining that a Blob is a string greater
-      # than 1024. This is a soft constraint from Amazon because a range key
-      # cannot exceed 1024 but it is theoretically possible to store a string
-      # greater than that as a string in DynamoDB.
-      if item.length > 1024
-        obj =
-          'B': item
-      else
-        obj =
-          'S': item
-    else if _.isObject item
-      # If it's an object, we will stringify it and put it into the DB as a blob
-      obj =
-        'B': JSON.stringify item
-    else if not item
-      throw new TypeError 'Cannot call convert_to_dynamo() with no arguments'
-
 
 
   ###
