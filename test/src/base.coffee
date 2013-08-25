@@ -1,3 +1,6 @@
+chai = require('chai')
+chaiAsPromised = require('chai-as-promised')
+chai.use(chaiAsPromised)
 expect = require('chai').expect
 Chance = require('chance')
 Dynasty = require('../lib/dynasty')
@@ -89,7 +92,37 @@ describe 'Dynasty', () ->
     describe 'key_from_hash_range()', () ->
 
       it 'should return an object', () ->
-        expect(@table.key_from_hash_range()).to.be.an('object')
+        hash_key = chance.string()
+        expect(@table.key_from_hash_range(hash_key)).to.be.an('object')
+
+      it 'looks right when a hash key is provided', () ->
+        hash_key = chance.string()
+        @table.hash_key = hash_key
+        val = chance.string()
+        keys = @table.key_from_hash_range(val)
+
+        expect(keys).to.be.an('object')
+        obj = {}
+        obj[hash_key] = {}
+        obj[hash_key]['S'] = val
+        expect(keys).to.eventually.deep.equal(obj)
+
+      it 'looks right when both hash and range keys provided', () ->
+        hash_key = chance.string()
+        range_key = chance.string()
+        @table.hash_key = hash_key
+        @table.range_key = range_key
+  
+        hk_val = chance.string()
+        rk_val = chance.string()
+        keys = @table.key_from_hash_range(hk_val, rk_val)
+        expect(keys).to.be.an('object')
+        obj = {}
+        obj[hash_key] = {}
+        obj[hash_key]['S'] = hk_val
+        obj[range_key] = {}
+        obj[range_key]['S'] = rk_val
+        expect(keys).to.eventually.deep.equal(obj)
 
     describe 'convert_to_dynamo()', () ->
 

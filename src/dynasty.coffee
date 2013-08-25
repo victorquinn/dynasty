@@ -4,11 +4,16 @@ aws = require('aws-sdk')
 dynamodb = require('dynamodb')
 _ = require('lodash')
 Q = require('q')
+debug = require('debug')('dynasty')
 
+# See http://vq.io/19EiASB
 typeToAwsType =
   string: 'S'
+  string_set: 'SS'
   number: 'N'
-  byte: 'B'
+  number_set: 'NS'
+  binary: 'B'
+  binary_set: 'BS'
 
 class Dynasty
 
@@ -17,7 +22,7 @@ class Dynasty
       return new Dynasty(credentials)
 
   constructor: (credentials) ->
-
+    debug "dynasty constructed."
     credentials.region = credentials.region || 'us-east-1'
 
     # Lock API version
@@ -40,6 +45,7 @@ class Dynasty
 
   # Alter an existing table. Wrapper around AWS updateTable
   alter: (name, params, callback) ->
+    debug "alter() - #{name}, #{params}"
     # We'll except either an object with a key of throughput or just
     # an object with the throughput info
     throughput = params.throughput || params
@@ -59,6 +65,7 @@ class Dynasty
 
   # Create a new table. Wrapper around AWS createTable
   create: (name, params, callback = null) ->
+    debug "create() - #{name}, #{params}"
     throughput = params.throughput || {read: 10, write: 5}
 
     keySchema = [
@@ -86,8 +93,21 @@ class Dynasty
 
     promise
 
+
+  # describe
+  describe: (name, callback = null) ->
+    debug "describe() - #{name}"
+    promise = Q.ninvoke @dynamo, 'describeTable', TableName: name
+
+    if callback is not null
+      promise = promise.nodeify callback
+
+    promise
+
+
   # Drop a table. Wrapper around AWS deleteTable
   drop: (name, callback = null) ->
+    debug "drop() - #{name}"
     params =
       TableName: name
 
@@ -100,6 +120,7 @@ class Dynasty
 
   # List tables. Wrapper around AWS listTables
   list: (params, callback) ->
+    debug "list() - #{params}"
     awsParams = {}
 
     if params is not null
@@ -152,6 +173,7 @@ class Table
 
   # Wrapper around DynamoDB's getItem
   find: (params, options = {}, callback = null) ->
+    debug "find() - #{params}"
     [hash, range, deferred, options, callback] = @init params, options, callback
 
     @parent.ddb.getItem @name, hash, range, options, (err, resp, cap) ->
@@ -166,6 +188,7 @@ class Table
 
   # Wrapper around DynamoDB's putItem
   insert: (obj, options = {}, callback = null) ->
+    debug "insert() - " + JSON.stringify obj
     if _.isFunction options
       callback = options
       options = {}
@@ -183,48 +206,91 @@ class Table
 
   # Wrapper around DynamoDB's deleteItem
   remove: (params, options = {}, callback = null) ->
+    debug "remove() - #{params}"
     [hash, range, deferred, options, callback] = @init params, options, callback
 
-    awsParams =
-      Key: @key_from_hash_range hash range
-      TableName: @name
+    name = @name
+    dynamo = @parent.dynamo
 
-      #  AttributeType: typeToAwsType[params.key_schema.hash[1]]
-      # Expected: attributeDefinitions
-      # TableName: name
-      # KeySchema: keySchema
-      # ProvisionedThroughput:
-      #   ReadCapacityUnits: throughput.read
-      #   WriteCapacityUnits: throughput.write
+    promise = @key_from_hash_range(hash, range)
+       .then (key) ->
+         debug 'key_from_hash_range FINISHED'
+         debug key
+         awsParams =
+           Key: key
+           TableName: name
+           ReturnValues: 'ALL_OLD'
+         debug "deleteItem() - " + JSON.stringify awsParams
 
+         Q.ninvoke(dynamo, 'deleteItem', awsParams)
 
-    promise = Q.ninvoke(@parent.dynamo, 'deleteItem', awsParams)
+    if callback is not null
+      promise = promise.nodeify callback
 
-    # @parent.ddb.deleteItem @name, hash, range, options, (err, resp, cap) ->
-    #   if err
-    #     deferred.reject err
-    #   else
-    #     deferred.resolve resp
-    #   callback(err, resp) if callback isnt null
+    promise
 
-    # deferred.promise
+  # Given a hash and range key value, return a key object
+  key_from_hash_range: (hash, range = null) ->
 
-  key_from_hash_range: (hash, range) ->
+    key_object = @key_object
+    hash_key = @hash_key
+    range_key = @range_key
+
     # First, do we know the hash and range key names for this table yet?
-    @key_names()
-       .then (resp) ->
-         console.log resp
+    if hash_key
+      deferred = Q.defer()
+      promise = deferred.promise
+      deferred.resolve key_object
+        hash_key: hash_key
+        hash: hash
+        range_key: range_key
+        range: range
 
+    # If not, get them
+    else
+      promise = @key_names()
+         .then (resp) ->
+           return key_object
+             hash_key: resp[0]
+             hash: hash
+             range_key: resp[1]
+             range: range
+
+    promise
+
+  key_object: (params) ->
+    {hash_key, range_key, hash, range} = params
+
+    debug "key_object() - #{hash} and #{range}"
+    obj = {}
+
+    if hash_key and not range_key
+      obj[hash_key] = Table.convert_to_dynamo hash
+
+    else
+      obj[hash_key] = Table.convert_to_dynamo hash
+      obj[range_key] = Table.convert_to_dynamo range
+
+    obj
+    
+
+  # get the hash and range key names for this table
   key_names: () ->
+    [hash_key, range_key] = [@hash_key, @range_key]
     @describe()
        .then (resp) ->
          schema = resp.Table.KeySchema
 
-         # Do we only have a hash key?
-         if schema.length == 1
-           console.log schema
+         _.each schema, (key) ->
+           if key.KeyType == 'HASH'
+             hash_key = key.AttributeName
+           else if key.KeyType == 'RANGE'
+             range_key = key.AttributeName
+  
+         [hash_key, range_key]
 
-  convert_to_dynamo: (item) ->
+  # See http://vq.io/19EiASB
+  @convert_to_dynamo: (item) ->
     if _.isArray item
       if _.every item, _.isNumber
         obj =
@@ -269,7 +335,8 @@ class Table
 
   # describe
   describe: (callback = null) ->
-    promise = Q.ninvoke @parent.dynamo, 'describeTable', TableName: @name
+    debug 'describe() - ' + @name
+    promise = Q.ninvoke(@parent.dynamo, 'describeTable', TableName: @name)
 
     if callback is not null
       promise = promise.nodeify callback
