@@ -1,9 +1,11 @@
 (function() {
-  var Dynasty, Q, Table, aws, dynamodb, typeToAwsType, _;
+  var Dynasty, Q, Table, aws, dynamodb, lib, typeToAwsType, _;
 
   aws = require('aws-sdk');
 
   dynamodb = require('dynamodb');
+
+  lib = require('./lib');
 
   _ = require('lodash');
 
@@ -34,7 +36,7 @@
     }
 
     Dynasty.prototype.table = function(name, describe) {
-      return this.tables[name] = this.tables[name] || new Table(this, name, describe);
+      return this.tables[name] = this.tables[name] || new Table(this, name);
     };
 
     /*
@@ -116,30 +118,10 @@
   })();
 
   Table = (function() {
-    function Table(parent, name, describe) {
+    function Table(parent, name) {
       this.parent = parent;
       this.name = name;
-      if (describe == null) {
-        describe = this.describe;
-      }
-      this.key = describe().then(function(description) {
-        var getKeyAndType, hashKeyName, hashKeyType, rangeKeyName, rangeKeyType, _ref, _ref1;
-        getKeyAndType = function(keyType) {
-          var keyDataType, keyName;
-          keyName = _.find(description.Table.KeySchema, function(key) {
-            return key.KeyType === keyType;
-          });
-          return keyDataType = _.find(description.Table.AttributeDefinitions, function(attribute) {}, attribute.AttributeName === keyName);
-        };
-        _ref = getKeyAndType('HASH'), hashKeyName = _ref[0], hashKeyType = _ref[1];
-        _ref1 = getKeyAndType('RANGE'), rangeKeyName = _ref1[0], rangeKeyType = _ref1[1];
-        return {
-          hashKeyName: hashKeyName,
-          hashKeyType: hashKeyType,
-          rangeKeyName: rangeKeyName,
-          rangeKeyType: rangeKeyType
-        };
-      });
+      this.key = this.describe().then(lib.getKeySchema);
     }
 
     Table.prototype.init = function(params, options, callback) {
@@ -213,34 +195,11 @@
       return deferred.promise;
     };
 
-    Table.prototype.remove = function(params, callback) {
+    Table.prototype.remove = function(params, options, callback) {
       if (callback == null) {
         callback = null;
       }
-      return this.key.then(function(keySchema) {
-        var awsParams, key, promise;
-        if (_.isString(params)) {
-          params = {
-            hash: params
-          };
-        }
-        key = {};
-        key[keySchema.hashKeyName] = {};
-        key[keySchema.hashKeyName][keySchema.hashKeyType] = params.hash;
-        if (params.range) {
-          key[keySchema.rangeKeyName] = {};
-          key[keySchema.rangeKeyName][keySchema.rangeKeyType] = params.range;
-        }
-        awsParams = {
-          TableName: this.name,
-          Key: key
-        };
-        promise = Q.ninvoke(this.parent.dynamo, 'deleteItem', awsParams);
-        if (callback !== null) {
-          promise.nodeify(callback);
-        }
-        return promise;
-      });
+      return this.key.then(lib.deleteItem.bind(this, params, options, callback));
     };
 
     /*

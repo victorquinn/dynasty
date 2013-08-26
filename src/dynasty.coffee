@@ -2,6 +2,7 @@
 
 aws = require('aws-sdk')
 dynamodb = require('dynamodb')
+lib = require('./lib')
 _ = require('lodash')
 Q = require('q')
 
@@ -30,7 +31,7 @@ class Dynasty
 
   # Given a name, return a Table object
   table: (name, describe) ->
-    @tables[name] = @tables[name] || new Table this, name, describe
+    @tables[name] = @tables[name] || new Table this, name
 
   ###
   Table Operations
@@ -93,22 +94,8 @@ class Dynasty
 
 class Table
 
-  constructor: (@parent, @name, describe = @describe) ->
-    @key = describe().then (description) ->
-      getKeyAndType = (keyType) ->
-        keyName = _.find description.Table.KeySchema, (key) ->
-          key.KeyType is keyType
-        keyDataType = _.find description.Table.AttributeDefinitions,
-          (attribute) ->
-          attribute.AttributeName is keyName
-
-      [hashKeyName, hashKeyType] = getKeyAndType 'HASH'
-      [rangeKeyName, rangeKeyType] = getKeyAndType 'RANGE'
-
-      hashKeyName: hashKeyName
-      hashKeyType: hashKeyType
-      rangeKeyName: rangeKeyName
-      rangeKeyType: rangeKeyType
+  constructor: (@parent, @name) ->
+    @key = @describe().then lib.getKeySchema
 
   # Add some DRY
   init: (params, options, callback) ->
@@ -163,30 +150,9 @@ class Table
 
     deferred.promise
 
-  remove: (params, callback = null) ->
-    @key.then (keySchema) ->
+  remove: (params, options, callback = null) ->
+    @key.then lib.deleteItem.bind(this, params, options, callback)
 
-      if _.isString params
-        params = hash: params
-
-      key = {}
-      key[keySchema.hashKeyName] = {}
-      key[keySchema.hashKeyName][keySchema.hashKeyType] = params.hash
-
-      if params.range
-        key[keySchema.rangeKeyName] = {}
-        key[keySchema.rangeKeyName][keySchema.rangeKeyType] = params.range
-
-      awsParams =
-        TableName: @name
-        Key: key
-
-      promise = Q.ninvoke @parent.dynamo, 'deleteItem', awsParams
-
-      if callback isnt null
-        promise.nodeify(callback)
-
-      promise
 
   ###
   Table Operations
