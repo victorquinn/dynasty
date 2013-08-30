@@ -37,7 +37,7 @@ class Dynasty
     @tables = {}
 
   # Given a name, return a Table object
-  table: (name, describe) ->
+  table: (name) ->
     @tables[name] = @tables[name] || new Table this, name
 
   ###

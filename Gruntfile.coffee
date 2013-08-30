@@ -2,7 +2,6 @@ module.exports = (grunt) ->
   grunt.initConfig
     coffee:
       compile:
-        sourceMap: true
         files: [
           'lib/lib.js': ['src/lib/*.coffee']
           'lib/dynasty.js': ['src/*.coffee']
@@ -30,4 +29,3 @@ module.exports = (grunt) ->
 
   grunt.registerTask 'test', ['coffee', 'simplemocha']
   grunt.registerTask 'default', ['watch']
-        
