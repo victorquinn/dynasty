@@ -2,6 +2,7 @@
 
 aws = require('aws-sdk')
 dynamodb = require('dynamodb')
+lib = require('./lib')
 _ = require('lodash')
 Q = require('q')
 debug = require('debug')('dynasty')
@@ -36,7 +37,7 @@ class Dynasty
     @tables = {}
 
   # Given a name, return a Table object
-  table: (name) ->
+  table: (name, describe) ->
     @tables[name] = @tables[name] || new Table this, name
 
   ###
@@ -185,6 +186,7 @@ class Dynasty
 class Table
 
   constructor: (@parent, @name) ->
+    @key = @describe().then lib.getKeySchema
 
   # Add some DRY
   init: (params, options, callback) ->
@@ -241,94 +243,8 @@ class Table
 
     deferred.promise
 
-  # Wrapper around DynamoDB's deleteItem
-  remove: (params, options = {}, callback = null) ->
-    debug "remove() - #{params}"
-    [hash, range, deferred, options, callback] = @init params, options, callback
-
-    name = @name
-    dynamo = @parent.dynamo
-
-    promise = @key_from_hash_range(hash, range)
-       .then (key) ->
-         debug 'key_from_hash_range FINISHED'
-         debug key
-         awsParams =
-           Key: key
-           TableName: name
-           ReturnValues: 'ALL_OLD'
-         debug "deleteItem() - " + JSON.stringify awsParams
-
-         Q.ninvoke(dynamo, 'deleteItem', awsParams)
-
-    if callback is not null
-      promise = promise.nodeify callback
-
-    promise
-
-  # Given a hash and range key value, return a key object
-  key_from_hash_range: (hash, range = null) ->
-
-    key_object = @key_object
-    hash_key = @hash_key
-    range_key = @range_key
-    dynasty = @parent
-
-    # First, do we know the hash and range key names for this table yet?
-    if hash_key
-      deferred = Q.defer()
-      promise = deferred.promise
-      deferred.resolve key_object
-        hash_key: hash_key
-        hash: hash
-        range_key: range_key
-        range: range
-        dynasty: dynasty
-
-    # If not, get them
-    else
-      promise = @key_names()
-         .then (resp) ->
-           return key_object
-             hash_key: resp[0]
-             hash: hash
-             range_key: resp[1]
-             range: range
-             dynasty: dynasty
-
-    promise
-
-  key_object: (params) ->
-    {hash_key, range_key, hash, range, dynasty} = params
-
-    debug "key_object() - #{hash} and #{range}"
-    obj = {}
-
-    if hash_key and not range_key
-      obj[hash_key] = dynasty.convert_to_dynamo hash
-
-    else
-      obj[hash_key] = dynasty.convert_to_dynamo hash
-      obj[range_key] = dynasty.convert_to_dynamo range
-
-    obj
-    
-
-  # get the hash and range key names for this table
-  key_names: () ->
-    [hash_key, range_key] = [@hash_key, @range_key]
-    @describe()
-       .then (resp) ->
-         schema = resp.Table.KeySchema
-
-         _.each schema, (key) ->
-           if key.KeyType == 'HASH'
-             hash_key = key.AttributeName
-           else if key.KeyType == 'RANGE'
-             range_key = key.AttributeName
-  
-         [hash_key, range_key]
-
+  remove: (params, options, callback = null) ->
+    @key.then lib.deleteItem.bind(this, params, options, callback)
 
   ###
   Table Operations

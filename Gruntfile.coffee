@@ -2,8 +2,10 @@ module.exports = (grunt) ->
   grunt.initConfig
     coffee:
       compile:
+        sourceMap: true
         files: [
-          'lib/dynasty.js': ['src/**/*.coffee']
+          'lib/lib.js': ['src/lib/*.coffee']
+          'lib/dynasty.js': ['src/*.coffee']
           'test/test.dynasty.js': ['test/src/**/*.coffee']
         ]
     coffeelint:
@@ -11,7 +13,7 @@ module.exports = (grunt) ->
     simplemocha:
       options:
         globals: ['should']
-        timeout: 3000
+        timeout: 300
         ignoreLeaks: false
         ui: 'bdd'
         reporter: 'spec'
