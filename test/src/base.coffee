@@ -33,7 +33,7 @@ describe 'Dynasty', () ->
     describe 'create()', () ->
 
       beforeEach () ->
-        @dynasty = require('../lib/dynasty')(getCredentials())
+        @dynasty = Dynasty(getCredentials())
 
       it 'should return an object with valid key_schema', () ->
         promise = @dynasty.create chance.name(),
@@ -46,8 +46,15 @@ describe 'Dynasty', () ->
   describe 'Table', () ->
 
     beforeEach () ->
-      @dynasty = require('../lib/dynasty')(getCredentials())
+      @dynasty = Dynasty(getCredentials())
       @table = @dynasty.table chance.name()
+      @dynamo = @dynasty.dynamo
+
+    describe 'remove()', () ->
+
+      it 'should return an object', () ->
+        promise = @table.remove chance.name()
+        expect(promise).to.be.an('object')
 
     describe 'find()', () ->
 
@@ -77,52 +84,6 @@ describe 'Dynasty', () ->
       it 'should return an object', () ->
         promise = @table.describe()
         expect(promise).to.be.an('object')
-
-    describe 'remove()', () ->
-
-      it 'should return an object', () ->
-        promise = @table.describe()
-        expect(promise).to.be.an('object')
-
-    describe 'key_names()', () ->
-
-      it 'should return an object', () ->
-        expect(@table.key_names()).to.be.an('object')
-
-    describe 'key_from_hash_range()', () ->
-
-      it 'should return an object', () ->
-        hash_key = chance.string()
-        expect(@table.key_from_hash_range(hash_key)).to.be.an('object')
-
-      it 'looks right when a hash key is provided', () ->
-        hash_key = chance.string()
-        @table.hash_key = hash_key
-        val = chance.string()
-        keys = @table.key_from_hash_range(val)
-
-        expect(keys).to.be.an('object')
-        obj = {}
-        obj[hash_key] = {}
-        obj[hash_key]['S'] = val
-        expect(keys).to.eventually.deep.equal(obj)
-
-      it 'looks right when both hash and range keys provided', () ->
-        hash_key = chance.string()
-        range_key = chance.string()
-        @table.hash_key = hash_key
-        @table.range_key = range_key
-  
-        hk_val = chance.string()
-        rk_val = chance.string()
-        keys = @table.key_from_hash_range(hk_val, rk_val)
-        expect(keys).to.be.an('object')
-        obj = {}
-        obj[hash_key] = {}
-        obj[hash_key]['S'] = hk_val
-        obj[range_key] = {}
-        obj[range_key]['S'] = rk_val
-        expect(keys).to.eventually.deep.equal(obj)
 
     describe 'convert_to_dynamo()', () ->
 
