@@ -186,6 +186,7 @@ class Dynasty
 class Table
 
   constructor: (@parent, @name) ->
+    @update = @insert
     @key = @describe().then lib.getKeySchema
 
   # Add some DRY

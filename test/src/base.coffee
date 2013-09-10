@@ -85,6 +85,11 @@ describe 'Dynasty', () ->
         promise = @table.describe()
         expect(promise).to.be.an('object')
 
+    describe 'update()', () ->
+
+      it 'should just be insert', () ->
+        expect(@table.insert).to.equal(@table.update)
+
     describe 'convert_to_dynamo()', () ->
 
       it 'should throw an error if called with no arguments', () ->
