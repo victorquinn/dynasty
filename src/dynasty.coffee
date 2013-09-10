@@ -2,7 +2,7 @@
 
 aws = require('aws-sdk')
 dynamodb = require('dynamodb')
-lib = require('./lib')
+awsTrans = require('./lib')["aws-translators"]
 _ = require('lodash')
 Q = require('q')
 debug = require('debug')('dynasty')
@@ -187,7 +187,7 @@ class Table
 
   constructor: (@parent, @name) ->
     @update = @insert
-    @key = @describe().then lib.getKeySchema
+    @key = @describe().then awsTrans.getKeySchema
 
   # Add some DRY
   init: (params, options, callback) ->
@@ -245,7 +245,7 @@ class Table
     deferred.promise
 
   remove: (params, options, callback = null) ->
-    @key.then lib.deleteItem.bind(this, params, options, callback)
+    @key.then awsTrans.deleteItem.bind(this, params, options, callback)
 
   ###
   Table Operations

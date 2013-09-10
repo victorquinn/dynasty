@@ -1,6 +1,6 @@
 expect = require('chai').expect
 Chance = require('chance')
-lib = require('../lib')
+lib = require('../lib/lib')["aws-translators"]
 sinon = require('sinon')
 Q = require('q')
 
