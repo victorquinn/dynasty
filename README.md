@@ -1,5 +1,10 @@
 ## Dynasty
 
+<a href="http://promisesaplus.com/">
+    <img src="http://promisesaplus.com/assets/logo-small.png" alt="Promises/A+ logo"
+         title="Promises/A+ 1.0 compliant" align="right" />
+</a>
+
 [![Dynasty](http://dynastyjs.com/logobg.png)](http://dynastyjs.com)
 
 [![Build Status](https://travis-ci.org/victorquinn/dynasty.png?branch=master)](https://travis-ci.org/victorquinn/dynasty)
