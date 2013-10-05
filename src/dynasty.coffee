@@ -47,7 +47,7 @@ class Dynasty
   # Alter an existing table. Wrapper around AWS updateTable
   alter: (name, params, callback) ->
     debug "alter() - #{name}, #{params}"
-    # We'll except either an object with a key of throughput or just
+    # We'll accept either an object with a key of throughput or just
     # an object with the throughput info
     throughput = params.throughput || params
 

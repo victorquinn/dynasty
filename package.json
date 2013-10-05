@@ -1,9 +1,12 @@
 {
   "name": "dynasty",
-  "version": "0.0.10",
+  "version": "0.0.12",
   "description": "Dynasty - Promise-based DynamoDB API",
   "homepage": "http://dynastyjs.com",
   "author": "Victor Quinn <mail@victorquinn.com>",
+  "contributors": [
+    "Mike Atkins (https://github.com/apechimp)"
+  ],
   "bugs": {
     "url": "https://github.com/victorquinn/dynastyjs/issues"
   },
@@ -27,16 +30,19 @@
     "grunt-contrib-uglify": "*",
     "grunt-contrib-watch": "*",
     "grunt-simple-mocha": "*",
-    "grunt-shell": "*",
-    "mocha": "1.8",
+    "grunt-shell": "~0.4.0",
+    "mocha": "*",
     "phantomjs": "1.9.0-2",
     "requirejs": "2.1.6",
     "sinon": "1.7.3",
     "uglify-js": "1.2.6",
-    "chai-as-promised": "~3.3.1"
+    "chai-as-promised": "~3.3.1",
+    "docco": "~0.6.2"
   },
   "scripts": {
-    "install": "./node_modules/coffee-script/bin/coffee --compile --output lib src",
+    "build": "grunt coffee",
+    "prepublish": "grunt coffee",
+    "postpublish": "rm -rf lib",
     "test": "grunt test"
   },
   "main": "lib/dynasty.js",

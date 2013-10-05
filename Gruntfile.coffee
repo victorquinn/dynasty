@@ -13,6 +13,11 @@ module.exports = (grunt) ->
         ]
     coffeelint:
       app: ['src/**/*.coffee']
+    shell:
+      publish:
+        options:
+          stdout: true
+        command: 'npm publish'
     simplemocha:
       options:
         globals: ['should']
@@ -28,8 +33,10 @@ module.exports = (grunt) ->
 
   grunt.loadNpmTasks 'grunt-coffeelint'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
-  grunt.loadNpmTasks 'grunt-simple-mocha'
   grunt.loadNpmTasks 'grunt-contrib-watch'
+  grunt.loadNpmTasks 'grunt-simple-mocha'
+  grunt.loadNpmTasks 'grunt-shell'
 
   grunt.registerTask 'test', ['coffee', 'simplemocha']
+  grunt.registerTask 'publish', ['coffee', 'shell:publish']
   grunt.registerTask 'default', ['watch']
