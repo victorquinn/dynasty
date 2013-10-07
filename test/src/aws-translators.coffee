@@ -1,4 +1,7 @@
-expect = require('chai').expect
+chai = require('chai')
+expect = chai.expect
+chaiAsPromised = require('chai-as-promised')
+chai.use(chaiAsPromised)
 Chance = require('chance')
 lib = require('../lib/lib')["aws-translators"]
 sinon = require('sinon')
@@ -184,14 +187,14 @@ describe 'aws-translators', () ->
       expect(promise).to.be.an('object')
 
     it 'should return a promise', () ->
-      sandbox.stub(Q, "ninvoke").returns('lol')
+      sandbox.stub(Q, "ninvoke").returns(Q.resolve('lol'))
 
       promise = lib.getItem.call(dynastyTable, 'foo', null, null,
         hashKeyName: 'bar'
         hashKeyType: 'S'
       )
 
-      expect(promise).to.equal('lol')
+      expect(promise).to.eventually.equal('lol')
 
     it 'should call getItem of aws', () ->
       sandbox.spy(Q, "ninvoke")
@@ -205,10 +208,10 @@ describe 'aws-translators', () ->
       expect(Q.ninvoke.getCall(0).args[0]).to.equal(dynastyTable.parent.dynamo)
       expect(Q.ninvoke.getCall(0).args[1]).to.equal('getItem')
 
-    xit 'should send the table name to AWS', (done) ->
+    it 'should send the table name to AWS', (done) ->
       sandbox.spy(Q, "ninvoke")
 
-      promise = lib.deleteItem.call(dynastyTable, 'foo', null, null,
+      promise = lib.getItem.call(dynastyTable, 'foo', null, null,
         hashKeyName: 'bar'
         hashKeyType: 'S'
       )
@@ -220,7 +223,7 @@ describe 'aws-translators', () ->
         done()
       .fail done
 
-    xit 'should send the hash key to AWS', () ->
+    it 'should send the hash key to AWS', () ->
       sandbox.spy(Q, 'ninvoke')
 
       promise = lib.deleteItem.call(dynastyTable, 'foo', null, null,
@@ -234,7 +237,7 @@ describe 'aws-translators', () ->
       expect(params.Key.bar).to.include.keys('S')
       expect(params.Key.bar.S).to.equal('foo')
 
-    xit 'should send the hash and range key to AWS', () ->
+    it 'should send the hash and range key to AWS', () ->
       sandbox.spy(Q, 'ninvoke')
 
       promise = lib.deleteItem.call(

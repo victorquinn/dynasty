@@ -1,4 +1,5 @@
 _ = require('lodash')
+dataTrans = require('./data-translators')
 Q = require('q')
 
 module.exports.getKeySchema = (tableDescription) ->
@@ -21,7 +22,7 @@ module.exports.getKeySchema = (tableDescription) ->
   rangeKeyName: rangeKeyName
   rangeKeyType: rangeKeyType
 
-module.exports.deleteItem = (params, options, callback, keySchema) ->
+getKey = (params, keySchema) ->
   if !_.isObject params
     params = hash: params+''
 
@@ -33,9 +34,13 @@ module.exports.deleteItem = (params, options, callback, keySchema) ->
     key[keySchema.rangeKeyName] = {}
     key[keySchema.rangeKeyName][keySchema.rangeKeyType] = params.range
 
+  key
+
+module.exports.deleteItem = (params, options, callback, keySchema) ->
+
   awsParams =
     TableName: @name
-    Key: key
+    Key: getKey(params, keySchema)
 
   promise = Q.ninvoke @parent.dynamo, 'deleteItem', awsParams
 
@@ -45,4 +50,14 @@ module.exports.deleteItem = (params, options, callback, keySchema) ->
   promise
 
 module.exports.getItem = (params, options, callback, keySchema) ->
-  return Q.ninvoke @parent.dynamo, 'getItem', params
+  awsParams =
+    TableName: @name
+    Key: getKey(params, keySchema)
+
+  promise = Q.ninvoke(@parent.dynamo, 'getItem', awsParams)
+             .then dataTrans.fromDynamo
+
+  if callback isnt null
+    promise.nodeify(callback)
+
+  promise

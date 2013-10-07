@@ -189,24 +189,6 @@ class Table
     @update = @insert
     @key = @describe().then awsTrans.getKeySchema
 
-  # Add some DRY
-  init: (params, options, callback) ->
-    if _.isFunction options
-      callback = options
-      options = {}
-
-    if _.isObject params
-      {hash, range} = params
-    else
-      hash = params
-
-    range = null if not range
-
-    deferred = Q.defer()
-
-    [hash, range, deferred, options, callback]
-
-
   ###
   Item Operations
   ###
@@ -214,17 +196,7 @@ class Table
   # Wrapper around DynamoDB's getItem
   find: (params, options = {}, callback = null) ->
     debug "find() - #{params}"
-    [hash, range, deferred, options, callback] = @init params, options, callback
-
-    @parent.ddb.getItem @name, hash, range, options, (err, resp, cap) ->
-
-      if err
-        deferred.reject err
-      else
-        deferred.resolve resp
-      callback(err, resp) if callback isnt null
-
-    deferred.promise
+    @key.then awsTrans.getItem.bind(this, params, options, callback)
 
   # Wrapper around DynamoDB's putItem
   insert: (obj, options = {}, callback = null) ->
