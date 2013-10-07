@@ -43,3 +43,6 @@ module.exports.deleteItem = (params, options, callback, keySchema) ->
     promise.nodeify(callback)
 
   promise
+
+module.exports.getItem = (params, options, callback, keySchema) ->
+  return Q.ninvoke @parent.dynamo, 'getItem', params

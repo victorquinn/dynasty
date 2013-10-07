@@ -157,3 +157,105 @@ describe 'aws-translators', () ->
       expect(params.Key.foo).to.include.keys('S')
       expect(params.Key.foo.S).to.equal('rofl')
 
+  describe '#getItem', () ->
+
+    dynastyTable = null
+    sandbox = null
+
+    beforeEach () ->
+      sandbox = sinon.sandbox.create()
+      dynastyTable =
+        name: chance.name()
+        parent:
+          dynamo: {
+            getItem: (params, callback) ->
+              callback(null, true)
+          }
+
+    afterEach () ->
+      sandbox.restore()
+
+    it 'should return an object', () ->
+      promise = lib.getItem.call(dynastyTable, 'foo', null, null,
+        hashKeyName: 'bar'
+        hashKeyType: 'S'
+      )
+
+      expect(promise).to.be.an('object')
+
+    it 'should return a promise', () ->
+      sandbox.stub(Q, "ninvoke").returns('lol')
+
+      promise = lib.getItem.call(dynastyTable, 'foo', null, null,
+        hashKeyName: 'bar'
+        hashKeyType: 'S'
+      )
+
+      expect(promise).to.equal('lol')
+
+    it 'should call getItem of aws', () ->
+      sandbox.spy(Q, "ninvoke")
+
+      lib.getItem.call(dynastyTable, 'foo', null, null,
+        hashKeyName: 'bar'
+        hashKeyType: 'S'
+      )
+
+      expect(Q.ninvoke.calledOnce)
+      expect(Q.ninvoke.getCall(0).args[0]).to.equal(dynastyTable.parent.dynamo)
+      expect(Q.ninvoke.getCall(0).args[1]).to.equal('getItem')
+
+    xit 'should send the table name to AWS', (done) ->
+      sandbox.spy(Q, "ninvoke")
+
+      promise = lib.deleteItem.call(dynastyTable, 'foo', null, null,
+        hashKeyName: 'bar'
+        hashKeyType: 'S'
+      )
+
+      promise.then () ->
+        expect(Q.ninvoke.calledOnce)
+        params = Q.ninvoke.getCall(0).args[2]
+        expect(params.TableName).to.equal(dynastyTable.name)
+        done()
+      .fail done
+
+    xit 'should send the hash key to AWS', () ->
+      sandbox.spy(Q, 'ninvoke')
+
+      promise = lib.deleteItem.call(dynastyTable, 'foo', null, null,
+        hashKeyName: 'bar'
+        hashKeyType: 'S'
+      )
+
+      expect(Q.ninvoke.calledOnce)
+      params = Q.ninvoke.getCall(0).args[2]
+      expect(params.Key).to.include.keys('bar')
+      expect(params.Key.bar).to.include.keys('S')
+      expect(params.Key.bar.S).to.equal('foo')
+
+    xit 'should send the hash and range key to AWS', () ->
+      sandbox.spy(Q, 'ninvoke')
+
+      promise = lib.deleteItem.call(
+        dynastyTable,
+          hash: 'lol'
+          range: 'rofl',
+        null,
+        null,
+          hashKeyName: 'bar'
+          hashKeyType: 'S'
+          rangeKeyName: 'foo'
+          rangeKeyType: 'S')
+
+      expect(Q.ninvoke.calledOnce)
+      params = Q.ninvoke.getCall(0).args[2]
+
+      expect(params.Key).to.include.keys('bar')
+      expect(params.Key.bar).to.include.keys('S')
+      expect(params.Key.bar.S).to.equal('lol')
+
+      expect(params.Key).to.include.keys('foo')
+      expect(params.Key.foo).to.include.keys('S')
+      expect(params.Key.foo.S).to.equal('rofl')
+
