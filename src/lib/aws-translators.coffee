@@ -61,3 +61,16 @@ module.exports.getItem = (params, options, callback, keySchema) ->
     promise.nodeify(callback)
 
   promise
+
+module.exports.putItem = (obj, options, callback) ->
+  awsParams =
+    TableName: @name
+    Item: _.transform(obj, (res, val, key) ->
+      res[key] = dataTrans.toDynamo(val))
+
+  promise = Q.ninvoke(@parent.dynamo, 'putItem', awsParams)
+
+  if callback isnt null
+    promise.nodeify(callback)
+
+  promise

@@ -226,7 +226,7 @@ describe 'aws-translators', () ->
     it 'should send the hash key to AWS', () ->
       sandbox.spy(Q, 'ninvoke')
 
-      promise = lib.deleteItem.call(dynastyTable, 'foo', null, null,
+      promise = lib.getItem.call(dynastyTable, 'foo', null, null,
         hashKeyName: 'bar'
         hashKeyType: 'S'
       )
@@ -240,7 +240,7 @@ describe 'aws-translators', () ->
     it 'should send the hash and range key to AWS', () ->
       sandbox.spy(Q, 'ninvoke')
 
-      promise = lib.deleteItem.call(
+      promise = lib.getItem.call(
         dynastyTable,
           hash: 'lol'
           range: 'rofl',
@@ -262,3 +262,64 @@ describe 'aws-translators', () ->
       expect(params.Key.foo).to.include.keys('S')
       expect(params.Key.foo.S).to.equal('rofl')
 
+  describe '#putItem', () ->
+
+    dynastyTable = null
+    sandbox = null
+
+    beforeEach () ->
+      sandbox = sinon.sandbox.create()
+      dynastyTable =
+        name: chance.name()
+        parent:
+          dynamo: {
+            putItem: (params, callback) ->
+              callback(null, true)
+          }
+
+    afterEach () ->
+      sandbox.restore()
+
+    it 'should return an object', () ->
+      promise = lib.putItem.call(dynastyTable, foo: 'bar', null, null)
+
+      expect(promise).to.be.an('object')
+
+    it 'should return a promise', () ->
+      sandbox.stub(Q, "ninvoke").returns(Q.resolve('lol'))
+
+      promise = lib.putItem.call(dynastyTable, foo: 'bar', null, null)
+
+      expect(promise).to.eventually.equal('lol')
+
+    it 'should call putItem of aws', () ->
+      sandbox.spy(Q, "ninvoke")
+
+      lib.putItem.call(dynastyTable, foo: 'bar', null, null)
+
+      expect(Q.ninvoke.calledOnce)
+      expect(Q.ninvoke.getCall(0).args[0]).to.equal(dynastyTable.parent.dynamo)
+      expect(Q.ninvoke.getCall(0).args[1]).to.equal('putItem')
+
+    it 'should send the table name to AWS', (done) ->
+      sandbox.spy(Q, "ninvoke")
+
+      promise = lib.putItem.call(dynastyTable, foo: 'bar', null, null)
+
+      promise.then () ->
+        expect(Q.ninvoke.calledOnce)
+        params = Q.ninvoke.getCall(0).args[2]
+        expect(params.TableName).to.equal(dynastyTable.name)
+        done()
+      .fail done
+
+    it 'should send the translated object to AWS', () ->
+      sandbox.spy(Q, 'ninvoke')
+
+      promise = lib.putItem.call(dynastyTable, foo: 'bar', null, null)
+
+      expect(Q.ninvoke.calledOnce)
+      params = Q.ninvoke.getCall(0).args[2]
+      expect(params.Item).to.be.an('object')
+      expect(params.Item.foo).to.be.an('object')
+      expect(params.Item.foo.S).to.equal('bar')
