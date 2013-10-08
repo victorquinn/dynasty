@@ -1,7 +1,6 @@
 # Main Dynasty Class
 
 aws = require('aws-sdk')
-dynamodb = require('dynamodb')
 awsTrans = require('./lib')["aws-translators"]
 _ = require('lodash')
 Q = require('q')
@@ -32,7 +31,6 @@ class Dynasty
     aws.config.update credentials
 
     @dynamo = new aws.DynamoDB()
-    @ddb = dynamodb.ddb credentials
     @name = 'Dynasty'
     @tables = {}
 
