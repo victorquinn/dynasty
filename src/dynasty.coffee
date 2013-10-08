@@ -164,16 +164,7 @@ class Table
       callback = options
       options = {}
 
-    deferred = Q.defer()
-
-    @parent.ddb.putItem @name, obj, options, (err, resp, cap) ->
-      if err
-        deferred.reject err
-      else
-        deferred.resolve resp
-      callback(err, resp) if callback isnt null
-
-    deferred.promise
+      awsTrans.putItem.bind(this, params, options, callback)
 
   remove: (params, options, callback = null) ->
     @key.then awsTrans.deleteItem.bind(this, params, options, callback)
