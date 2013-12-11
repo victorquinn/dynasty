@@ -1,11 +1,11 @@
-Chance.js documentation site
+Dynasty documentation site
 ===========================
 
-Site is built with [Jekyll][], where each Chance method is a Jekyll "post". They
+Site is built with [Jekyll][], where each Dynasty method is a Jekyll "post". They
 each render to individual files, but they don't matter because the docs are all
 compiled in one page (index.html).
 
-Jekyll categories correspond to Chance modules, e.g. "ajax" and "event". The
+Jekyll categories correspond to Dynasty modules, e.g. "ajax" and "event". The
 exception is the "changelog" category, which contains release notes.
 
 The site can be built with:
@@ -46,12 +46,12 @@ to serve it:
 
 ~~~ sh
 # while in repo's root dir:
-$ ln -s `pwd` ~/.pow/chance
-$ open http://chance.dev
+$ ln -s `pwd` ~/.pow/dynasty
+$ open http://dynasty.dev
 ~~~
 
 To have your desktop browser automatically reload after changes, install [the
-LiveReload browser extension][lr], open "chance.dev" and enable LiveReload in the
+LiveReload browser extension][lr], open "dynasty.dev" and enable LiveReload in the
 browser (usually via button added by the extension) while Guard is running.
 
 iOS clients are automatically configured with this functionality (no browser
