@@ -1,11 +1,12 @@
 {
   "name": "dynasty",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Dynasty - Promise-based DynamoDB API",
   "homepage": "http://dynastyjs.com",
   "author": "Victor Quinn <mail@victorquinn.com>",
   "contributors": [
-    "Mike Atkins (https://github.com/apechimp)"
+    "Mike Atkins (https://github.com/apechimp)",
+    "Ben McIlwain (https://github.com/cydeweys)"
   ],
   "bugs": {
     "url": "https://github.com/victorquinn/dynastyjs/issues"
@@ -21,7 +22,7 @@
     }
   ],
   "devDependencies": {
-    "chance": "0.4.3",
+    "chance": "0.5.3",
     "chai": "1.5",
     "grunt": "*",
     "grunt-cli": "*",
