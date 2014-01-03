@@ -195,10 +195,10 @@ class Table
       callback = options
       options = {}
 
-    if _.isString params
-      hash = params
-    else
+    if _.isObject params
       {hash, range} = params
+    else
+      hash = params
 
     range = null if not range
 
