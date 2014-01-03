@@ -23,7 +23,7 @@ module.exports.getKeySchema = (tableDescription) ->
 
 module.exports.deleteItem = (params, options, callback, keySchema) ->
   if !_.isObject params
-    params = hash: params
+    params = hash: params+''
 
   key = {}
   key[keySchema.hashKeyName] = {}
