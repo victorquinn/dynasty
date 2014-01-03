@@ -22,7 +22,7 @@ module.exports.getKeySchema = (tableDescription) ->
   rangeKeyType: rangeKeyType
 
 module.exports.deleteItem = (params, options, callback, keySchema) ->
-  if _.isString params
+  if !_.isObject params
     params = hash: params
 
   key = {}
