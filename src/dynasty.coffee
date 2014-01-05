@@ -165,6 +165,7 @@ class Table
       Key: keyParam
 
     hashKeySpecified = rangeKeySpecified = false
+    
     promise.hash = (hashKeyValue) =>
       @key.then (keySchema)->
         keyParam[keySchema.hashKeyName] = {}
@@ -193,10 +194,7 @@ class Table
             .then(deferred.resolve)
             .catch(deferred.reject)
           else if !rangeKeySpecified and !hashKeySpecified
-            Q.ninvoke(@parent.dynamo, 'scan', TableName: @name)
-            .then((data)-> dataTrans.fromDynamo(data.Items))
-            .then(deferred.resolve)
-            .catch(deferred.reject)
+            awsTrans.processAllPages(deferred, @parent.dynamo, 'scan', TableName: @name)
           else if !rangeKeySpecified and @hasRangeKey
             awsParams.KeyConditions = {}
             awsParams.KeyConditions[keySchema.hashKeyName] = 
@@ -205,10 +203,7 @@ class Table
               ]
               ComparisonOperator: 'EQ'
             delete awsParams.Key
-            Q.ninvoke(@parent.dynamo, 'query', awsParams)
-            .then((data)-> dataTrans.fromDynamo(data.Items))
-            .then(deferred.resolve)
-            .catch(deferred.reject)
+            awsTrans.processAllPages(deferred, @parent.dynamo, 'query', awsParams)
     promise
 
 
