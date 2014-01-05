@@ -2,6 +2,7 @@
 
 aws = require('aws-sdk')
 awsTrans = require('./lib')["aws-translators"]
+dataTrans = require('./lib')['data-translators']
 _ = require('lodash')
 Q = require('q')
 debug = require('debug')('dynasty')
@@ -151,9 +152,41 @@ class Table
   ###
 
   # Wrapper around DynamoDB's getItem
-  find: (params, options = {}, callback = null) ->
-    debug "find() - #{params}"
-    @key.then awsTrans.getItem.bind(this, params, options, callback)
+  find: => 
+    deferred = Q.defer() # Cannot be resolved until after @key
+    promise = deferred.promise
+
+    keyParam = {}
+    awsParams =
+      TableName: @name
+      Key: keyParam
+
+    promise.range = (rangeKeyValue)=>
+      @key.then (keySchema)->
+        if !keySchema.rangeKeyName
+          deferred.reject new Error "Specifying range key for table without range key"
+        else
+          keyParam[keySchema.rangeKeyName] = {}
+          keyParam[keySchema.rangeKeyName][keySchema.rangeKeyType] = rangeKeyValue+''
+      promise
+
+    promise.hash = (hashKeyValue) =>
+      @key.then (keySchema)->
+        keyParam[keySchema.hashKeyName] = {}
+        keyParam[keySchema.hashKeyName][keySchema.hashKeyType] = hashKeyValue+''
+      promise
+
+    process.nextTick =>
+      @key.then =>
+        if !promise.isRejected()
+          debug "find() - #{JSON.stringify awsParams}"
+          Q.ninvoke(@parent.dynamo, 'getItem', awsParams)
+          .then((data)-> dataTrans.fromDynamo(data.Item))
+          .then(deferred.resolve)
+          .catch(deferred.reject)
+
+    promise
+
 
   # Wrapper around DynamoDB's putItem
   insert: (obj, options = {}, callback = null) ->
