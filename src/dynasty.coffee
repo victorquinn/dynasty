@@ -36,6 +36,15 @@ class Dynasty
     @name = 'Dynasty'
     @tables = {}
 
+  loadAllTables: =>
+    deferred = Q.defer()
+    @list().catch(deferred.reject)
+    .then (data)=>
+      for tableName in data.TableNames
+        @table(tableName)
+      deferred.resolve(@tables)
+    deferred.promise
+
   # Given a name, return a Table object
   table: (name) ->
     @tables[name] = @tables[name] || new Table this, name
