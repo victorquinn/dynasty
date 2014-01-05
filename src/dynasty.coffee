@@ -15,7 +15,6 @@ typeToAwsType =
   binary_set: 'BS'
 
 lib = require('./lib')
-awsTrans = lib["aws-translators"]
 Table = lib.Table
 
 class Dynasty

@@ -2,6 +2,26 @@ _ = require('lodash')
 dataTrans = require('./data-translators')
 Q = require('q')
 
+module.exports.processAllPages = (deferred, dynamo, functionName, params)->
+
+  stats = 
+    Count: 0
+      
+  resultHandler = (err, result)=>
+    if err then return deferred.reject(err)
+
+    deferred.notify dataTrans.fromDynamo result.Items
+    stats.Count += result.Count
+    if result.LastEvaluatedKey
+      params.ExclusiveStartKey = result.LastEvaluatedKey
+      dynamo[functionName] params, resultHandler
+    else
+      deferred.resolve stats
+
+  dynamo[functionName] params, resultHandler
+  deferred.promise
+
+
 module.exports.getKeySchema = (tableDescription) ->
   getKeyAndType = (keyType) ->
     keyName = _.find tableDescription.Table.KeySchema, (key) ->
@@ -28,11 +48,11 @@ getKey = (params, keySchema) ->
 
   key = {}
   key[keySchema.hashKeyName] = {}
-  key[keySchema.hashKeyName][keySchema.hashKeyType] = params.hash
+  key[keySchema.hashKeyName][keySchema.hashKeyType] = params.hash+''
 
   if params.range
     key[keySchema.rangeKeyName] = {}
-    key[keySchema.rangeKeyName][keySchema.rangeKeyType] = params.range
+    key[keySchema.rangeKeyName][keySchema.rangeKeyType] = params.range+''
 
   key
 
@@ -55,7 +75,7 @@ module.exports.getItem = (params, options, callback, keySchema) ->
     Key: getKey(params, keySchema)
 
   promise = Q.ninvoke(@parent.dynamo, 'getItem', awsParams)
-             .then dataTrans.fromDynamo
+             .then (data)-> dataTrans.fromDynamo(data.Item)
 
   if callback isnt null
     promise.nodeify(callback)
