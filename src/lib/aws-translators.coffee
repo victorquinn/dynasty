@@ -4,15 +4,19 @@ Q = require('q')
 
 module.exports.processAllPages = (deferred, dynamo, functionName, params)->
 
+  stats = 
+    Count: 0
+      
   resultHandler = (err, result)=>
     if err then return deferred.reject(err)
 
     deferred.notify dataTrans.fromDynamo result.Items
+    stats.Count += result.Count
     if result.LastEvaluatedKey
       params.ExclusiveStartKey = result.LastEvaluatedKey
       dynamo[functionName] params, resultHandler
     else
-      deferred.resolve()
+      deferred.resolve stats
 
   dynamo[functionName] params, resultHandler
   deferred.promise
