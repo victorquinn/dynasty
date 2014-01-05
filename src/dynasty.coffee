@@ -184,18 +184,31 @@ class Table
       promise
 
     process.nextTick =>
-      @key.then =>
+      @key.then (keySchema)=>
         if !promise.isRejected()
           debug "find() - #{JSON.stringify awsParams}"
-          if rangeKeySpecified && @hasRangeKey or hashKeySpecified && !@hasRangeKey
+          if rangeKeySpecified and @hasRangeKey or hashKeySpecified and !@hasRangeKey
             Q.ninvoke(@parent.dynamo, 'getItem', awsParams)
             .then((data)-> dataTrans.fromDynamo(data.Item))
             .then(deferred.resolve)
             .catch(deferred.reject)
-          else if !rangeKeySpecified && @hasRangeKey
-            deferred.reject new Error "'find some' functionality not yet implemented"
-          else
-            deferred.reject new Error "'find all' functionality not yet implemented"
+          else if !rangeKeySpecified and !hashKeySpecified
+            Q.ninvoke(@parent.dynamo, 'scan', TableName: @name)
+            .then((data)-> dataTrans.fromDynamo(data.Items))
+            .then(deferred.resolve)
+            .catch(deferred.reject)
+          else if !rangeKeySpecified and @hasRangeKey
+            awsParams.KeyConditions = {}
+            awsParams.KeyConditions[keySchema.hashKeyName] = 
+              AttributeValueList : [
+                awsParams.Key[keySchema.hashKeyName]
+              ]
+              ComparisonOperator: 'EQ'
+            delete awsParams.Key
+            Q.ninvoke(@parent.dynamo, 'query', awsParams)
+            .then((data)-> dataTrans.fromDynamo(data.Items))
+            .then(deferred.resolve)
+            .catch(deferred.reject)
     promise
 
 

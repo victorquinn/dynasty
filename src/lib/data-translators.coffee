@@ -8,6 +8,10 @@ _ = require('lodash')
    @return res the converted object
 ###
 module.exports.fromDynamo = (dbObj) ->
+  if _.isArray dbObj
+    for element in dbObj
+      module.exports.fromDynamo element
+    return dbObj
   if _.isObject dbObj
     return _.transform dbObj, (res, val, key) ->
       if(val.S)
