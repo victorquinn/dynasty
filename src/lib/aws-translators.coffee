@@ -55,7 +55,7 @@ module.exports.getItem = (params, options, callback, keySchema) ->
     Key: getKey(params, keySchema)
 
   promise = Q.ninvoke(@parent.dynamo, 'getItem', awsParams)
-             .then dataTrans.fromDynamo
+             .then (data)-> dataTrans.fromDynamo(data.Item)
 
   if callback isnt null
     promise.nodeify(callback)
