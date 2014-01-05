@@ -9,8 +9,8 @@ _ = require('lodash')
 ###
 module.exports.fromDynamo = (dbObj) ->
   if _.isArray dbObj
-    for element in dbObj
-      module.exports.fromDynamo element
+    for element, key in dbObj
+      dbObj[key] = module.exports.fromDynamo element
     return dbObj
   if _.isObject dbObj
     return _.transform dbObj, (res, val, key) ->
