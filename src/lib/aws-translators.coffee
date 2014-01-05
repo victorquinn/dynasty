@@ -28,11 +28,11 @@ getKey = (params, keySchema) ->
 
   key = {}
   key[keySchema.hashKeyName] = {}
-  key[keySchema.hashKeyName][keySchema.hashKeyType] = params.hash
+  key[keySchema.hashKeyName][keySchema.hashKeyType] = params.hash+''
 
   if params.range
     key[keySchema.rangeKeyName] = {}
-    key[keySchema.rangeKeyName][keySchema.rangeKeyType] = params.range
+    key[keySchema.rangeKeyName][keySchema.rangeKeyType] = params.range+''
 
   key
 
