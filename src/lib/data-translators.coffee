@@ -19,7 +19,7 @@ module.exports.fromDynamo = (dbObj) ->
       else if(val.NS)
         res[key] = _.map(val.NS, parseFloat)
       else
-        throw new Error('Non Compatible Field [not "S"|"N"|"NS"|"SS"]: ' + i)
+        throw new Error('Non Compatible Field [not "S"|"N"|"NS"|"SS"]: ' + key)
   else
     return dbObj
 
