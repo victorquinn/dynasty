@@ -161,19 +161,20 @@ class Table
       TableName: @name
       Key: keyParam
 
-    promise.range = (rangeKeyValue)=>
-      @key.then (keySchema)->
-        if !keySchema.rangeKeyName
-          deferred.reject new Error "Specifying range key for table without range key"
-        else
-          keyParam[keySchema.rangeKeyName] = {}
-          keyParam[keySchema.rangeKeyName][keySchema.rangeKeyType] = rangeKeyValue+''
-      promise
-
     promise.hash = (hashKeyValue) =>
       @key.then (keySchema)->
         keyParam[keySchema.hashKeyName] = {}
         keyParam[keySchema.hashKeyName][keySchema.hashKeyType] = hashKeyValue+''
+
+      promise.range = (rangeKeyValue)=>
+        @key.then (keySchema)->
+          if !keySchema.rangeKeyName
+            deferred.reject new Error "Specifying range key for table without range key"
+          else
+            keyParam[keySchema.rangeKeyName] = {}
+            keyParam[keySchema.rangeKeyName][keySchema.rangeKeyType] = rangeKeyValue+''
+        promise
+
       promise
 
     process.nextTick =>
