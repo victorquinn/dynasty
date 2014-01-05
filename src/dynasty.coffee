@@ -165,7 +165,12 @@ class Table
       Key: keyParam
 
     hashKeySpecified = rangeKeySpecified = false
-    
+
+    options = {}
+    promise.options = (opts)->
+      _.extend(options, opts)
+      promise
+
     promise.hash = (hashKeyValue) =>
       @key.then (keySchema)->
         keyParam[keySchema.hashKeyName] = {}
@@ -184,6 +189,7 @@ class Table
 
       promise
 
+    # Wait a tick and then run the appropriate aws function
     process.nextTick =>
       @key.then (keySchema)=>
         if !promise.isRejected()
@@ -204,6 +210,7 @@ class Table
               ComparisonOperator: 'EQ'
             delete awsParams.Key
             awsTrans.processAllPages(deferred, @parent.dynamo, 'query', awsParams)
+
     promise
 
 
