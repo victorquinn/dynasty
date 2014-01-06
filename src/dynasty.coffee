@@ -1,8 +1,6 @@
 # Main Dynasty Class
 
 aws = require('aws-sdk')
-dynamodb = require('dynamodb')
-awsTrans = require('./lib')["aws-translators"]
 _ = require('lodash')
 Q = require('q')
 debug = require('debug')('dynasty')
@@ -15,6 +13,9 @@ typeToAwsType =
   number_set: 'NS'
   binary: 'B'
   binary_set: 'BS'
+
+lib = require('./lib')
+Table = lib.Table
 
 class Dynasty
 
@@ -32,9 +33,17 @@ class Dynasty
     aws.config.update credentials
 
     @dynamo = new aws.DynamoDB()
-    @ddb = dynamodb.ddb credentials
     @name = 'Dynasty'
     @tables = {}
+
+  loadAllTables: =>
+    deferred = Q.defer()
+    @list().catch(deferred.reject)
+    .then (data)=>
+      for tableName in data.TableNames
+        @table(tableName)
+      deferred.resolve(@tables)
+    deferred.promise
 
   # Given a name, return a Table object
   table: (name) ->
@@ -142,140 +151,5 @@ class Dynasty
 
     promise
 
-  # See http://vq.io/19EiASB
-  convert_to_dynamo: (item) ->
-    if _.isArray item
-      if _.every item, _.isNumber
-        obj =
-          'NS': item
-      else if _.every item, _.isString
-        if _.any(item, (i) -> i.length > 1024)
-          obj =
-            'BS': item
-        else
-          obj =
-            'SS': item
-      else
-        stringify = _.map item, (i) -> JSON.stringify i
-        obj =
-          'BS': stringify
-    else if _.isNumber item
-      obj =
-        'N': item.toString()
-    else if _.isString item
-      # Note: We're kind of arbitrarily defining that a Blob is a string greater
-      # than 1024. This is a soft constraint from Amazon because a range key
-      # cannot exceed 1024 but it is theoretically possible to store a string
-      # greater than that as a string in DynamoDB.
-      if item.length > 1024
-        obj =
-          'B': item
-      else
-        obj =
-          'S': item
-    else if _.isObject item
-      # If it's an object, we will stringify it and put it into the DB as a blob
-      obj =
-        'B': JSON.stringify item
-    else if not item
-      throw new TypeError 'Cannot call convert_to_dynamo() with no arguments'
-
-
-
-
-class Table
-
-  constructor: (@parent, @name) ->
-    @update = @insert
-    @key = @describe().then awsTrans.getKeySchema
-
-  # Add some DRY
-  init: (params, options, callback) ->
-    if _.isFunction options
-      callback = options
-      options = {}
-
-    if _.isObject params
-      {hash, range} = params
-    else
-      hash = params
-
-    range = null if not range
-
-    deferred = Q.defer()
-
-    [hash, range, deferred, options, callback]
-
-
-  ###
-  Item Operations
-  ###
-
-  # Wrapper around DynamoDB's getItem
-  find: (params, options = {}, callback = null) ->
-    debug "find() - #{params}"
-    [hash, range, deferred, options, callback] = @init params, options, callback
-
-    @parent.ddb.getItem @name, hash, range, options, (err, resp, cap) ->
-
-      if err
-        deferred.reject err
-      else
-        deferred.resolve resp
-      callback(err, resp) if callback isnt null
-
-    deferred.promise
-
-  # Wrapper around DynamoDB's putItem
-  insert: (obj, options = {}, callback = null) ->
-    debug "insert() - " + JSON.stringify obj
-    if _.isFunction options
-      callback = options
-      options = {}
-
-    deferred = Q.defer()
-
-    @parent.ddb.putItem @name, obj, options, (err, resp, cap) ->
-      if err
-        deferred.reject err
-      else
-        deferred.resolve resp
-      callback(err, resp) if callback isnt null
-
-    deferred.promise
-
-  remove: (params, options, callback = null) ->
-    @key.then awsTrans.deleteItem.bind(this, params, options, callback)
-
-  # TODO: Handle scan filters and pagination
-  scan: (params, options, callback = null) ->
-    debug "scan() - #{params}"
-    params = {} if not params
-    params.TableName = @name
-    promise = Q.ninvoke @parent.dynamo, 'scan', params
-
-    if callback is not null
-      promise = promise.nodeify callback
-
-    promise
-
-  ###
-  Table Operations
-  ###
-
-  # describe
-  describe: (callback = null) ->
-    debug 'describe() - ' + @name
-    promise = Q.ninvoke(@parent.dynamo, 'describeTable', TableName: @name)
-
-    if callback is not null
-      promise = promise.nodeify callback
-
-    promise
-
-  # drop
-  drop: (callback = null) ->
-    @parent.drop @name callback
-    
 
 module.exports = Dynasty.generator
