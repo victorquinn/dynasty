@@ -57,6 +57,7 @@ class Table
       @key.then (keySchema)=>
         if !promise.isRejected()
           debug "find() - #{JSON.stringify awsParams}"
+          _.extend awsParams, _.omit options, 'Key', 'TableName'
           if rangeKeySpecified and @hasRangeKey or hashKeySpecified and !@hasRangeKey
             Q.ninvoke(@parent.dynamo, 'getItem', awsParams)
             .then((data)-> dataTrans.fromDynamo(data.Item))
