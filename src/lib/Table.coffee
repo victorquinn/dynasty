@@ -90,18 +90,6 @@ class Table
   remove: (params, options, callback = null) ->
     @key.then awsTrans.deleteItem.bind(this, params, options, callback)
 
-  # TODO: Handle scan filters and pagination
-  scan: (params, options, callback = null) ->
-    debug "scan() - #{params}"
-    params = {} if not params
-    params.TableName = @name
-    promise = Q.ninvoke @parent.dynamo, 'scan', params
-
-    if callback is not null
-      promise = promise.nodeify callback
-
-    promise
-
   ###
   Table Operations
   ###
