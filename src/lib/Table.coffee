@@ -71,7 +71,11 @@ class Table
           if rangeKeySpecified and @hasRangeKey or hashKeySpecified and !@hasRangeKey
             awsParams = _.pick _.extend(awsParams, options), 'AttributesToGet', 'TableName', 'Key', 'ConsistentRead', 'ReturnConsumedCapacity'
             Q.ninvoke(@parent.dynamo, 'getItem', awsParams)
-            .then((data)-> dataTrans.fromDynamo(data.Item))
+            .then((data)-> 
+              data = dataTrans.fromDynamo(data.Item)
+              deferred.notify if data then [data] else []
+              data
+            )
             .then(deferred.resolve)
             .catch(deferred.reject)
           else if !rangeKeySpecified and !hashKeySpecified
