@@ -103,13 +103,55 @@ class Table
 
 
   # Wrapper around DynamoDB's putItem
-  insert: (obj, options = {}, callback = null) ->
-    debug "insert() - " + JSON.stringify obj
-    if _.isFunction options
-      callback = options
-      options = {}
+  insert: (obj) ->
+    deferred = Q.defer()
+    if _.isArray obj
+      allPutOps = []
 
-      awsTrans.putItem.bind(this, params, options, callback)
+      itemSize = (item)->
+        sum = 0
+        for prop, val of item
+          sum += prop.length + (val+'').length
+        sum
+
+      currentNdx = 0
+      while currentNdx < obj.length
+        items = []
+        dataLength = 0
+
+        while items.length < 25 and dataLength < 1048576
+          item = obj[currentNdx++]
+          dataLength += itemSize(item)
+          items.push item
+
+        awsParams = {}
+        awsParams.RequestItems = {}
+
+        putRequests = []
+        for item in items
+          putRequests.push PutRequest: Item: dataTrans.toDynamo(item)
+
+        awsParams.RequestItems[@name] = putRequests
+
+        allPutOps.push(
+          Q.ninvoke(@parent.dynamo, 'batchWriteItem', awsParams)
+          .then((data)->deferred.notify data)
+        )
+      Q.all(allPutOps)
+      .then(deferred.resolve)
+      .catch(deferred.reject)
+
+    else
+      awsParams =
+        TableName: @name
+        Item: _.transform(obj, (res, val, key) ->
+          res[key] = dataTrans.toDynamo(val))
+      @parent.dynamo.putItem awsParams, (err, data)->
+        if err
+          deferred.reject err
+        else
+          deferred.resolve data
+    deferred.promise
 
   remove: (params, options, callback = null) ->
     deferred = Q.defer() # Cannot be resolved until after @key
