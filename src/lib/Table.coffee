@@ -27,7 +27,8 @@ class Table
       TableName: @name
       Key: keyParam
 
-    hashKeySpecified = rangeKeySpecified = false
+    hashKeySpecified = rangeKeySpecified = minRangeSpecified = false
+    specifiedMinRange = null
 
     options = {}
     promise.options = (opts)->
@@ -49,6 +50,16 @@ class Table
             keyParam[keySchema.rangeKeyName][keySchema.rangeKeyType] = rangeKeyValue+''
             rangeKeySpecified = true
         promise
+
+      promise.minRange = (minRange)=>
+        @key.then (keySchema)=>
+          if !@hasRangeKey
+            deferred.reject new Error "Specifying minimum range key for table without range key"
+          else
+            minRangeSpecified = true
+            specifiedMinRange = minRange
+        promise
+
 
       promise
 
@@ -75,6 +86,13 @@ class Table
               ]
               ComparisonOperator: 'EQ'
             delete awsParams.Key
+            if minRangeSpecified
+              awsParams.KeyConditions ?= {}
+              awsParams.KeyConditions[keySchema.rangeKeyName] = 
+                AttributeValueList : [
+                  dataTrans.toDynamo(specifiedMinRange)
+                ]
+                ComparisonOperator: 'GT'
             awsParams = _.pick _.extend(awsParams, options),  'TableName', 'AttributesToGet', 'ConsistentRead', 'ExclusiveStartKey', 'IndexName', 'KeyConditions', 'Limit', 'ReturnConsumedCapacity', 'ScanIndexForward', 'Select'
             awsTrans.processAllPages(deferred, @parent.dynamo, 'query', awsParams)
     promise
