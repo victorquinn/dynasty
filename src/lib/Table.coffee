@@ -57,14 +57,16 @@ class Table
       @key.then (keySchema)=>
         if !promise.isRejected()
           debug "find() - #{JSON.stringify awsParams}"
-          _.extend awsParams, _.omit options, 'Key', 'TableName'
           if rangeKeySpecified and @hasRangeKey or hashKeySpecified and !@hasRangeKey
+            awsParams = _.pick _.extend(awsParams, options), 'AttributesToGet', 'TableName', 'Key', 'ConsistentRead', 'ReturnConsumedCapacity'
             Q.ninvoke(@parent.dynamo, 'getItem', awsParams)
             .then((data)-> dataTrans.fromDynamo(data.Item))
             .then(deferred.resolve)
             .catch(deferred.reject)
           else if !rangeKeySpecified and !hashKeySpecified
-            awsTrans.processAllPages(deferred, @parent.dynamo, 'scan', TableName: @name)
+            delete awsParams.Key
+            awsParams = _.pick _.extend(awsParams, options),  'TableName', 'AttributesToGet', 'ExclusiveStartKey', 'Limit', 'ScanFilter', 'Segment', 'Select', 'TotalSegments', 'ReturnConsumedCapacity'
+            awsTrans.processAllPages(deferred, @parent.dynamo, 'scan', awsParams)
           else if !rangeKeySpecified and @hasRangeKey
             awsParams.KeyConditions = {}
             awsParams.KeyConditions[keySchema.hashKeyName] = 
@@ -73,8 +75,8 @@ class Table
               ]
               ComparisonOperator: 'EQ'
             delete awsParams.Key
+            awsParams = _.pick _.extend(awsParams, options),  'TableName', 'AttributesToGet', 'ConsistentRead', 'ExclusiveStartKey', 'IndexName', 'KeyConditions', 'Limit', 'ReturnConsumedCapacity', 'ScanIndexForward', 'Select'
             awsTrans.processAllPages(deferred, @parent.dynamo, 'query', awsParams)
-
     promise
 
 
