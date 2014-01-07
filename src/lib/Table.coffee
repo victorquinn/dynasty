@@ -112,7 +112,141 @@ class Table
       awsTrans.putItem.bind(this, params, options, callback)
 
   remove: (params, options, callback = null) ->
-    @key.then awsTrans.deleteItem.bind(this, params, options, callback)
+    deferred = Q.defer() # Cannot be resolved until after @key
+    promise = deferred.promise
+
+    keyParam = {}
+    awsParams =
+      TableName: @name
+      Key: keyParam
+
+    hashKeySpecified = rangeKeySpecified = false
+    specifiedHashKey = specifiedRangeKey = null
+
+    options = {}
+    promise.options = (opts)->
+      _.extend(options, opts)
+      promise
+
+    enableHash = =>
+      promise.hash = (hashKeyValue) =>
+        @key.then (keySchema)->
+          keyParam[keySchema.hashKeyName] = {}
+          keyParam[keySchema.hashKeyName][keySchema.hashKeyType] = hashKeyValue+''
+          hashKeySpecified = true
+          specifiedHashKey = hashKeyValue+''
+        promise
+
+    enableRange = =>
+      promise.range = (rangeKeyValue)=>
+        @key.then (keySchema)=>
+          if !@hasRangeKey
+            deferred.reject new Error "Specifying range key for table without range key"
+          else
+            keyParam[keySchema.rangeKeyName] = {}
+            keyParam[keySchema.rangeKeyName][keySchema.rangeKeyType] = rangeKeyValue+''
+            rangeKeySpecified = true
+            specifiedRangeKey = rangeKeyValue+''
+        promise
+
+
+    removeNarySpecifiers = ->
+      for specifier in ['one', 'many', 'all']
+        delete promise[specifier]
+
+    permitRemovingOne = false
+    promise.one = ->
+      permitRemovingOne = true
+      removeNarySpecifiers()
+      enableHash()
+      enableRange()
+      promise
+
+    permitRemovingSome = false
+    promise.many = -> 
+      permitRemovingSome = true
+      removeNarySpecifiers()
+      enableHash()
+      promise
+
+    permitRemovingAll = false
+    promise.all = -> 
+      permitRemovingAll = true
+      removeNarySpecifiers()
+      promise
+
+    # Wait a tick and then run the appropriate aws function
+    process.nextTick =>
+      @key.then (keySchema)=>
+        if !promise.isRejected()
+          debug "remove() - #{JSON.stringify awsParams}"
+
+          if @hasRangeKey
+            if permitRemovingOne and (!hashKeySpecified or !rangeKeySpecified)
+              return deferred.reject new Error 'Single element removal specified on hash/range table without specifying both a hash and range key'
+            if permitRemovingSome and !hashKeySpecified
+              return deferred.reject new Error 'Partial multiple element removal specified on a hash/range table without specifying a hash key'
+            if permitRemovingAll and (hashKeySpecified or rangeKeySpecified)
+              return deferred.reject new Error 'You cannot specify a hash or range key when attempting to remove all elements'
+          else
+            if rangeKeySpecified
+              return deferred.reject new Error 'Range key specified for table without range key'
+            if permitRemovingOne and !hashKeySpecified
+              return deferred.reject new Error 'Single element removal specified on hash table without specifying hash key'
+          if !permitRemovingOne and !permitRemovingSome and !permitRemovingAll
+            return deferred.reject new Error 'Remove requires one(), many(), or all() to be called'
+
+          deleteCount = 0
+          #items.length must not exceed 25
+          allDeleteOps = []
+          deleter = (items)=>
+            if items.length == 0 then return
+            deleteRequests = []
+            for item in items
+              requestKey = {}
+              requestKey[keySchema.hashKeyName] = {}
+              requestKey[keySchema.hashKeyName][keySchema.hashKeyType] = item[keySchema.hashKeyName]+''
+              if keySchema.rangeKeyName
+                requestKey[keySchema.rangeKeyName] = {}
+                requestKey[keySchema.rangeKeyName][keySchema.rangeKeyType] = item[keySchema.rangeKeyName]+''
+              deleteRequests.push DeleteRequest: Key: requestKey
+
+            deleteCount += deleteRequests.length
+            deferred.notify(Count:deleteCount)
+
+            awsParams = {}
+            awsParams.RequestItems = {}
+            awsParams.RequestItems[@name] = deleteRequests
+
+            allDeleteOps.push Q.ninvoke @parent.dynamo, 'batchWriteItem', awsParams
+
+          op = Q()
+          if hashKeySpecified and !@hasRangeKey
+            op = @find()
+            .options(Limit:25)
+            .hash(specifiedHashKey)
+            .progress(deleter)
+          else if rangeKeySpecified and @hasRangeKey 
+            op = @find()
+            .options(Limit:25)
+            .hash(specifiedHashKey)
+            .range(specifiedRangeKey)
+            .progress(deleter)
+          else if permitRemovingAll and !rangeKeySpecified and !hashKeySpecified
+            op = @find()
+            .options(Limit:25)
+            .progress(deleter)
+          else if permitRemovingSome and !rangeKeySpecified and @hasRangeKey
+            op = @find()
+            .hash(specifiedHashKey)
+            .options(Limit:25)
+            .progress(deleter)
+          op
+          .then(->Q.all allDeleteOps)
+          .then(deferred.resolve)
+          .catch(deferred.reject)
+
+    promise
 
   ###
   Table Operations
