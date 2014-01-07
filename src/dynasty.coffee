@@ -1,6 +1,7 @@
 # Main Dynasty Class
 
-aws = require('aws-sdk')
+aws = require './lib/aws'
+aws_sdk = require('aws-sdk')
 _ = require('lodash')
 Q = require('q')
 debug = require('debug')('dynasty')
@@ -26,9 +27,9 @@ class Dynasty
     # Lock API version
     credentials.apiVersion = '2012-08-10'
 
-    aws.config.update credentials
-
-    @dynamo = new aws.DynamoDB()
+    aws_sdk.config.update credentials
+    @execute = aws(credentials)
+    @dynamo = new aws_sdk.DynamoDB()
     @name = 'Dynasty'
     @tables = {}
 
@@ -140,7 +141,7 @@ class Dynasty
         else if params.start is not null
           awsParams.ExclusiveStartTableName = params.start
 
-    promise = Q.ninvoke(@dynamo, 'listTables', awsParams)
+    promise = Q.nfcall(@execute, 'ListTables', awsParams)
 
     if callback is not null
       promise = promise.nodeify(callback)
