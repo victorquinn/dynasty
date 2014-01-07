@@ -19,10 +19,6 @@ Table = lib.Table
 
 class Dynasty
 
-  @generator: (credentials) ->
-    if not (this instanceof Dynasty)
-      return new Dynasty(credentials)
-
   constructor: (credentials) ->
     debug "dynasty constructed."
     credentials.region = credentials.region || 'us-east-1'
@@ -152,4 +148,4 @@ class Dynasty
     promise
 
 
-module.exports = Dynasty.generator
+module.exports = (credentials) -> new Dynasty(credentials)

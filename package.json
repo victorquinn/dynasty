@@ -1,12 +1,13 @@
 {
   "name": "dynasty",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Dynasty - Promise-based DynamoDB API",
   "homepage": "http://dynastyjs.com",
   "author": "Victor Quinn <mail@victorquinn.com>",
   "contributors": [
     "Mike Atkins (https://github.com/apechimp)",
-    "Ben McIlwain (https://github.com/cydeweys)"
+    "Ben McIlwain (https://github.com/cydeweys)",
+    "Tim Huff (https://github.com/timhuff)"
   ],
   "bugs": {
     "url": "https://github.com/victorquinn/dynasty/issues"
