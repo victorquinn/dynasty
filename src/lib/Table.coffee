@@ -65,9 +65,7 @@ class Table
 
     # Wait a tick and then run the appropriate aws function
     process.nextTick =>
-      console.log 'executing...'
       @key.done (keySchema)=>
-        console.log keySchema
         if !promise.isRejected()
           debug "find() - #{JSON.stringify awsParams}"
           if rangeKeySpecified and @hasRangeKey or hashKeySpecified and !@hasRangeKey
@@ -83,7 +81,6 @@ class Table
           else if !rangeKeySpecified and !hashKeySpecified
             delete awsParams.Key
             awsParams = _.pick _.extend(awsParams, options),  'TableName', 'AttributesToGet', 'ExclusiveStartKey', 'Limit', 'ScanFilter', 'Segment', 'Select', 'TotalSegments', 'ReturnConsumedCapacity'
-            console.log awsParams
             awsTrans.processAllPages(deferred, @parent.execute, 'Scan', awsParams)
           else if !rangeKeySpecified and @hasRangeKey
             awsParams.KeyConditions = {}

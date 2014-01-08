@@ -23,24 +23,12 @@ module.exports.processAllPages = (deferred, execute, functionName, params)->
 
 
 module.exports.getKeySchema = (tableDescription) ->
-  getKeyAndType = (keyType) ->
-    keyName = _.find tableDescription.Table.KeySchema, (key) ->
-      key.KeyType is keyType
-    ?.AttributeName
+  keySchema = tableDescription.Table.KeySchema
 
-    keyDataType = _.find tableDescription.Table.AttributeDefinitions,
-    (attribute) ->
-      attribute.AttributeName is keyName
-    ?.AttributeType
-    [keyName, keyDataType]
-
-  [hashKeyName, hashKeyType] = getKeyAndType 'HASH'
-  [rangeKeyName, rangeKeyType] = getKeyAndType 'RANGE'
-
-  hashKeyName: hashKeyName
-  hashKeyType: hashKeyType
-  rangeKeyName: rangeKeyName
-  rangeKeyType: rangeKeyType
+  hashKeyName: keySchema.HashKeyElement.AttributeName
+  hashKeyType: keySchema.HashKeyElement.AttributeType
+  rangeKeyName: keySchema?.RangeKeyElement?.AttributeName
+  rangeKeyType: keySchema?.RangeKeyElement?.AttributeType
 
 getKey = (params, keySchema) ->
   if !_.isObject params
