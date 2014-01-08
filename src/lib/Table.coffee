@@ -65,12 +65,14 @@ class Table
 
     # Wait a tick and then run the appropriate aws function
     process.nextTick =>
-      @key.then (keySchema)=>
+      console.log 'executing...'
+      @key.done (keySchema)=>
+        console.log keySchema
         if !promise.isRejected()
           debug "find() - #{JSON.stringify awsParams}"
           if rangeKeySpecified and @hasRangeKey or hashKeySpecified and !@hasRangeKey
             awsParams = _.pick _.extend(awsParams, options), 'AttributesToGet', 'TableName', 'Key', 'ConsistentRead', 'ReturnConsumedCapacity'
-            Q.ninvoke(@parent.dynamo, 'getItem', awsParams)
+            @parent.execute('GetItem', awsParams)
             .then((data)-> 
               data = dataTrans.fromDynamo(data.Item)
               deferred.notify if data then [data] else []
@@ -81,7 +83,8 @@ class Table
           else if !rangeKeySpecified and !hashKeySpecified
             delete awsParams.Key
             awsParams = _.pick _.extend(awsParams, options),  'TableName', 'AttributesToGet', 'ExclusiveStartKey', 'Limit', 'ScanFilter', 'Segment', 'Select', 'TotalSegments', 'ReturnConsumedCapacity'
-            awsTrans.processAllPages(deferred, @parent.dynamo, 'scan', awsParams)
+            console.log awsParams
+            awsTrans.processAllPages(deferred, @parent.execute, 'Scan', awsParams)
           else if !rangeKeySpecified and @hasRangeKey
             awsParams.KeyConditions = {}
             awsParams.KeyConditions[keySchema.hashKeyName] = 
@@ -98,7 +101,7 @@ class Table
                 ]
                 ComparisonOperator: 'GT'
             awsParams = _.pick _.extend(awsParams, options),  'TableName', 'AttributesToGet', 'ConsistentRead', 'ExclusiveStartKey', 'IndexName', 'KeyConditions', 'Limit', 'ReturnConsumedCapacity', 'ScanIndexForward', 'Select'
-            awsTrans.processAllPages(deferred, @parent.dynamo, 'query', awsParams)
+            awsTrans.processAllPages(deferred, @parent.execute, 'Query', awsParams)
     promise
 
 
@@ -134,7 +137,7 @@ class Table
         awsParams.RequestItems[@name] = putRequests
 
         allPutOps.push(
-          Q.ninvoke(@parent.dynamo, 'batchWriteItem', awsParams)
+          @parent.execute('BatchWriteItem', awsParams)
           .then((data)->deferred.notify data)
         )
       Q.all(allPutOps)
@@ -260,7 +263,7 @@ class Table
             awsParams.RequestItems = {}
             awsParams.RequestItems[@name] = deleteRequests
 
-            allDeleteOps.push Q.ninvoke @parent.dynamo, 'batchWriteItem', awsParams
+            allDeleteOps.push @parent.execute('BatchWriteItem', awsParams)
 
           op = Q()
           if hashKeySpecified and !@hasRangeKey
@@ -297,7 +300,7 @@ class Table
   # describe
   describe: (callback = null) ->
     debug 'describe() - ' + @name
-    promise = Q.ninvoke(@parent.dynamo, 'describeTable', TableName: @name)
+    promise = @parent.execute('DescribeTable', TableName: @name)
 
     if callback is not null
       promise = promise.nodeify callback

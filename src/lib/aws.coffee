@@ -2,13 +2,14 @@ events = require('events')
 crypto = require('crypto')
 http = require('http')
 https = require('https')
+Q = require 'q'
+
 aws = (spec)->
   that = new events.EventEmitter();
   that.setMaxListeners(0);
   my = {}
   my.accessKeyId = spec.accessKeyId;
   my.secretAccessKey = spec.secretAccessKey;
-  console.log my.secretAccessKey
   my.endpoint = spec.endpoint || 'dynamodb.us-east-1.amazonaws.com';
   my.port = spec.port || 80;
   my.agent = spec.agent;
@@ -22,7 +23,13 @@ aws = (spec)->
       accessKeyId: spec.accessKeyId
       expiration: spec.sessionExpires
 
-  execute = (op, data, cb) ->
+  execute = (op, data) ->
+    deferred = Q.defer()
+    cb = (err, data)->
+      if err
+        deferred.reject err
+      else
+        deferred.resolve data
     auth (err) ->
       if err
         cb err
@@ -79,7 +86,6 @@ aws = (spec)->
                 cb err
               else
                 cb null, json
-
           )
           req.on "error", (err) ->
             cb err
@@ -116,6 +122,7 @@ aws = (spec)->
               cb null, json
 
         ) 0
+    deferred.promise
 
 
 

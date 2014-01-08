@@ -2,7 +2,7 @@ _ = require('lodash')
 dataTrans = require('./data-translators')
 Q = require('q')
 
-module.exports.processAllPages = (deferred, dynamo, functionName, params)->
+module.exports.processAllPages = (deferred, execute, functionName, params)->
 
   stats = 
     Count: 0
@@ -14,11 +14,11 @@ module.exports.processAllPages = (deferred, dynamo, functionName, params)->
     stats.Count += result.Count
     if result.LastEvaluatedKey
       params.ExclusiveStartKey = result.LastEvaluatedKey
-      dynamo[functionName] params, resultHandler
+      execute(functionName, params).then(resultHandler)
     else
       deferred.resolve stats
 
-  dynamo[functionName] params, resultHandler
+  execute(functionName, params).then(resultHandler)
   deferred.promise
 
 
@@ -56,41 +56,3 @@ getKey = (params, keySchema) ->
 
   key
 
-module.exports.deleteItem = (params, options, callback, keySchema) ->
-
-  awsParams =
-    TableName: @name
-    Key: getKey(params, keySchema)
-
-  promise = Q.ninvoke @parent.dynamo, 'deleteItem', awsParams
-
-  if callback isnt null
-    promise.nodeify(callback)
-
-  promise
-
-module.exports.getItem = (params, options, callback, keySchema) ->
-  awsParams =
-    TableName: @name
-    Key: getKey(params, keySchema)
-
-  promise = Q.ninvoke(@parent.dynamo, 'getItem', awsParams)
-             .then (data)-> dataTrans.fromDynamo(data.Item)
-
-  if callback isnt null
-    promise.nodeify(callback)
-
-  promise
-
-module.exports.putItem = (obj, options, callback) ->
-  awsParams =
-    TableName: @name
-    Item: _.transform(obj, (res, val, key) ->
-      res[key] = dataTrans.toDynamo(val))
-
-  promise = Q.ninvoke(@parent.dynamo, 'putItem', awsParams)
-
-  if callback isnt null
-    promise.nodeify(callback)
-
-  promise

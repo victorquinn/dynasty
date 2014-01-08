@@ -1,7 +1,6 @@
 # Main Dynasty Class
 
 aws = require './lib/aws'
-aws_sdk = require('aws-sdk')
 _ = require('lodash')
 Q = require('q')
 debug = require('debug')('dynasty')
@@ -27,9 +26,7 @@ class Dynasty
     # Lock API version
     credentials.apiVersion = '2012-08-10'
 
-    aws_sdk.config.update credentials
     @execute = aws(credentials)
-    @dynamo = new aws_sdk.DynamoDB()
     @name = 'Dynasty'
     @tables = {}
 
@@ -63,7 +60,7 @@ class Dynasty
         ReadCapacityUnits: throughput.read
         WriteCapacityUnits: throughput.write
 
-    promise = Q.ninvoke(@dynamo, 'updateTable', awsParams)
+    promise = @execute('UpdateTable', awsParams)
 
     if callback is not null
       promise = promise.nodeify(callback)
@@ -93,7 +90,7 @@ class Dynasty
         ReadCapacityUnits: throughput.read
         WriteCapacityUnits: throughput.write
 
-    promise = Q.ninvoke(@dynamo, 'createTable', awsParams)
+    promise = @execute('CreateTable', awsParams)
 
     if callback is not null
       promise = promise.nodeify(callback)
@@ -104,7 +101,7 @@ class Dynasty
   # describe
   describe: (name, callback = null) ->
     debug "describe() - #{name}"
-    promise = Q.ninvoke @dynamo, 'describeTable', TableName: name
+    promise = @execute('DescribeTable', TableName: name)
 
     if callback is not null
       promise = promise.nodeify callback
@@ -118,7 +115,7 @@ class Dynasty
     params =
       TableName: name
 
-    promise = Q.ninvoke(@dynamo, 'deleteTable', params)
+    promise = @execute('DeleteTable', params)
 
     if callback is not null
       promise = promise.nodeify(callback)
@@ -141,7 +138,7 @@ class Dynasty
         else if params.start is not null
           awsParams.ExclusiveStartTableName = params.start
 
-    promise = Q.nfcall(@execute, 'ListTables', awsParams)
+    promise = @execute('ListTables', awsParams)
 
     if callback is not null
       promise = promise.nodeify(callback)
