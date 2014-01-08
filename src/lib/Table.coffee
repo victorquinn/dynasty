@@ -297,12 +297,7 @@ class Table
   # describe
   describe: (callback = null) ->
     debug 'describe() - ' + @name
-    promise = @parent.execute('DescribeTable', TableName: @name)
-
-    if callback is not null
-      promise = promise.nodeify callback
-
-    promise
+    @parent.execute('DescribeTable', TableName: @name)
 
   # drop
   drop: (callback = null) ->

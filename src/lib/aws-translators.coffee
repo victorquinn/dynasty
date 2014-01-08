@@ -7,7 +7,7 @@ module.exports.processAllPages = (deferred, execute, functionName, params)->
   stats = 
     Count: 0
       
-  resultHandler = (err, result)=>
+  resultHandler = (result, err)=>
     if err then return deferred.reject(err)
 
     deferred.notify dataTrans.fromDynamo result.Items
