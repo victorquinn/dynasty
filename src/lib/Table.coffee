@@ -83,21 +83,15 @@ class Table
             awsParams = _.pick _.extend(awsParams, options),  'TableName', 'AttributesToGet', 'ExclusiveStartKey', 'Limit', 'ScanFilter', 'Segment', 'Select', 'TotalSegments', 'ReturnConsumedCapacity'
             awsTrans.processAllPages(deferred, @parent.execute, 'Scan', awsParams)
           else if !rangeKeySpecified and @hasRangeKey
-            awsParams.KeyConditions = {}
-            awsParams.KeyConditions[keySchema.hashKeyName] = 
-              AttributeValueList : [
-                awsParams.Key[keySchema.hashKeyName]
-              ]
-              ComparisonOperator: 'EQ'
+            awsParams.HashKeyValue = awsParams.Key[keySchema.hashKeyName]
             delete awsParams.Key
             if minRangeSpecified
-              awsParams.KeyConditions ?= {}
-              awsParams.KeyConditions[keySchema.rangeKeyName] = 
+              awsParams.RangeKeyCondition ?= 
                 AttributeValueList : [
                   dataTrans.toDynamo(specifiedMinRange)
                 ]
                 ComparisonOperator: 'GT'
-            awsParams = _.pick _.extend(awsParams, options),  'TableName', 'AttributesToGet', 'ConsistentRead', 'ExclusiveStartKey', 'IndexName', 'KeyConditions', 'Limit', 'ReturnConsumedCapacity', 'ScanIndexForward', 'Select'
+            awsParams = _.pick _.extend(awsParams, options),  'TableName', 'HashKeyValue', 'RangeKeyCondition', 'HashKeyCondition', 'AttributesToGet', 'ConsistentRead', 'ExclusiveStartKey', 'IndexName', 'KeyConditions', 'Limit', 'ReturnConsumedCapacity', 'ScanIndexForward', 'Select'
             awsTrans.processAllPages(deferred, @parent.execute, 'Query', awsParams)
     promise
 
@@ -246,11 +240,11 @@ class Table
             deleteRequests = []
             for item in items
               requestKey = {}
-              requestKey[keySchema.hashKeyName] = {}
-              requestKey[keySchema.hashKeyName][keySchema.hashKeyType] = item[keySchema.hashKeyName]+''
+              requestKey.HashKeyElement = {}
+              requestKey.HashKeyElement[keySchema.hashKeyType] = item[keySchema.hashKeyName]+''
               if keySchema.rangeKeyName
-                requestKey[keySchema.rangeKeyName] = {}
-                requestKey[keySchema.rangeKeyName][keySchema.rangeKeyType] = item[keySchema.rangeKeyName]+''
+                requestKey.RangeKeyElement = {}
+                requestKey.RangeKeyElement[keySchema.rangeKeyType] = item[keySchema.rangeKeyName]+''
               deleteRequests.push DeleteRequest: Key: requestKey
 
             deleteCount += deleteRequests.length
@@ -259,7 +253,6 @@ class Table
             awsParams = {}
             awsParams.RequestItems = {}
             awsParams.RequestItems[@name] = deleteRequests
-
             allDeleteOps.push @parent.execute('BatchWriteItem', awsParams)
 
           op = Q()
@@ -278,13 +271,14 @@ class Table
             op = @find()
             .options(Limit:25)
             .progress(deleter)
-          else if permitRemovingSome and !rangeKeySpecified and @hasRangeKey
+          else if permitRemovingSome and !rangeKeySpecified and @hasRangeKey and hashKeySpecified
             op = @find()
             .hash(specifiedHashKey)
             .options(Limit:25)
             .progress(deleter)
           op
           .then(->Q.all allDeleteOps)
+          .then(-> Count:deleteCount)
           .then(deferred.resolve)
           .catch(deferred.reject)
 
