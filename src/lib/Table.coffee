@@ -37,8 +37,8 @@ class Table
 
     promise.hash = (hashKeyValue) =>
       @key.then (keySchema)->
-        keyParam[keySchema.hashKeyName] = {}
-        keyParam[keySchema.hashKeyName][keySchema.hashKeyType] = hashKeyValue+''
+        keyParam.HashKeyElement = {}
+        keyParam.HashKeyElement[keySchema.hashKeyType] = hashKeyValue+''
         hashKeySpecified = true
 
       promise.range = (rangeKeyValue)=>
@@ -46,8 +46,8 @@ class Table
           if !@hasRangeKey
             deferred.reject new Error "Specifying range key for table without range key"
           else
-            keyParam[keySchema.rangeKeyName] = {}
-            keyParam[keySchema.rangeKeyName][keySchema.rangeKeyType] = rangeKeyValue+''
+            keyParam.RangeKeyElement = {}
+            keyParam.RangeKeyElement[keySchema.rangeKeyType] = rangeKeyValue+''
             rangeKeySpecified = true
         promise
 
@@ -65,11 +65,11 @@ class Table
 
     # Wait a tick and then run the appropriate aws function
     process.nextTick =>
-      @key.done (keySchema)=>
+      @key.then((keySchema)=>
         if !promise.isRejected()
           debug "find() - #{JSON.stringify awsParams}"
-          if rangeKeySpecified and @hasRangeKey or hashKeySpecified and !@hasRangeKey
-            awsParams = _.pick _.extend(awsParams, options), 'AttributesToGet', 'TableName', 'Key', 'ConsistentRead', 'ReturnConsumedCapacity'
+          if (rangeKeySpecified and @hasRangeKey) or (hashKeySpecified and !@hasRangeKey)
+            awsParams = _.pick _.extend(awsParams, options), 'HashKeyElement', 'AttributesToGet', 'TableName', 'Key', 'ConsistentRead', 'ReturnConsumedCapacity'
             @parent.execute('GetItem', awsParams)
             .then((data)-> 
               data = dataTrans.fromDynamo(data.Item)
@@ -83,7 +83,7 @@ class Table
             awsParams = _.pick _.extend(awsParams, options),  'TableName', 'AttributesToGet', 'ExclusiveStartKey', 'Limit', 'ScanFilter', 'Segment', 'Select', 'TotalSegments', 'ReturnConsumedCapacity'
             awsTrans.processAllPages(deferred, @parent.execute, 'Scan', awsParams)
           else if !rangeKeySpecified and @hasRangeKey
-            awsParams.HashKeyValue = awsParams.Key[keySchema.hashKeyName]
+            awsParams.HashKeyValue = awsParams.Key.HashKeyElement
             delete awsParams.Key
             if minRangeSpecified
               awsParams.RangeKeyCondition ?= 
@@ -93,13 +93,14 @@ class Table
                 ComparisonOperator: 'GT'
             awsParams = _.pick _.extend(awsParams, options),  'TableName', 'HashKeyValue', 'RangeKeyCondition', 'HashKeyCondition', 'AttributesToGet', 'ConsistentRead', 'ExclusiveStartKey', 'IndexName', 'KeyConditions', 'Limit', 'ReturnConsumedCapacity', 'ScanIndexForward', 'Select'
             awsTrans.processAllPages(deferred, @parent.execute, 'Query', awsParams)
+      ).done()
     promise
 
 
   # Wrapper around DynamoDB's putItem
   insert: (obj) ->
-    deferred = Q.defer()
     if _.isArray obj
+      deferred = Q.defer()
       allPutOps = []
 
       itemSize = (item)->
@@ -113,7 +114,7 @@ class Table
         items = []
         dataLength = 0
 
-        while items.length < 25 and dataLength < 1048576
+        while items.length < 25 and dataLength < 1048576 and currentNdx < obj.length
           item = obj[currentNdx++]
           dataLength += itemSize(item)
           items.push item
@@ -123,13 +124,18 @@ class Table
 
         putRequests = []
         for item in items
-          putRequests.push PutRequest: Item: dataTrans.toDynamo(item)
+          for prop of item
+            item[prop] = dataTrans.toDynamo(item[prop])
+          putRequests.push PutRequest: Item: item
 
         awsParams.RequestItems[@name] = putRequests
 
         allPutOps.push(
-          @parent.execute('BatchWriteItem', awsParams)
-          .then((data)->deferred.notify data)
+          @parent.execute('BatchWriteItem', awsParams).catch((error)->console.log error; deferred.reject error )
+          .then((data)->
+            deferred.notify(data)
+            W.resolve(data)
+          )
         )
       Q.all(allPutOps)
       .then(deferred.resolve)
@@ -140,12 +146,7 @@ class Table
         TableName: @name
         Item: _.transform(obj, (res, val, key) ->
           res[key] = dataTrans.toDynamo(val))
-      @parent.dynamo.putItem awsParams, (err, data)->
-        if err
-          deferred.reject err
-        else
-          deferred.resolve data
-    deferred.promise
+      @parent.execute('PutItem', awsParams)
 
   remove: (params, options, callback = null) ->
     deferred = Q.defer() # Cannot be resolved until after @key

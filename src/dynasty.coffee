@@ -4,6 +4,7 @@ aws = require './lib/aws'
 _ = require('lodash')
 Q = require('q')
 debug = require('debug')('dynasty')
+Q.longStackSupport = true
 
 # See http://vq.io/19EiASB
 typeToAwsType =

@@ -12,13 +12,15 @@ module.exports.processAllPages = (deferred, execute, functionName, params)->
 
     deferred.notify dataTrans.fromDynamo result.Items
     stats.Count += result.Count
+    if params.Limit?
+      params.Limit -= result.Count
     if result.LastEvaluatedKey
       params.ExclusiveStartKey = result.LastEvaluatedKey
       execute(functionName, params).then(resultHandler)
     else
       deferred.resolve stats
 
-  execute(functionName, params).then(resultHandler)
+  execute(functionName, params).then((result)->resultHandler(result)).done()
   deferred.promise
 
 
