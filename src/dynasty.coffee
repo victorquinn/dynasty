@@ -34,10 +34,13 @@ class Dynasty
   loadAllTables: =>
     deferred = Q.defer()
     @list().catch(deferred.reject)
-    .then (data)=>
+    .done (data)=>
+      tablesKeyed = []
       for tableName in data.TableNames
-        @table(tableName)
-      deferred.resolve(@tables)
+        table = @table(tableName)
+        tablesKeyed.push table.key
+      Q.all(tablesKeyed).done =>
+        deferred.resolve(@tables)
     deferred.promise
 
   # Given a name, return a Table object
