@@ -2,7 +2,7 @@ _ = require('lodash')
 dataTrans = require('./data-translators')
 Q = require('q')
 
-module.exports.processAllPages = (deferred, execute, functionName, params)->
+module.exports.processAllPages = (deferred, execute, functionName, params, continuer)->
 
   stats = 
     Count: 0
@@ -12,7 +12,7 @@ module.exports.processAllPages = (deferred, execute, functionName, params)->
 
     deferred.notify dataTrans.fromDynamo result.Items
     stats.Count += result.Count
-    if result.LastEvaluatedKey
+    if result.LastEvaluatedKey and (!continuer or continuer.continue)
       params.ExclusiveStartKey = result.LastEvaluatedKey
       execute(functionName, params).then(resultHandler)
     else

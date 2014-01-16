@@ -21,7 +21,7 @@ class Table
   ###
 
   # Wrapper around DynamoDB's getItem
-  find: => 
+  find: (continuer)=> 
     deferred = Q.defer() # Cannot be resolved until after @key
     promise = deferred.promise
 
@@ -84,7 +84,7 @@ class Table
           else if !rangeKeySpecified and !hashKeySpecified
             delete awsParams.Key
             awsParams = _.pick _.extend(awsParams, options),  'TableName', 'AttributesToGet', 'ExclusiveStartKey', 'Limit', 'ScanFilter', 'Segment', 'Select', 'TotalSegments', 'ReturnConsumedCapacity'
-            awsTrans.processAllPages(deferred, @parent.execute, 'Scan', awsParams)
+            awsTrans.processAllPages(deferred, @parent.execute, 'Scan', awsParams, continuer)
           else if !rangeKeySpecified and @hasRangeKey
             awsParams.HashKeyValue = awsParams.Key.HashKeyElement
             delete awsParams.Key
@@ -95,7 +95,7 @@ class Table
                 ]
                 ComparisonOperator: 'GT'
             awsParams = _.pick _.extend(awsParams, options),  'TableName', 'HashKeyValue', 'RangeKeyCondition', 'HashKeyCondition', 'AttributesToGet', 'ConsistentRead', 'ExclusiveStartKey', 'IndexName', 'KeyConditions', 'Limit', 'ReturnConsumedCapacity', 'ScanIndexForward', 'Select'
-            awsTrans.processAllPages(deferred, @parent.execute, 'Query', awsParams)
+            awsTrans.processAllPages(deferred, @parent.execute, 'Query', awsParams, continuer)
       ).done()
     promise
 
