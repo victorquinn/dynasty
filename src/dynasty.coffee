@@ -43,6 +43,12 @@ class Dynasty
         deferred.resolve(@tables)
     deferred.promise
 
+  redescribeTables: =>
+    allTablesDescribed = []
+    for name, table of @tables
+      allTablesDescribed.push table.updateDescription()
+    Q.all allTablesDescribed
+
   # Given a name, return a Table object
   table: (name) ->
     @tables[name] = @tables[name] || new Table this, name
