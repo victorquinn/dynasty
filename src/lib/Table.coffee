@@ -106,7 +106,15 @@ class Table
 
   # Wrapper around DynamoDB's putItem
   insert: (obj) ->
-    if _.isArray obj
+    if !_.isArray obj
+      awsParams =
+        TableName: @name
+        Item: _.transform(obj, (res, val, key) ->
+          res[key] = dataTrans.toDynamo(val))
+      console.log awsParams.Item
+      @parent.execute('PutItem', awsParams)
+
+    else
       deferred = Q.defer()
       allPutOps = []
 
@@ -145,15 +153,9 @@ class Table
           )
         )
       Q.all(allPutOps)
-      .then(deferred.resolve)
       .catch(deferred.reject)
-
-    else
-      awsParams =
-        TableName: @name
-        Item: _.transform(obj, (res, val, key) ->
-          res[key] = dataTrans.toDynamo(val))
-      @parent.execute('PutItem', awsParams)
+      .done(deferred.resolve)
+      deferred.promise
 
   remove: (params, options, callback = null) ->
     deferred = Q.defer() # Cannot be resolved until after @key
