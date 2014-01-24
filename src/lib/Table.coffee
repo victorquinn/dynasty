@@ -7,7 +7,6 @@ debug = require('debug')('dynasty')
 class Table
 
   constructor: (@parent, @name) ->
-    @update = @insert
     @key = @describe().then((tableDescription)=>
       @description = tableDescription.Table
       awsTrans.getKeySchema(tableDescription)
@@ -23,6 +22,104 @@ class Table
   ###
   Item Operations
   ###
+
+  update: =>
+    deferred = Q.defer() # Cannot be resolved until after @key
+    promise = deferred.promise
+
+    keyParam = {}
+    returnValues = 'NONE'
+    attributeUpdates = {}
+
+    awsParams =
+      TableName: @name
+      Key: keyParam
+
+    hashKeySpecified = rangeKeySpecified = false
+
+    enableReturn = ->
+      promise.returnAllOld = ->
+        returnValues = 'ALL_OLD'
+        promise
+      promise.returnUpdatedOld = ->
+        returnValues = 'UPDATED_OLD'
+        promise
+      promise.returnAllNew = ->
+        returnValues = 'ALL_NEW'
+        promise
+      promise.returnUpdatedNew = ->
+        returnValues = 'UPDATED_NEW'
+        promise
+      null
+
+    enableActions = ->
+      for action in ['add', 'put', 'delete']
+        ((action)->
+          promise[action] = (attributes)->
+            action = action.toUpperCase()
+            for name, value of attributes
+              if attributeUpdates[name]
+                throw new Error 'Attempting to perform two update actions on single attribute: '+name
+              attributeUpdates[name] = 
+                Value: if value == null then null else dataTrans.toDynamo(value)
+                Action: action
+            enableReturn()
+            promise
+        )(action)
+      null
+
+    ###
+    TODO 
+      The following function call needs to be placed inside the hash or range function and
+      called depending on the key schema of the table. It should not be possible to
+      specify an action until all information is provided that specifies a single item.
+      It seems that this will only be possible if calling loadAllTables is a precondition.
+      Dynasty.loadAllTables needs to have Dynasty.load to help it out
+      in the event that the user wants to load specific tables only.
+    ###
+    enableActions()
+
+    promise.hash = (hashKeyValue) =>
+      @key.then (keySchema)->
+        keyParam.HashKeyElement = {}
+        keyParam.HashKeyElement[keySchema.hashKeyType] = hashKeyValue+''
+        hashKeySpecified = true
+
+      promise.range = (rangeKeyValue)=>
+        @key.then (keySchema)->
+          if !@hasRangeKey
+            deferred.reject new Error "Specifying range key for table without range key"
+          else
+            keyParam.RangeKeyElement = {}
+            keyParam.RangeKeyElement[keySchema.rangeKeyType] = rangeKeyValue+''
+            rangeKeySpecified = true
+        promise
+      promise
+
+    process.nextTick =>
+      @key.done (keySchema)=>
+        if !promise.isRejected()
+          debug "find() - #{JSON.stringify awsParams}"
+          #error checking
+          if !hashKeySpecified
+            return deferred.reject new Error 'Must specify hash key'
+          if @hasRangeKey and !rangeKeySpecified
+            return deferred.reject new Error 'Must specify range key for table with range key'
+          #done error checking
+
+          awsParams.ReturnValues = returnValues
+          awsParams.AttributeUpdates = attributeUpdates
+
+          @parent.execute('UpdateItem', awsParams)
+          .fail(deferred.reject)
+          .done((data)-> 
+            data = dataTrans.fromDynamo(data.Attributes)
+            deferred.resolve(data)
+            data
+          )
+
+    promise
+
 
   # Wrapper around DynamoDB's getItem
   find: (continuer)=> 
