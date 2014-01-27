@@ -246,7 +246,7 @@ class Table
           @parent.execute('BatchWriteItem', awsParams).catch((error)->console.log error; deferred.reject error )
           .then((data)->
             deferred.notify(data)
-            W.resolve(data)
+            Q.resolve(data)
           )
         )
       Q.all(allPutOps)
