@@ -1,9 +1,10 @@
 # Main Dynasty Class
 
-aws = require('aws-sdk')
+aws = require './lib/aws'
 _ = require('lodash')
 Q = require('q')
 debug = require('debug')('dynasty')
+Q.longStackSupport = true
 
 # See http://vq.io/19EiASB
 typeToAwsType =
@@ -26,20 +27,27 @@ class Dynasty
     # Lock API version
     credentials.apiVersion = '2012-08-10'
 
-    aws.config.update credentials
-
-    @dynamo = new aws.DynamoDB()
+    @execute = aws(credentials)
     @name = 'Dynasty'
     @tables = {}
 
   loadAllTables: =>
     deferred = Q.defer()
     @list().catch(deferred.reject)
-    .then (data)=>
+    .done (data)=>
+      tablesKeyed = []
       for tableName in data.TableNames
-        @table(tableName)
-      deferred.resolve(@tables)
+        table = @table(tableName)
+        tablesKeyed.push table.key
+      Q.all(tablesKeyed).done =>
+        deferred.resolve(@tables)
     deferred.promise
+
+  redescribeTables: =>
+    allTablesDescribed = []
+    for name, table of @tables
+      allTablesDescribed.push table.updateDescription()
+    Q.all allTablesDescribed
 
   # Given a name, return a Table object
   table: (name) ->
@@ -62,7 +70,7 @@ class Dynasty
         ReadCapacityUnits: throughput.read
         WriteCapacityUnits: throughput.write
 
-    promise = Q.ninvoke(@dynamo, 'updateTable', awsParams)
+    promise = @execute('UpdateTable', awsParams)
 
     if callback is not null
       promise = promise.nodeify(callback)
@@ -92,7 +100,7 @@ class Dynasty
         ReadCapacityUnits: throughput.read
         WriteCapacityUnits: throughput.write
 
-    promise = Q.ninvoke(@dynamo, 'createTable', awsParams)
+    promise = @execute('CreateTable', awsParams)
 
     if callback is not null
       promise = promise.nodeify(callback)
@@ -103,7 +111,7 @@ class Dynasty
   # describe
   describe: (name, callback = null) ->
     debug "describe() - #{name}"
-    promise = Q.ninvoke @dynamo, 'describeTable', TableName: name
+    promise = @execute('DescribeTable', TableName: name)
 
     if callback is not null
       promise = promise.nodeify callback
@@ -117,7 +125,7 @@ class Dynasty
     params =
       TableName: name
 
-    promise = Q.ninvoke(@dynamo, 'deleteTable', params)
+    promise = @execute('DeleteTable', params)
 
     if callback is not null
       promise = promise.nodeify(callback)
@@ -140,7 +148,7 @@ class Dynasty
         else if params.start is not null
           awsParams.ExclusiveStartTableName = params.start
 
-    promise = Q.ninvoke(@dynamo, 'listTables', awsParams)
+    promise = @execute('ListTables', awsParams)
 
     if callback is not null
       promise = promise.nodeify(callback)

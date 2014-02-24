@@ -31,6 +31,8 @@ module.exports.fromDynamo = (dbObj) ->
 module.exports.toDynamo = (item) ->
   if _.isArray item
     if _.every item, _.isNumber
+      for num, ndx in item
+        item[ndx] = num+''
       obj =
         'NS': item
     else if _.every item, _.isString

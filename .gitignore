@@ -1,4 +1,3 @@
-lib/*
 test/test.dynasty.js
 lib-cov
 *.seed

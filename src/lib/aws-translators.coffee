@@ -2,45 +2,33 @@ _ = require('lodash')
 dataTrans = require('./data-translators')
 Q = require('q')
 
-module.exports.processAllPages = (deferred, dynamo, functionName, params)->
+module.exports.processAllPages = (deferred, execute, functionName, params, continuer)->
 
   stats = 
     Count: 0
       
-  resultHandler = (err, result)=>
+  resultHandler = (result, err)=>
     if err then return deferred.reject(err)
 
     deferred.notify dataTrans.fromDynamo result.Items
     stats.Count += result.Count
-    if result.LastEvaluatedKey
+    if result.LastEvaluatedKey and (!continuer or continuer.continue)
       params.ExclusiveStartKey = result.LastEvaluatedKey
-      dynamo[functionName] params, resultHandler
+      execute(functionName, params).then(resultHandler)
     else
       deferred.resolve stats
 
-  dynamo[functionName] params, resultHandler
+  execute(functionName, params).then((result)->resultHandler(result)).done()
   deferred.promise
 
 
 module.exports.getKeySchema = (tableDescription) ->
-  getKeyAndType = (keyType) ->
-    keyName = _.find tableDescription.Table.KeySchema, (key) ->
-      key.KeyType is keyType
-    ?.AttributeName
+  keySchema = tableDescription.Table.KeySchema
 
-    keyDataType = _.find tableDescription.Table.AttributeDefinitions,
-    (attribute) ->
-      attribute.AttributeName is keyName
-    ?.AttributeType
-    [keyName, keyDataType]
-
-  [hashKeyName, hashKeyType] = getKeyAndType 'HASH'
-  [rangeKeyName, rangeKeyType] = getKeyAndType 'RANGE'
-
-  hashKeyName: hashKeyName
-  hashKeyType: hashKeyType
-  rangeKeyName: rangeKeyName
-  rangeKeyType: rangeKeyType
+  hashKeyName: keySchema.HashKeyElement.AttributeName
+  hashKeyType: keySchema.HashKeyElement.AttributeType
+  rangeKeyName: keySchema?.RangeKeyElement?.AttributeName
+  rangeKeyType: keySchema?.RangeKeyElement?.AttributeType
 
 getKey = (params, keySchema) ->
   if !_.isObject params
@@ -56,41 +44,3 @@ getKey = (params, keySchema) ->
 
   key
 
-module.exports.deleteItem = (params, options, callback, keySchema) ->
-
-  awsParams =
-    TableName: @name
-    Key: getKey(params, keySchema)
-
-  promise = Q.ninvoke @parent.dynamo, 'deleteItem', awsParams
-
-  if callback isnt null
-    promise.nodeify(callback)
-
-  promise
-
-module.exports.getItem = (params, options, callback, keySchema) ->
-  awsParams =
-    TableName: @name
-    Key: getKey(params, keySchema)
-
-  promise = Q.ninvoke(@parent.dynamo, 'getItem', awsParams)
-             .then (data)-> dataTrans.fromDynamo(data.Item)
-
-  if callback isnt null
-    promise.nodeify(callback)
-
-  promise
-
-module.exports.putItem = (obj, options, callback) ->
-  awsParams =
-    TableName: @name
-    Item: _.transform(obj, (res, val, key) ->
-      res[key] = dataTrans.toDynamo(val))
-
-  promise = Q.ninvoke(@parent.dynamo, 'putItem', awsParams)
-
-  if callback isnt null
-    promise.nodeify(callback)
-
-  promise

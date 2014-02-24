@@ -3,6 +3,8 @@
          title="Promises/A+ 1.0 compliant" align="right" />
 </a>
 
+Note: This fork of the repo is currently very unstable. I'm in the process of enabling multi-database support.
+
 ## Dynasty
 
 [![Dynasty](http://dynastyjs.com/logobg.png)](http://dynastyjs.com)
