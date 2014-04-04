@@ -20,20 +20,12 @@ class Table
   # Wrapper around DynamoDB's batchGetItem
   batchFind: (params, callback = null) ->
     debug "batchFind() - #{params}"
-        
-    deferred = Q.defer()    
-    obj = {}
-    obj[@name] = keys: params
+    promise = awsTrans.batchGetItem.bind(this, params)        
     
-    @parent.ddb.batchGetItem obj, (err, resp, cap) ->
+    if callback is not null
+      promise = promise.nodeify callback
 
-      if err
-        deferred.reject err
-      else
-        deferred.resolve resp
-      callback(err, resp) if callback isnt null
-
-    deferred.promise
+    promise
     
   # Wrapper around DynamoDB's getItem
   find: => 
