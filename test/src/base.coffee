@@ -56,10 +56,10 @@ describe 'Dynasty', () ->
         promise = @table.remove chance.name()
         expect(promise).to.be.an('object')
     
-    describe 'findBatch()', () ->
+    describe 'batchFind()', () ->
 
       it 'works with just a string', () ->
-        promise = @table.findBatch [chance.name()]
+        promise = @table.batchFind [chance.name()]
         expect(promise).to.be.an('object')
 
     describe 'find()', () ->
