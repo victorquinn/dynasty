@@ -69,10 +69,11 @@ module.exports.deleteItem = (params, options, callback, keySchema) ->
 
   promise
 
-module.exports.batchGetItem = (params, callback = null) ->
+module.exports.batchGetItem = (params, callback, keySchema) ->
   awsParams = {}
-  awsParams[@name] = keys: params
-  
+  awsParams.RequestItems = {}
+  awsParams.RequestItems[@name] = Keys: _.map(params, _.partialRight(getKey, keySchema))
+
   promise = Q.ninvoke(@parent.dynamo, 'batchGetItem', awsParams)
     
   if callback isnt null
