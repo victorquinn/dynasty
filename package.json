@@ -1,6 +1,6 @@
 {
   "name": "dynasty",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Dynasty - Promise-based DynamoDB API",
   "homepage": "http://dynastyjs.com",
   "author": "Victor Quinn <mail@victorquinn.com>",
@@ -23,7 +23,7 @@
     }
   ],
   "files": [
-    "src",
+    "lib",
     "test"
   ],
   "devDependencies": {
