@@ -55,6 +55,12 @@ describe 'Dynasty', () ->
       it 'should return an object', () ->
         promise = @table.remove chance.name()
         expect(promise).to.be.an('object')
+    
+    describe 'findBatch()', () ->
+
+      it 'works with just a string', () ->
+        promise = @table.findBatch [chance.name()]
+        expect(promise).to.be.an('object')
 
     describe 'find()', () ->
 
