@@ -34,7 +34,7 @@ class Table
       callback = options
       options = {}
 
-      awsTrans.putItem.bind(this, params, options, callback)
+    @key.then awsTrans.putItem.bind(this, obj, options, callback)
 
   remove: (params, options, callback = null) ->
     @key.then awsTrans.deleteItem.bind(this, params, options, callback)
