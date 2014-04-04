@@ -187,14 +187,14 @@ describe 'aws-translators', () ->
       expect(promise).to.be.an('object')
 
     it 'should return a promise', () ->
-      sandbox.stub(Q, "ninvoke").returns(Q.resolve('lol'))
+      sandbox.stub(Q, "ninvoke").returns(Q.resolve(Item: rofl: S: 'lol'))
 
       promise = lib.getItem.call(dynastyTable, 'foo', null, null,
         hashKeyName: 'bar'
         hashKeyType: 'S'
       )
 
-      expect(promise).to.eventually.equal('lol')
+      expect(promise).to.eventually.eql(rofl: 'lol')
 
     it 'should call getItem of aws', () ->
       sandbox.spy(Q, "ninvoke")
