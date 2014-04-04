@@ -4,7 +4,7 @@ Q = require('q')
 
 module.exports.processAllPages = (deferred, dynamo, functionName, params)->
 
-  stats = 
+  stats =
     Count: 0
       
   resultHandler = (err, result)=>
@@ -70,16 +70,15 @@ module.exports.deleteItem = (params, options, callback, keySchema) ->
   promise
 
 module.exports.batchGetItem = (params, callback = null) ->
-    awsParams = {}
-    awsParams[@name] = keys: params
+  awsParams = {}
+  awsParams[@name] = keys: params
   
-    promise = Q.ninvoke(@parent.dynamo, 'batchGetItem', awsParams)
+  promise = Q.ninvoke(@parent.dynamo, 'batchGetItem', awsParams)
     
-    if callback isnt null
-        promise.nodeify(callback)
+  if callback isnt null
+    promise.nodeify(callback)
 
-    promise
-
+  promise
     
 module.exports.getItem = (params, options, callback, keySchema) ->
   awsParams =

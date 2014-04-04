@@ -20,10 +20,10 @@ class Table
   # Wrapper around DynamoDB's batchGetItem
   batchFind: (params, callback = null) ->
     debug "batchFind() - #{params}"
-    awsTrans.batchGetItem.call(this, params, callback) 
+    awsTrans.batchGetItem.call(this, params, callback)
     
   # Wrapper around DynamoDB's getItem
-  find: => 
+  find: =>
     deferred = Q.defer() # Cannot be resolved until after @key
     promise = deferred.promise
 
@@ -72,7 +72,7 @@ class Table
             awsTrans.processAllPages(deferred, @parent.dynamo, 'scan', TableName: @name)
           else if !rangeKeySpecified and @hasRangeKey
             awsParams.KeyConditions = {}
-            awsParams.KeyConditions[keySchema.hashKeyName] = 
+            awsParams.KeyConditions[keySchema.hashKeyName] =
               AttributeValueList : [
                 awsParams.Key[keySchema.hashKeyName]
               ]

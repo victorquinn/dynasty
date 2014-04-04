@@ -13,6 +13,9 @@ module.exports = (grunt) ->
         ]
     coffeelint:
       app: ['src/**/*.coffee']
+      options:
+        max_line_length:
+          level: "ignore"
     shell:
       publish:
         options:

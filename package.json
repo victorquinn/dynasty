@@ -39,7 +39,8 @@
     "sinon": "1.7.3",
     "uglify-js": "1.2.6",
     "chai-as-promised": "~3.3.1",
-    "docco": "~0.6.2"
+    "docco": "~0.6.2",
+    "diff": "^1.0.8"
   },
   "scripts": {
     "build": "grunt coffee",
