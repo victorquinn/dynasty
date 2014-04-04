@@ -22,6 +22,10 @@
       "url": "http://dynastyjs.com/license/"
     }
   ],
+  "files": [
+    "src",
+    "test"
+  ],
   "devDependencies": {
     "chance": "0.5.3",
     "chai": "1.5",
@@ -47,6 +51,9 @@
     "prepublish": "grunt coffee",
     "postpublish": "rm -rf lib",
     "test": "grunt test"
+  },
+  "directories": {
+    "lib": "src/lib"
   },
   "main": "lib/dynasty.js",
   "keywords": [
