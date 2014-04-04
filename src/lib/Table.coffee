@@ -17,6 +17,24 @@ class Table
   Item Operations
   ###
 
+  # Wrapper around DynamoDB's batchGetItem
+  batchFind: (params, callback = null) ->
+    debug "batchFind() - #{params}"
+        
+    deferred = Q.defer()    
+    obj = {}
+    obj[@name] = keys: params
+    
+    @parent.ddb.batchGetItem obj, (err, resp, cap) ->
+
+      if err
+        deferred.reject err
+      else
+        deferred.resolve resp
+      callback(err, resp) if callback isnt null
+
+    deferred.promise
+    
   # Wrapper around DynamoDB's getItem
   find: => 
     deferred = Q.defer() # Cannot be resolved until after @key
