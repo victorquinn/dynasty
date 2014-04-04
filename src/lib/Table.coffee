@@ -17,6 +17,11 @@ class Table
   Item Operations
   ###
 
+  # Wrapper around DynamoDB's batchGetItem
+  batchFind: (params, callback = null) ->
+    debug "batchFind() - #{params}"
+    awsTrans.batchGetItem.call(this, params, callback) 
+    
   # Wrapper around DynamoDB's getItem
   find: => 
     deferred = Q.defer() # Cannot be resolved until after @key
