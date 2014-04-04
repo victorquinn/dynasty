@@ -58,7 +58,7 @@ describe 'Dynasty', () ->
     
     describe 'batchFind()', () ->
 
-      it 'works with just a string', () ->
+      it 'works with an array of keys', () ->
         promise = @table.batchFind [chance.name()]
         expect(promise).to.be.an('object')
 

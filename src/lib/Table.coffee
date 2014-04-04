@@ -20,12 +20,7 @@ class Table
   # Wrapper around DynamoDB's batchGetItem
   batchFind: (params, callback = null) ->
     debug "batchFind() - #{params}"
-    promise = awsTrans.batchGetItem.bind(params)        
-    
-    if callback is not null
-      promise = promise.nodeify callback
-
-    promise
+    awsTrans.batchGetItem.call(this, params, callback) 
     
   # Wrapper around DynamoDB's getItem
   find: => 
