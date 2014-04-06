@@ -172,7 +172,7 @@ describe 'aws-translators', () ->
         name: tableName
         parent:
           dynamo: 
-            getItem: (params, callback) ->
+            batchGetItem: (params, callback) ->
               result = {}
               result.Responses = {}
               result.Responses[tableName] = [
