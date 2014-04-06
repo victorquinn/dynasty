@@ -176,7 +176,7 @@ describe 'aws-translators', () ->
               result = {}
               result.Responses = {}
               result.Responses[tableName] = [
-                foo: S: "bar",
+                { foo: S: "bar" },
                 foo: S: "baz"
                 bazzoo: N: 123
               ]
@@ -191,7 +191,7 @@ describe 'aws-translators', () ->
         hashKeyType: 'S'
 
       expect(promise).to.eventually.eql([
-        foo: 'bar',
+        { foo: 'bar' },
         foo: 'baz'
         bazzoo: 123])
 
