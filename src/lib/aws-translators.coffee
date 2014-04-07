@@ -75,7 +75,7 @@ module.exports.batchGetItem = (params, callback, keySchema) ->
   name = @name
   awsParams.RequestItems[@name] = Keys: _.map(params, (param) -> getKey(param, keySchema))
   promise = Q.ninvoke(@parent.dynamo, 'batchGetItem', awsParams)
-             .then (data) -> data.Responses[name]
+             .then (data) -> dataTrans.fromDynamo(data.Responses[name])
     
   if callback isnt null
     promise.nodeify(callback)

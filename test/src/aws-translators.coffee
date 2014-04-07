@@ -160,6 +160,41 @@ describe 'aws-translators', () ->
       expect(params.Key.foo).to.include.keys('S')
       expect(params.Key.foo.S).to.equal('rofl')
 
+  describe '#batchGetItem', () ->
+
+    dynastyTable = null
+    sandbox = null
+
+    beforeEach () ->
+      tableName = chance.name()
+      sandbox = sinon.sandbox.create()
+      dynastyTable =
+        name: tableName
+        parent:
+          dynamo: 
+            batchGetItem: (params, callback) ->
+              result = {}
+              result.Responses = {}
+              result.Responses[tableName] = [
+                { foo: S: "bar" },
+                foo: S: "baz"
+                bazzoo: N: 123
+              ]
+              callback(null, result)
+
+    afterEach () ->
+      sandbox.restore()
+
+    it 'should return a sane response', () ->
+      promise = lib.batchGetItem.call dynastyTable, ['bar', 'baz'], null,
+        hashKeyName: 'foo'
+        hashKeyType: 'S'
+
+      expect(promise).to.eventually.eql([
+        { foo: 'bar' },
+        foo: 'baz'
+        bazzoo: 123])
+
   describe '#getItem', () ->
 
     dynastyTable = null
