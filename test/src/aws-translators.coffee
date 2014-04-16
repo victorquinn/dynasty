@@ -309,11 +309,28 @@ describe 'aws-translators', () ->
         parent:
           dynamo: {
             query: (params, callback) ->
-              callback(null, true)
+              callback null, 
+              Items: [{
+                foo: {S: 'bar'},
+                bar: {S: 'baz'}
+              }]
           }
 
     afterEach () ->
       sandbox.restore()
+
+    it 'should translate the response', () ->
+
+      promise = lib.queryByHashKey.call dynastyTable, 'bar', null,
+        hashKeyName: 'foo'
+        hashKeyType: 'S'
+        rangeKeyName: 'bar'
+        rangeKeyType: 'S'
+
+      expect(promise).to.eventually.eql [
+        foo: 'bar'
+        bar: 'baz'
+      ]
 
     it 'should call query', () ->
       sandbox.spy(Q, "ninvoke")
@@ -321,6 +338,8 @@ describe 'aws-translators', () ->
       lib.queryByHashKey.call dynastyTable, 'bar', null,
         hashKeyName: 'foo'
         hashKeyType: 'S'
+        rangeKeyName: 'bar'
+        rangeKeyType: 'S'
  
       expect(Q.ninvoke.calledOnce)
       expect(Q.ninvoke.getCall(0).args[0]).to.equal(dynastyTable.parent.dynamo)
@@ -332,6 +351,8 @@ describe 'aws-translators', () ->
       promise = lib.queryByHashKey.call dynastyTable, 'bar', null,
         hashKeyName: 'foo'
         hashKeyType: 'S'
+        rangeKeyName: 'bar'
+        rangeKeyType: 'S'
  
       expect(Q.ninvoke.calledOnce)
       params = Q.ninvoke.getCall(0).args[2]
