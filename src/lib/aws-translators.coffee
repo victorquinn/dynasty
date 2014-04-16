@@ -95,6 +95,27 @@ module.exports.getItem = (params, options, callback, keySchema) ->
 
   promise
 
+module.exports.queryByHashKey = (key, callback, keySchema) -> 
+  awsParams = 
+    TableName: @name
+    KeyConditions: {}
+
+  hashKeyName = keySchema.hashKeyName
+  hashKeyType = keySchema.hashKeyType
+
+  awsParams.KeyConditions[hashKeyName] = 
+    ComparisonOperator: 'EQ'
+    AttributeValueList: [{}]
+  awsParams.KeyConditions[hashKeyName].AttributeValueList[0][hashKeyType] = key
+
+  promise = Q.ninvoke(@parent.dynamo, 'query', awsParams)
+             .then (data) -> dataTrans.fromDynamo(data.Items)
+
+  if callback isnt null
+    promise.nodeify(callback)
+
+  promise
+
 module.exports.putItem = (obj, options, callback) ->
   awsParams =
     TableName: @name

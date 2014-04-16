@@ -297,6 +297,49 @@ describe 'aws-translators', () ->
       expect(params.Key.foo).to.include.keys('S')
       expect(params.Key.foo.S).to.equal('rofl')
 
+  describe '#queryByHashKey', () ->
+
+    dynastyTable = null
+    sandbox = null
+
+    beforeEach () ->
+      sandbox = sinon.sandbox.create()
+      dynastyTable =
+        name: chance.name()
+        parent:
+          dynamo: {
+            query: (params, callback) ->
+              callback(null, true)
+          }
+
+    afterEach () ->
+      sandbox.restore()
+
+    it 'should call query', () ->
+      sandbox.spy(Q, "ninvoke")
+
+      lib.queryByHashKey.call dynastyTable, 'bar', null,
+        hashKeyName: 'foo'
+        hashKeyType: 'S'
+ 
+      expect(Q.ninvoke.calledOnce)
+      expect(Q.ninvoke.getCall(0).args[0]).to.equal(dynastyTable.parent.dynamo)
+      expect(Q.ninvoke.getCall(0).args[1]).to.equal('query')
+
+    it 'should send the table name and hash key to AWS', () ->
+      sandbox.spy(Q, "ninvoke")
+
+      promise = lib.queryByHashKey.call dynastyTable, 'bar', null,
+        hashKeyName: 'foo'
+        hashKeyType: 'S'
+ 
+      expect(Q.ninvoke.calledOnce)
+      params = Q.ninvoke.getCall(0).args[2]
+      expect(params.TableName).to.equal(dynastyTable.name)
+      expect(params.KeyConditions.foo.ComparisonOperator).to.equal('EQ')
+      expect(params.KeyConditions.foo.AttributeValueList[0].S)
+        .to.equal('bar')
+
   describe '#putItem', () ->
 
     dynastyTable = null
