@@ -25,22 +25,20 @@ describe 'toDynamo()', () ->
     expect(converted).to.deep.equal
       'S': str
 
-  it 'looks right when given a blob', () ->
+  it 'looks right when given a long string', () ->
     str = chance.string
       length: 1025
     converted = dataTrans.toDynamo str
     expect(converted).to.be.an 'object'
     expect(converted).to.deep.equal
-      'B': str
+      'S': str
 
-  it 'looks right when given a random object', () ->
+  it 'should throw an error when given an object', () ->
     obj = {}
     _.times 10, () ->
       obj[chance.string()] = chance.string()
-    converted = dataTrans.toDynamo obj
-    expect(converted).to.be.an 'object'
-    expect(converted).to.deep.equal
-      'B': JSON.stringify obj
+    expect(() -> dataTrans.toDynamo(obj)).to.
+      throw('Object is not serializable to a dynamo data type')
 
   it 'looks right when given an array of numbers', () ->
     arr = chance.rpg '10d100'
@@ -58,24 +56,21 @@ describe 'toDynamo()', () ->
     expect(converted).to.deep.equal
       'SS': arr
 
-  it 'looks right when given an array of blobs', () ->
+  it 'should throw an error when given a hetrogeneous array', () ->
     arr = []
-    _.times 10, () ->
-      arr.push chance.string({length: 1040})
-    converted = dataTrans.toDynamo arr
-    expect(converted).to.be.an 'object'
-    expect(converted).to.deep.equal
-      'BS': arr
+    _.times 10, (n) ->
+      if n % 2
+        arr.push chance.string()
+      else
+        arr.push chance.integer()
+    expect(() -> dataTrans.toDynamo(arr)).to.
+      throw('Expected homogenous array of numbers or strings')
 
-  it 'looks right when given an array of objects', () ->
+  it 'should throw an error when given an array of objects', () ->
     arr = []
     _.times 10, () ->
       obj = {}
       obj[chance.string()] = chance.string()
       arr.push obj
-
-    stringified = _.map arr, (i) -> JSON.stringify i
-    converted = dataTrans.toDynamo arr
-    expect(converted).to.be.an 'object'
-    expect(converted).to.deep.equal
-      'BS': stringified
+    expect(() -> dataTrans.toDynamo(arr)).to.
+      throw('Expected homogenous array of numbers or strings')

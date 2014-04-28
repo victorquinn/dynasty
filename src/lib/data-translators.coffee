@@ -34,34 +34,17 @@ module.exports.toDynamo = (item) ->
       obj =
         'NS': item
     else if _.every item, _.isString
-      if _.any(item, (i) -> i.length > 1024)
-        obj =
-          'BS': item
-      else
-        obj =
-          'SS': item
-    else
-      stringify = _.map item, (i) -> JSON.stringify i
       obj =
-        'BS': stringify
+        'SS': item
+    else
+      throw new TypeError 'Expected homogenous array of numbers or strings'
   else if _.isNumber item
     obj =
       'N': item.toString()
   else if _.isString item
-    # Note: We're kind of arbitrarily defining that a Blob is a string
-    # greater than 1024. This is a soft constraint from Amazon because
-    # a range key cannot exceed 1024 but it is theoretically possible to
-    # store a string greater than that as a string in DynamoDB.
-    if item.length > 1024
-      obj =
-        'B': item
-    else
-      obj =
-        'S': item
-  else if _.isObject item
-    # If it's an object, we will stringify it and put it into the DB as
-    # a blob
     obj =
-      'B': JSON.stringify item
+      'S': item
+  else if _.isObject item
+    throw new TypeError 'Object is not serializable to a dynamo data type'
   else if not item
     throw new TypeError 'Cannot call convert_to_dynamo() with no arguments'
