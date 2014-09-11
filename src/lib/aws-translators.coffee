@@ -88,7 +88,12 @@ module.exports.getItem = (params, options, callback, keySchema) ->
     Key: getKey(params, keySchema)
 
   promise = Q.ninvoke(@parent.dynamo, 'getItem', awsParams)
-             .then (data)-> dataTrans.fromDynamo(data.Item)
+             .then (data) -> dataTrans.fromDynamo(data.Item)
+             .then (data) ->
+               if _.isUndefined(data)
+                 throw new Error('Key not found')
+               else
+                 data
 
   if callback isnt null
     promise.nodeify(callback)
