@@ -43,9 +43,7 @@ module.exports.getKeySchema = (tableDescription) ->
   rangeKeyType: rangeKeyType
 
 getKey = (params, keySchema) ->
-  if !_.isObject params
-    params = hash: params+''
-
+  params = hash: params+'' if !_.isObject params
   key = {}
   key[keySchema.hashKeyName] = {}
   key[keySchema.hashKeyName][keySchema.hashKeyType] = params.hash+''
@@ -57,54 +55,35 @@ getKey = (params, keySchema) ->
   key
 
 module.exports.deleteItem = (params, options, callback, keySchema) ->
-
   awsParams =
     TableName: @name
     Key: getKey(params, keySchema)
-
   promise = Q.ninvoke @parent.dynamo, 'deleteItem', awsParams
-
-  if callback isnt null
-    promise.nodeify(callback)
-
+  promise.nodeify callback if callback isnt null
   promise
 
 module.exports.batchGetItem = (params, callback, keySchema) ->
-  awsParams = {}
-  awsParams.RequestItems = {}
   name = @name
-  awsParams.RequestItems[@name] = Keys: _.map(params, (param) -> getKey(param, keySchema))
+  awsParams = RequestItems: {}
+  awsParams.RequestItems[name] = Keys: _.map(params, (param) -> getKey(param, keySchema))
   promise = Q.ninvoke(@parent.dynamo, 'batchGetItem', awsParams)
              .then (data) -> dataTrans.fromDynamo(data.Responses[name])
-    
-  if callback isnt null
-    promise.nodeify(callback)
-
+  promise.nodeify callback if callback isnt null
   promise
     
 module.exports.getItem = (params, options, callback, keySchema) ->
   awsParams =
     TableName: @name
     Key: getKey(params, keySchema)
-
   promise = Q.ninvoke(@parent.dynamo, 'getItem', awsParams)
              .then (data) -> dataTrans.fromDynamo(data.Item)
-             .then (data) ->
-               if _.isUndefined(data)
-                 throw new Error('Key not found')
-               else
-                 data
-
-  if callback isnt null
-    promise.nodeify(callback)
-
+  promise.nodeify callback if callback isnt null
   promise
 
 module.exports.queryByHashKey = (key, callback, keySchema) -> 
   awsParams = 
     TableName: @name
     KeyConditions: {}
-
   hashKeyName = keySchema.hashKeyName
   hashKeyType = keySchema.hashKeyType
 
@@ -115,10 +94,7 @@ module.exports.queryByHashKey = (key, callback, keySchema) ->
 
   promise = Q.ninvoke(@parent.dynamo, 'query', awsParams)
              .then (data) -> dataTrans.fromDynamo(data.Items)
-
-  if callback isnt null
-    promise.nodeify(callback)
-
+  promise.nodeify callback if callback isnt null
   promise
 
 module.exports.putItem = (obj, options, callback) ->
@@ -126,10 +102,6 @@ module.exports.putItem = (obj, options, callback) ->
     TableName: @name
     Item: _.transform(obj, (res, val, key) ->
       res[key] = dataTrans.toDynamo(val))
-
   promise = Q.ninvoke(@parent.dynamo, 'putItem', awsParams)
-
-  if callback isnt null
-    promise.nodeify(callback)
-
+  promise.nodeify callback if callback isnt null
   promise
