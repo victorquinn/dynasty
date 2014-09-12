@@ -27,9 +27,18 @@ class Table
     @key.then awsTrans.queryByHashKey.bind(this, params, callback)
     
   # Wrapper around DynamoDB's getItem
+  getItem: (params, options = {}, callback = null) ->
+    debug "getItem() - #{params}"
+    @key.then awsTrans.getItem.bind(this, params, options, callback)
+
+  # Wrapper around DynamoDB's getItem which rejects if undefined
   find: (params, options = {}, callback = null) ->
     debug "find() - #{params}"
-    @key.then awsTrans.getItem.bind(this, params, options, callback)
+    promise = @getItem(params, options, null).then (data) ->
+      throw new Error('Key not found') if _.isUndefined data
+      data
+    promise.nodeify callback if callback isnt null
+    promise
 
   # Wrapper around DynamoDB's putItem
   insert: (obj, options = {}, callback = null) ->
@@ -51,10 +60,7 @@ class Table
   describe: (callback = null) ->
     debug 'describe() - ' + @name
     promise = Q.ninvoke(@parent.dynamo, 'describeTable', TableName: @name)
-
-    if callback is not null
-      promise = promise.nodeify callback
-
+    promise.nodeify callback if callback isnt null
     promise
 
   # drop
