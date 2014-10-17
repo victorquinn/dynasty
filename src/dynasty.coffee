@@ -50,7 +50,7 @@ class Dynasty
 
   # Alter an existing table. Wrapper around AWS updateTable
   alter: (name, params, callback) ->
-    debug "alter() - #{name}, #{params}"
+    debug "alter() - #{name}, #{JSON.stringify(params, null, 4)}"
     # We'll accept either an object with a key of throughput or just
     # an object with the throughput info
     throughput = params.throughput || params
@@ -65,7 +65,7 @@ class Dynasty
 
   # Create a new table. Wrapper around AWS createTable
   create: (name, params, callback = null) ->
-    debug "create() - #{name}, #{params}"
+    debug "create() - #{name}, #{JSON.stringify(params, null, 4)}"
     throughput = params.throughput || {read: 10, write: 5}
 
     keySchema = [
@@ -73,13 +73,18 @@ class Dynasty
       AttributeName: params.key_schema.hash[0]
     ]
 
-    if params.key_schema.range is not undefined
-      keySchema.push [KeyType: 'RANGE', AttributeName: params.key_schema.range[0]]
-
     attributeDefinitions = [
       AttributeName: params.key_schema.hash[0]
       AttributeType: typeToAwsType[params.key_schema.hash[1]]
     ]
+
+    if params.key_schema.range?
+      keySchema.push
+        KeyType: 'RANGE',
+        AttributeName: params.key_schema.range[0]
+      attributeDefinitions.push
+        AttributeName: params.key_schema.range[0]
+        AttributeType: typeToAwsType[params.key_schema.range[1]]
 
     awsParams =
       AttributeDefinitions: attributeDefinitions
@@ -88,6 +93,8 @@ class Dynasty
       ProvisionedThroughput:
         ReadCapacityUnits: throughput.read
         WriteCapacityUnits: throughput.write
+
+    console.log "creating table with params #{JSON.stringify(awsParams, null, 4)}"
 
     @dynamo.createTableAsync(awsParams).nodeify(callback)
 
