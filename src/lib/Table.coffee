@@ -1,7 +1,6 @@
 awsTrans = require('./aws-translators')
 dataTrans = require('./data-translators')
 _ = require('lodash')
-Q = require('q')
 debug = require('debug')('dynasty')
 
 class Table
@@ -50,15 +49,10 @@ class Table
   # describe
   describe: (callback = null) ->
     debug 'describe() - ' + @name
-    promise = Q.ninvoke(@parent.dynamo, 'describeTable', TableName: @name)
-
-    if callback is not null
-      promise = promise.nodeify callback
-
-    promise
+    @parent.dynamo.describeTableAsync(TableName: @name).nodeify(callback)
 
   # drop
   drop: (callback = null) ->
-    @parent.drop @name callback
+    @parent.drop(@name, callback)
 
 module.exports = Table

@@ -8,9 +8,7 @@ module.exports = (grunt) ->
         dest: 'lib/'
         ext: '.js'
       compileTests:
-        files: [
-          'test/test.dynasty.js': ['test/src/**/*.coffee']
-        ]
+        files: [ 'test/test.dynasty.js': ['test/src/**/*.coffee'] ]
     coffeelint:
       app: ['src/**/*.coffee']
       options:

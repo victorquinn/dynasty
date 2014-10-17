@@ -2,6 +2,7 @@
 
 aws = require('aws-sdk')
 _ = require('lodash')
+Promise = require('bluebird')
 Q = require('q')
 debug = require('debug')('dynasty')
 
@@ -29,17 +30,16 @@ class Dynasty
     aws.config.update credentials
 
     @dynamo = new aws.DynamoDB()
+    Promise.promisifyAll @dynamo
     @name = 'Dynasty'
     @tables = {}
 
   loadAllTables: =>
-    deferred = Q.defer()
-    @list().catch(deferred.reject)
-    .then (data)=>
-      for tableName in data.TableNames
-        @table(tableName)
-      deferred.resolve(@tables)
-    deferred.promise
+    @list()
+      .then (data) =>
+        for tableName in data.TableNames
+          @table(tableName)
+        return @tables
 
   # Given a name, return a Table object
   table: (name) ->
@@ -62,12 +62,7 @@ class Dynasty
         ReadCapacityUnits: throughput.read
         WriteCapacityUnits: throughput.write
 
-    promise = Q.ninvoke(@dynamo, 'updateTable', awsParams)
-
-    if callback is not null
-      promise = promise.nodeify(callback)
-
-    promise
+    @dynamo.updateTableAsync(awsParams).nodeify(callback)
 
   # Create a new table. Wrapper around AWS createTable
   create: (name, params, callback = null) ->
@@ -95,24 +90,12 @@ class Dynasty
         ReadCapacityUnits: throughput.read
         WriteCapacityUnits: throughput.write
 
-    promise = Q.ninvoke(@dynamo, 'createTable', awsParams)
-
-    if callback is not null
-      promise = promise.nodeify(callback)
-
-    promise
-
+    @dynamo.createTableAsync(awsParams).nodeify(callback)
 
   # describe
-  describe: (name, callback = null) ->
+  describe: (name, callback) ->
     debug "describe() - #{name}"
-    promise = Q.ninvoke @dynamo, 'describeTable', TableName: name
-
-    if callback is not null
-      promise = promise.nodeify callback
-
-    promise
-
+    @dynamo.describeTableAsync(TableName: name).nodeify(callback)
 
   # Drop a table. Wrapper around AWS deleteTable
   drop: (name, callback = null) ->
@@ -120,12 +103,7 @@ class Dynasty
     params =
       TableName: name
 
-    promise = Q.ninvoke(@dynamo, 'deleteTable', params)
-
-    if callback is not null
-      promise = promise.nodeify(callback)
-
-    promise
+    @dynamo.deleteTableAsync(params).nodeify(callback)
 
   # List tables. Wrapper around AWS listTables
   list: (params, callback) ->
@@ -143,12 +121,6 @@ class Dynasty
         else if params.start is not null
           awsParams.ExclusiveStartTableName = params.start
 
-    promise = Q.ninvoke(@dynamo, 'listTables', awsParams)
-
-    if callback is not null
-      promise = promise.nodeify(callback)
-
-    promise
-
+    @dynamo.listTablesAsync(awsParams)
 
 module.exports = (credentials) -> new Dynasty(credentials)

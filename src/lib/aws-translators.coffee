@@ -1,6 +1,6 @@
 _ = require('lodash')
 dataTrans = require('./data-translators')
-Q = require('q')
+Promise = require('bluebird')
 
 module.exports.processAllPages = (deferred, dynamo, functionName, params)->
 
@@ -57,43 +57,30 @@ getKey = (params, keySchema) ->
   key
 
 module.exports.deleteItem = (params, options, callback, keySchema) ->
-
   awsParams =
     TableName: @name
     Key: getKey(params, keySchema)
-
-  promise = Q.ninvoke @parent.dynamo, 'deleteItem', awsParams
-
-  if callback isnt null
-    promise.nodeify(callback)
-
-  promise
+  @parent.dynamo.deleteItemAsync awsParams
 
 module.exports.batchGetItem = (params, callback, keySchema) ->
   awsParams = {}
   awsParams.RequestItems = {}
   name = @name
   awsParams.RequestItems[@name] = Keys: _.map(params, (param) -> getKey(param, keySchema))
-  promise = Q.ninvoke(@parent.dynamo, 'batchGetItem', awsParams)
-        .then (data) -> dataTrans.fromDynamo(data.Responses[name])
-    
-  if callback isnt null
-    promise.nodeify(callback)
-
-  promise
+  @parent.dynamo.batchGetItemAsync(awsParams)
+    .then (data) ->
+      dataTrans.fromDynamo(data.Responses[name])
+    .nodeify(callback)
     
 module.exports.getItem = (params, options, callback, keySchema) ->
   awsParams =
     TableName: @name
     Key: getKey(params, keySchema)
 
-  promise = Q.ninvoke(@parent.dynamo, 'getItem', awsParams)
-        .then (data)-> dataTrans.fromDynamo(data.Item)
-
-  if callback isnt null
-    promise.nodeify(callback)
-
-  promise
+  @parent.dynamo.getItemAsync(awsParams)
+    .then (data)->
+      dataTrans.fromDynamo(data.Item)
+    .nodeify(callback)
 
 module.exports.queryByHashKey = (key, callback, keySchema) ->
   awsParams =
@@ -108,13 +95,10 @@ module.exports.queryByHashKey = (key, callback, keySchema) ->
     AttributeValueList: [{}]
   awsParams.KeyConditions[hashKeyName].AttributeValueList[0][hashKeyType] = key
 
-  promise = Q.ninvoke(@parent.dynamo, 'query', awsParams)
-        .then (data) -> dataTrans.fromDynamo(data.Items)
-
-  if callback isnt null
-    promise.nodeify(callback)
-
-  promise
+  @parent.dynamo.queryAsync(awsParams)
+    .then (data) ->
+      dataTrans.fromDynamo(data.Items)
+    .nodeify(callback)
 
 module.exports.putItem = (obj, options, callback) ->
   awsParams =
@@ -122,9 +106,4 @@ module.exports.putItem = (obj, options, callback) ->
     Item: _.transform(obj, (res, val, key) ->
       res[key] = dataTrans.toDynamo(val))
 
-  promise = Q.ninvoke(@parent.dynamo, 'putItem', awsParams)
-
-  if callback isnt null
-    promise.nodeify(callback)
-
-  promise
+  @parent.dynamo.putItemAsync(awsParams)

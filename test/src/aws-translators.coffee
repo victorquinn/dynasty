@@ -2,12 +2,11 @@ chai = require('chai')
 expect = chai.expect
 chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
-Chance = require('chance')
+chance = require('chance').Chance()
 lib = require('../lib/lib')["aws-translators"]
 sinon = require('sinon')
-Q = require('q')
-
-chance = new Chance()
+Promise = require('bluebird')
+#Q = require('q')
 
 describe 'aws-translators', () ->
   describe '#getKeySchema', () ->
@@ -69,8 +68,8 @@ describe 'aws-translators', () ->
         name: chance.name()
         parent:
           dynamo: {
-            deleteItem: (params, callback) ->
-              callback(null, true)
+            deleteItemAsync: (params, callback) ->
+              Promise.resolve('lol')
           }
 
     afterEach () ->
@@ -81,33 +80,25 @@ describe 'aws-translators', () ->
         hashKeyName: 'bar'
         hashKeyType: 'S'
       )
-
       expect(promise).to.be.an('object')
 
     it 'should return a promise', () ->
-      sandbox.stub(Q, "ninvoke").returns('lol')
-
       promise = lib.deleteItem.call(dynastyTable, 'foo', null, null,
         hashKeyName: 'bar'
         hashKeyType: 'S'
       )
-
-      expect(promise).to.equal('lol')
+      promise.then((d) -> expect(d).to.equal('lol'))
 
     it 'should call deleteItem of aws', () ->
-      sandbox.spy(Q, "ninvoke")
-
+      sandbox.spy(dynastyTable.parent.dynamo, "deleteItemAsync")
       lib.deleteItem.call(dynastyTable, 'foo', null, null,
         hashKeyName: 'bar'
         hashKeyType: 'S'
       )
+      expect(dynastyTable.parent.dynamo.deleteItemAsync.calledOnce)
 
-      expect(Q.ninvoke.calledOnce)
-      expect(Q.ninvoke.getCall(0).args[0]).to.equal(dynastyTable.parent.dynamo)
-      expect(Q.ninvoke.getCall(0).args[1]).to.equal('deleteItem')
-
-    it 'should send the table name to AWS', (done) ->
-      sandbox.spy(Q, "ninvoke")
+    it 'should send the table name to AWS', () ->
+      sandbox.spy(dynastyTable.parent.dynamo, "deleteItemAsync")
 
       promise = lib.deleteItem.call(dynastyTable, 'foo', null, null,
         hashKeyName: 'bar'
@@ -115,28 +106,26 @@ describe 'aws-translators', () ->
       )
 
       promise.then () ->
-        expect(Q.ninvoke.calledOnce)
-        params = Q.ninvoke.getCall(0).args[2]
+        expect(dynastyTable.parent.dynamo.deleteItemAsync.calledOnce)
+        params = dynastyTable.parent.dynamo.deleteItemAsync.getCall(0).args[0]
         expect(params.TableName).to.equal(dynastyTable.name)
-        done()
-      .fail done
 
     it 'should send the hash key to AWS', () ->
-      sandbox.spy(Q, 'ninvoke')
+      sandbox.spy(dynastyTable.parent.dynamo, "deleteItemAsync")
 
       promise = lib.deleteItem.call(dynastyTable, 'foo', null, null,
         hashKeyName: 'bar'
         hashKeyType: 'S'
       )
 
-      expect(Q.ninvoke.calledOnce)
-      params = Q.ninvoke.getCall(0).args[2]
+      expect(dynastyTable.parent.dynamo.deleteItemAsync.calledOnce)
+      params = dynastyTable.parent.dynamo.deleteItemAsync.getCall(0).args[0]
       expect(params.Key).to.include.keys('bar')
       expect(params.Key.bar).to.include.keys('S')
       expect(params.Key.bar.S).to.equal('foo')
 
     it 'should send the hash and range key to AWS', () ->
-      sandbox.spy(Q, 'ninvoke')
+      sandbox.spy(dynastyTable.parent.dynamo, "deleteItemAsync")
 
       promise = lib.deleteItem.call(
         dynastyTable,
@@ -149,8 +138,8 @@ describe 'aws-translators', () ->
           rangeKeyName: 'foo'
           rangeKeyType: 'S')
 
-      expect(Q.ninvoke.calledOnce)
-      params = Q.ninvoke.getCall(0).args[2]
+      expect(dynastyTable.parent.dynamo.deleteItemAsync.calledOnce)
+      params = dynastyTable.parent.dynamo.deleteItemAsync.getCall(0).args[0]
 
       expect(params.Key).to.include.keys('bar')
       expect(params.Key.bar).to.include.keys('S')
@@ -171,8 +160,8 @@ describe 'aws-translators', () ->
       dynastyTable =
         name: tableName
         parent:
-          dynamo: 
-            batchGetItem: (params, callback) ->
+          dynamo:
+            batchGetItemAsync: (params, callback) ->
               result = {}
               result.Responses = {}
               result.Responses[tableName] = [
@@ -180,20 +169,21 @@ describe 'aws-translators', () ->
                 foo: S: "baz"
                 bazzoo: N: 123
               ]
-              callback(null, result)
+              Promise.resolve(result);
 
     afterEach () ->
       sandbox.restore()
 
     it 'should return a sane response', () ->
-      promise = lib.batchGetItem.call dynastyTable, ['bar', 'baz'], null,
-        hashKeyName: 'foo'
-        hashKeyType: 'S'
-
-      expect(promise).to.eventually.eql([
-        { foo: 'bar' },
-        foo: 'baz'
-        bazzoo: 123])
+      lib.batchGetItem
+        .call dynastyTable, ['bar', 'baz'], null,
+          hashKeyName: 'foo'
+          hashKeyType: 'S'
+        .then (data) ->
+          expect(data).to.deep.equal([
+            { foo: 'bar' },
+            foo: 'baz'
+            bazzoo: 123])
 
   describe '#getItem', () ->
 
@@ -206,8 +196,8 @@ describe 'aws-translators', () ->
         name: chance.name()
         parent:
           dynamo: {
-            getItem: (params, callback) ->
-              callback(null, true)
+            getItemAsync: (params, callback) ->
+              Promise.resolve(Item: rofl: S: 'lol')
           }
 
     afterEach () ->
@@ -222,58 +212,49 @@ describe 'aws-translators', () ->
       expect(promise).to.be.an('object')
 
     it 'should return a promise', () ->
-      sandbox.stub(Q, "ninvoke").returns(Q.resolve(Item: rofl: S: 'lol'))
-
-      promise = lib.getItem.call(dynastyTable, 'foo', null, null,
-        hashKeyName: 'bar'
-        hashKeyType: 'S'
-      )
-
-      expect(promise).to.eventually.eql(rofl: 'lol')
+      lib.getItem
+        .call dynastyTable, 'foo', null, null,
+          hashKeyName: 'bar'
+          hashKeyType: 'S'
+        .then (data) ->
+          expect(data).to.deep.equal(rofl: 'lol')
 
     it 'should call getItem of aws', () ->
-      sandbox.spy(Q, "ninvoke")
-
-      lib.getItem.call(dynastyTable, 'foo', null, null,
+      sandbox.spy(dynastyTable.parent.dynamo, "getItemAsync")
+      lib.getItem.call dynastyTable, 'foo', null, null,
         hashKeyName: 'bar'
         hashKeyType: 'S'
-      )
 
-      expect(Q.ninvoke.calledOnce)
-      expect(Q.ninvoke.getCall(0).args[0]).to.equal(dynastyTable.parent.dynamo)
-      expect(Q.ninvoke.getCall(0).args[1]).to.equal('getItem')
+      expect(dynastyTable.parent.dynamo.getItemAsync.calledOnce)
+      expect(dynastyTable.parent.dynamo.getItemAsync.getCall(0).args[0].TableName).to.equal(dynastyTable.name)
 
-    it 'should send the table name to AWS', (done) ->
-      sandbox.spy(Q, "ninvoke")
+    it 'should send the table name to AWS', () ->
+      sandbox.spy(dynastyTable.parent.dynamo, "getItemAsync")
 
-      promise = lib.getItem.call(dynastyTable, 'foo', null, null,
-        hashKeyName: 'bar'
-        hashKeyType: 'S'
-      )
-
-      promise.then () ->
-        expect(Q.ninvoke.calledOnce)
-        params = Q.ninvoke.getCall(0).args[2]
-        expect(params.TableName).to.equal(dynastyTable.name)
-        done()
-      .fail done
+      lib.getItem
+        .call dynastyTable, 'foo', null, null,
+          hashKeyName: 'bar'
+          hashKeyType: 'S'
+        .then () ->
+          expect(dynastyTable.parent.dynamo.getItemAsync.calledOnce)
+          params = dynastyTable.parent.dynamo.getItemAsync.getCall(0).args[0]
+          expect(params.TableName).to.equal(dynastyTable.name)
 
     it 'should send the hash key to AWS', () ->
-      sandbox.spy(Q, 'ninvoke')
+      sandbox.spy(dynastyTable.parent.dynamo, "getItemAsync")
 
-      promise = lib.getItem.call(dynastyTable, 'foo', null, null,
+      promise = lib.getItem.call dynastyTable, 'foo', null, null,
         hashKeyName: 'bar'
         hashKeyType: 'S'
-      )
 
-      expect(Q.ninvoke.calledOnce)
-      params = Q.ninvoke.getCall(0).args[2]
+      expect(dynastyTable.parent.dynamo.getItemAsync.calledOnce)
+      params = dynastyTable.parent.dynamo.getItemAsync.getCall(0).args[0]
       expect(params.Key).to.include.keys('bar')
       expect(params.Key.bar).to.include.keys('S')
       expect(params.Key.bar.S).to.equal('foo')
 
     it 'should send the hash and range key to AWS', () ->
-      sandbox.spy(Q, 'ninvoke')
+      sandbox.spy(dynastyTable.parent.dynamo, "getItemAsync")
 
       promise = lib.getItem.call(
         dynastyTable,
@@ -286,8 +267,8 @@ describe 'aws-translators', () ->
           rangeKeyName: 'foo'
           rangeKeyType: 'S')
 
-      expect(Q.ninvoke.calledOnce)
-      params = Q.ninvoke.getCall(0).args[2]
+      expect(dynastyTable.parent.dynamo.getItemAsync.calledOnce)
+      params = dynastyTable.parent.dynamo.getItemAsync.getCall(0).args[0]
 
       expect(params.Key).to.include.keys('bar')
       expect(params.Key.bar).to.include.keys('S')
@@ -308,12 +289,11 @@ describe 'aws-translators', () ->
         name: chance.name()
         parent:
           dynamo: {
-            query: (params, callback) ->
-              callback null, 
-              Items: [{
-                foo: {S: 'bar'},
-                bar: {S: 'baz'}
-              }]
+            queryAsync: (params, callback) ->
+              Promise.resolve Items: [{
+                  foo: {S: 'bar'},
+                  bar: {S: 'baz'}
+                }]
           }
 
     afterEach () ->
@@ -321,19 +301,20 @@ describe 'aws-translators', () ->
 
     it 'should translate the response', () ->
 
-      promise = lib.queryByHashKey.call dynastyTable, 'bar', null,
-        hashKeyName: 'foo'
-        hashKeyType: 'S'
-        rangeKeyName: 'bar'
-        rangeKeyType: 'S'
-
-      expect(promise).to.eventually.eql [
-        foo: 'bar'
-        bar: 'baz'
-      ]
+      lib.queryByHashKey
+        .call dynastyTable, 'bar', null,
+          hashKeyName: 'foo'
+          hashKeyType: 'S'
+          rangeKeyName: 'bar'
+          rangeKeyType: 'S'
+        .then (data) ->
+          expect(data).to.deep.equal [
+            foo: 'bar'
+            bar: 'baz'
+          ]
 
     it 'should call query', () ->
-      sandbox.spy(Q, "ninvoke")
+      sandbox.spy(dynastyTable.parent.dynamo, "queryAsync")
 
       lib.queryByHashKey.call dynastyTable, 'bar', null,
         hashKeyName: 'foo'
@@ -341,21 +322,19 @@ describe 'aws-translators', () ->
         rangeKeyName: 'bar'
         rangeKeyType: 'S'
  
-      expect(Q.ninvoke.calledOnce)
-      expect(Q.ninvoke.getCall(0).args[0]).to.equal(dynastyTable.parent.dynamo)
-      expect(Q.ninvoke.getCall(0).args[1]).to.equal('query')
+      expect(dynastyTable.parent.dynamo.queryAsync.calledOnce)
+      expect(dynastyTable.parent.dynamo.queryAsync.getCall(0).args[0]).to.include.keys('TableName', 'KeyConditions')
 
     it 'should send the table name and hash key to AWS', () ->
-      sandbox.spy(Q, "ninvoke")
-
+      sandbox.spy(dynastyTable.parent.dynamo, "queryAsync")
       promise = lib.queryByHashKey.call dynastyTable, 'bar', null,
         hashKeyName: 'foo'
         hashKeyType: 'S'
         rangeKeyName: 'bar'
         rangeKeyType: 'S'
- 
-      expect(Q.ninvoke.calledOnce)
-      params = Q.ninvoke.getCall(0).args[2]
+
+      expect(dynastyTable.parent.dynamo.queryAsync.calledOnce)
+      params = dynastyTable.parent.dynamo.queryAsync.getCall(0).args[0]
       expect(params.TableName).to.equal(dynastyTable.name)
       expect(params.KeyConditions.foo.ComparisonOperator).to.equal('EQ')
       expect(params.KeyConditions.foo.AttributeValueList[0].S)
@@ -372,8 +351,8 @@ describe 'aws-translators', () ->
         name: chance.name()
         parent:
           dynamo: {
-            putItem: (params, callback) ->
-              callback(null, true)
+            putItemAsync: (params, callback) ->
+              Promise.resolve('lol')
           }
 
     afterEach () ->
@@ -385,40 +364,36 @@ describe 'aws-translators', () ->
       expect(promise).to.be.an('object')
 
     it 'should return a promise', () ->
-      sandbox.stub(Q, "ninvoke").returns(Q.resolve('lol'))
-
-      promise = lib.putItem.call(dynastyTable, foo: 'bar', null, null)
-
-      expect(promise).to.eventually.equal('lol')
+      lib.putItem
+        .call(dynastyTable, foo: 'bar', null, null)
+        .then (data) ->
+          expect(data).to.equal('lol')
 
     it 'should call putItem of aws', () ->
-      sandbox.spy(Q, "ninvoke")
+      sandbox.spy(dynastyTable.parent.dynamo, "putItemAsync")
 
       lib.putItem.call(dynastyTable, foo: 'bar', null, null)
 
-      expect(Q.ninvoke.calledOnce)
-      expect(Q.ninvoke.getCall(0).args[0]).to.equal(dynastyTable.parent.dynamo)
-      expect(Q.ninvoke.getCall(0).args[1]).to.equal('putItem')
+      expect(dynastyTable.parent.dynamo.putItemAsync.calledOnce)
+      expect(dynastyTable.parent.dynamo.putItemAsync.getCall(0).args[0]).to.include.keys('Item', 'TableName')
 
-    it 'should send the table name to AWS', (done) ->
-      sandbox.spy(Q, "ninvoke")
+    it 'should send the table name to AWS', () ->
+      sandbox.spy(dynastyTable.parent.dynamo, "putItemAsync")
 
-      promise = lib.putItem.call(dynastyTable, foo: 'bar', null, null)
-
-      promise.then () ->
-        expect(Q.ninvoke.calledOnce)
-        params = Q.ninvoke.getCall(0).args[2]
-        expect(params.TableName).to.equal(dynastyTable.name)
-        done()
-      .fail done
+      lib.putItem
+        .call(dynastyTable, foo: 'bar', null, null)
+        .then () ->
+          expect(dynastyTable.parent.dynamo.putItemAsync.calledOnce)
+          params = dynastyTable.parent.dynamo.putItemAsync.getCall(0).args[0]
+          expect(params.TableName).to.equal(dynastyTable.name)
 
     it 'should send the translated object to AWS', () ->
-      sandbox.spy(Q, 'ninvoke')
+      sandbox.spy(dynastyTable.parent.dynamo, "putItemAsync")
 
-      promise = lib.putItem.call(dynastyTable, foo: 'bar', null, null)
+      promise = lib.putItem.call dynastyTable, foo: 'bar', null, null
 
-      expect(Q.ninvoke.calledOnce)
-      params = Q.ninvoke.getCall(0).args[2]
+      expect(dynastyTable.parent.dynamo.putItemAsync.calledOnce)
+      params = dynastyTable.parent.dynamo.putItemAsync.getCall(0).args[0]
       expect(params.Item).to.be.an('object')
       expect(params.Item.foo).to.be.an('object')
       expect(params.Item.foo.S).to.equal('bar')
