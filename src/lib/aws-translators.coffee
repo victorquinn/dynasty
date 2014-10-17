@@ -7,7 +7,7 @@ module.exports.processAllPages = (deferred, dynamo, functionName, params)->
   stats =
     Count: 0
       
-  resultHandler = (err, result)=>
+  resultHandler = (err, result) ->
     if err then return deferred.reject(err)
 
     deferred.notify dataTrans.fromDynamo result.Items
@@ -75,7 +75,7 @@ module.exports.batchGetItem = (params, callback, keySchema) ->
   name = @name
   awsParams.RequestItems[@name] = Keys: _.map(params, (param) -> getKey(param, keySchema))
   promise = Q.ninvoke(@parent.dynamo, 'batchGetItem', awsParams)
-             .then (data) -> dataTrans.fromDynamo(data.Responses[name])
+        .then (data) -> dataTrans.fromDynamo(data.Responses[name])
     
   if callback isnt null
     promise.nodeify(callback)
@@ -88,28 +88,28 @@ module.exports.getItem = (params, options, callback, keySchema) ->
     Key: getKey(params, keySchema)
 
   promise = Q.ninvoke(@parent.dynamo, 'getItem', awsParams)
-             .then (data)-> dataTrans.fromDynamo(data.Item)
+        .then (data)-> dataTrans.fromDynamo(data.Item)
 
   if callback isnt null
     promise.nodeify(callback)
 
   promise
 
-module.exports.queryByHashKey = (key, callback, keySchema) -> 
-  awsParams = 
+module.exports.queryByHashKey = (key, callback, keySchema) ->
+  awsParams =
     TableName: @name
     KeyConditions: {}
 
   hashKeyName = keySchema.hashKeyName
   hashKeyType = keySchema.hashKeyType
 
-  awsParams.KeyConditions[hashKeyName] = 
+  awsParams.KeyConditions[hashKeyName] =
     ComparisonOperator: 'EQ'
     AttributeValueList: [{}]
   awsParams.KeyConditions[hashKeyName].AttributeValueList[0][hashKeyType] = key
 
   promise = Q.ninvoke(@parent.dynamo, 'query', awsParams)
-             .then (data) -> dataTrans.fromDynamo(data.Items)
+        .then (data) -> dataTrans.fromDynamo(data.Items)
 
   if callback isnt null
     promise.nodeify(callback)

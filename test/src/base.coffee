@@ -42,6 +42,13 @@ describe 'Dynasty', () ->
 
         expect(promise).to.be.an('object')
 
+      it 'should accept a hash and range key_schema', () ->
+        promise = @dynasty.create chance.name(),
+          key_schema:
+            hash: [chance.name(), 'string']
+            range: [chance.name(), 'string']
+
+        expect(promise).to.be.an('object')
 
   describe 'Table', () ->
 

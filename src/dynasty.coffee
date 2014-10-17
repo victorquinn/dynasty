@@ -79,6 +79,9 @@ class Dynasty
       AttributeName: params.key_schema.hash[0]
     ]
 
+    if params.key_schema.range is not undefined
+      keySchema.push [KeyType: 'RANGE', AttributeName: params.key_schema.range[0]]
+
     attributeDefinitions = [
       AttributeName: params.key_schema.hash[0]
       AttributeType: typeToAwsType[params.key_schema.hash[1]]
