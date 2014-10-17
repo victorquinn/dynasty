@@ -6,7 +6,6 @@ chance = require('chance').Chance()
 lib = require('../lib/lib')["aws-translators"]
 sinon = require('sinon')
 Promise = require('bluebird')
-#Q = require('q')
 
 describe 'aws-translators', () ->
   describe '#getKeySchema', () ->

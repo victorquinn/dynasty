@@ -3,7 +3,6 @@
 aws = require('aws-sdk')
 _ = require('lodash')
 Promise = require('bluebird')
-Q = require('q')
 debug = require('debug')('dynasty')
 
 # See http://vq.io/19EiASB
