@@ -27,17 +27,18 @@ THANK YOU!
 
 ```
 project  : dynasty
-repo age : 8 months
-active   : 31 days
-commits  : 134
-files    : 15
-authors  :
-    65	Victor Quinn            48.5%
-    36	Mike Atkins             26.9%
-    23	Tim Huff                17.2%
-     5	ahassani                3.7%
-     3	Amir Hassani            2.2%
-     2	Ben McIlwain            1.5%
+ repo age : 1 year, 2 months
+ active   : 33 days
+ commits  : 141
+ files    : 15
+ authors  :
+    70	Victor Quinn       49.6%
+    37	Mike Atkins        26.2%
+    23	Tim Huff           16.3%
+     5	ahassani           3.5%
+     3	Amir Hassani       2.1%
+     2	Ben McIlwain       1.4%
+     1	Christie Williams  0.7%
 ```
 
 This project is licensed under the [MIT License](http://en.wikipedia.org/wiki/MIT_License) so feel free to hack away :)
