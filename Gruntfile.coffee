@@ -27,7 +27,7 @@ module.exports = (grunt) ->
         ui: 'bdd'
         reporter: 'spec'
       all:
-        src: ['test/*.js']
+        src: ['test/***/*.js']
     watch:
       files: ['Gruntfile.coffee', 'src/**/*.coffee', 'test/src/**/*.coffee']
       tasks: ['coffeelint', 'coffee', 'simplemocha']
