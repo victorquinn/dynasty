@@ -100,6 +100,33 @@ module.exports.queryByHashKey = (key, callback, keySchema) ->
       dataTrans.fromDynamo(data.Items)
     .nodeify(callback)
 
+module.exports.scan = (params, options, callback, keySchema) ->
+  params_ = params || {};
+  awsParams =
+    TableName: @name
+    Select: 'SPECIFIC_ATTRIBUTES'
+    AttributesToGet: params_.attrsGet || [keySchema.hashKeyName]
+    Limit: params_.limit
+    TotalSegments: params.totalSegment
+    Segment: params.segment
+
+  awsParams.ScanFilter = {}
+  scanFilterFunc = (filter) ->
+    obj = awsParams.ScanFilter
+    obj[filter.column] =
+      ComparisonOperator: filter.op || 'EQ'
+      AttributeValueList: [{}]
+    obj[filter.column].AttributeValueList[0][filter.type || 'S'] = filter.value
+    obj
+
+  scanFilterFunc(filter) for filter in params_.filters
+
+
+  @parent.dynamo.scanAsync(awsParams, callback)
+    .then (data)->
+      dataTrans.fromDynamo(data.Items)
+    .nodeify(callback)
+
 module.exports.putItem = (obj, options, callback) ->
   awsParams =
     TableName: @name
