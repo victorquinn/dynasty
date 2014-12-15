@@ -30,6 +30,11 @@ class Table
     debug "find() - #{params}"
     @key.then awsTrans.getItem.bind(this, params, options, callback)
 
+  # Wrapper around DynamoDB's scan
+  scan: (params, options = {}, callback = null) ->
+    debug "scan() - #{params}"
+    @key.then awsTrans.scan.bind(this, params, options, callback)
+
   # Wrapper around DynamoDB's putItem
   insert: (obj, options = {}, callback = null) ->
     debug "insert() - " + JSON.stringify obj
