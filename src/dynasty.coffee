@@ -19,12 +19,16 @@ Table = lib.Table
 
 class Dynasty
 
-  constructor: (credentials) ->
+  constructor: (credentials, url) ->
     debug "dynasty constructed."
     credentials.region = credentials.region || 'us-east-1'
 
     # Lock API version
     credentials.apiVersion = '2012-08-10'
+
+    if url and _.isString url
+      debug "connecting to local dynamo at #{url}"
+      credentials.endpoint = new aws.Endpoint url
 
     aws.config.update credentials
 
@@ -129,4 +133,4 @@ class Dynasty
 
     @dynamo.listTablesAsync(awsParams)
 
-module.exports = (credentials) -> new Dynasty(credentials)
+module.exports = (credentials, url) -> new Dynasty(credentials, url)
