@@ -101,7 +101,7 @@ module.exports.queryByHashKey = (key, callback, keySchema) ->
     .nodeify(callback)
 
 module.exports.scan = (params, options, callback, keySchema) ->
-  params_ = params || {};
+  params ?= {}
   awsParams =
     TableName: @name
     ScanFilter: {}
