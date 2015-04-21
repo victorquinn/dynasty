@@ -122,7 +122,6 @@ module.exports.scan = (params, options, callback, keySchema) ->
   if (params.filters)
     scanFilterFunc(filter) for filter in params.filters
 
-  console.log(JSON.stringify(awsParams))
   @parent.dynamo.scanAsync(awsParams)
     .then (data)->
       dataTrans.fromDynamo(data.Items)
