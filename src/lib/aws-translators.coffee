@@ -106,8 +106,8 @@ module.exports.scan = (params, options, callback, keySchema) ->
     TableName: @name
     ScanFilter: {}
     Select: 'SPECIFIC_ATTRIBUTES'
-    AttributesToGet: params_.attrsGet || [keySchema.hashKeyName]
-    Limit: params_.limit
+    AttributesToGet: params.attrsGet || [keySchema.hashKeyName]
+    Limit: params.limit
     TotalSegments: params.totalSegment
     Segment: params.segment
 
@@ -119,10 +119,9 @@ module.exports.scan = (params, options, callback, keySchema) ->
     obj[filter.column].AttributeValueList[0][filter.type || 'S'] = filter.value
     obj
 
-  if (params_.filters)
-    scanFilterFunc(filter) for filter in params_.filters
+  if (params.filters)
+    scanFilterFunc(filter) for filter in params.filters
 
-  console.log(JSON.stringify(awsParams))
   @parent.dynamo.scanAsync(awsParams)
     .then (data)->
       dataTrans.fromDynamo(data.Items)
