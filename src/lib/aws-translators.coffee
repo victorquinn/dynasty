@@ -82,14 +82,19 @@ module.exports.getItem = (params, options, callback, keySchema) ->
       dataTrans.fromDynamo(data.Item)
     .nodeify(callback)
 
-module.exports.queryByHashKey = (key, callback, keySchema) ->
+module.exports.queryByHashKey = (key, params, callback, keySchema) ->
   awsParams =
     TableName: @name
     KeyConditions: {}
 
   hashKeyName = keySchema.hashKeyName
   hashKeyType = keySchema.hashKeyType
-
+  if (params.filterExpression)
+    awsParams.FilterExpression = params.filterExpression
+  if (params.expressionAttributeValues)
+    awsParams.ExpressionAttributeValues = params.expressionAttributeValues
+  if (params.expressionAttributeNames)
+    awsParams.ExpressionAttributeNames = params.expressionAttributeNames
   awsParams.KeyConditions[hashKeyName] =
     ComparisonOperator: 'EQ'
     AttributeValueList: [{}]

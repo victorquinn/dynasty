@@ -21,9 +21,9 @@ class Table
     debug "batchFind() - #{params}"
     @key.then awsTrans.batchGetItem.bind(this, params, callback)
 
-  findAll: (params, callback = null) ->
+  findAll: (key, params, callback = null) ->
     debug "findAll() - #{params}"
-    @key.then awsTrans.queryByHashKey.bind(this, params, callback)
+    @key.then awsTrans.queryByHashKey.bind(this, key, params, callback)
     
   # Wrapper around DynamoDB's getItem
   find: (params, options = {}, callback = null) ->
