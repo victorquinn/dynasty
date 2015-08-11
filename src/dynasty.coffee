@@ -30,9 +30,7 @@ class Dynasty
       debug "connecting to local dynamo at #{url}"
       credentials.endpoint = new aws.Endpoint url
 
-    aws.config.update credentials
-
-    @dynamo = new aws.DynamoDB()
+    @dynamo = new aws.DynamoDB(credentials)
     Promise.promisifyAll @dynamo
     @name = 'Dynasty'
     @tables = {}
