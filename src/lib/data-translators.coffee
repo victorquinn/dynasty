@@ -16,7 +16,7 @@ module.exports.fromDynamo = (dbObj) ->
     return _.transform dbObj, (res, val, key) ->
       if(val.BOOL?)
         res[key] = val.BOOL
-        return #NOTE: need this here since implied return would cause _.transform to cease operating for a false value
+        return #NOTE: need this here since implied return would cause _.transform to cease operating for a false value when compiled to js
       else if(val.S)
         res[key] = val.S
       else if(val.SS)
