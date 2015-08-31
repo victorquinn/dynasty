@@ -14,7 +14,10 @@ module.exports.fromDynamo = (dbObj) ->
     return dbObj
   if _.isObject dbObj
     return _.transform dbObj, (res, val, key) ->
-      if(val.S)
+      if(val.BOOL?)
+        res[key] = val.BOOL
+        return #NOTE: need this here since implied return would cause _.transform to cease operating for a false value when compiled to js
+      else if(val.S)
         res[key] = val.S
       else if(val.SS)
         res[key] = val.SS
@@ -44,6 +47,9 @@ module.exports.toDynamo = (item) ->
   else if _.isString item
     obj =
       'S': item
+  else if _.isBoolean item
+    obj =
+      'BOOL': item
   else if _.isObject item
     throw new TypeError 'Object is not serializable to a dynamo data type'
   else if not item
