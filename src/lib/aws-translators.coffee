@@ -134,3 +134,11 @@ module.exports.putItem = (obj, options, callback) ->
       res[key] = dataTrans.toDynamo(val))
 
   @parent.dynamo.putItemAsync(awsParams)
+
+module.exports.updateItem = (obj, options, callback) ->
+  awsParams =
+    TableName: @name
+    Item: _.transform(obj, (res, val, key) ->
+      res[key] = dataTrans.toDynamo(val))
+
+  @parent.dynamo.updateItemAsync(awsParams)
