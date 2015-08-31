@@ -6,7 +6,6 @@ debug = require('debug')('dynasty')
 class Table
 
   constructor: (@parent, @name) ->
-    @update = @insert
     @key = @describe().then(awsTrans.getKeySchema).then (keySchema)=>
       @hasRangeKey = (4 == _.size _.compact _.values keySchema)
       keySchema
