@@ -66,7 +66,7 @@
     "bluebird": "^2.3.11",
     "coffee-script": "^1.6.3",
     "debug": "^2.1.0",
-    "lodash": "^2.4.1",
+    "lodash": "^3.10.1",
     "require-directory": "^2.0.0"
   }
 }

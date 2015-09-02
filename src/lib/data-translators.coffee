@@ -3,7 +3,7 @@ _ = require('lodash')
 ###
    converts a DynamoDB compatible JSON object into
    a native JSON object
-   @param ddb the ddb JSON object
+   @param dbObj the dynamodb JSON object
    @throws an error if input object is not compatible
    @return res the converted object
 ###
@@ -26,7 +26,7 @@ module.exports.fromDynamo = (dbObj) ->
       else if(val.NS)
         res[key] = _.map(val.NS, parseFloat)
       else
-        throw new Error('Non Compatible Field [not "S"|"N"|"NS"|"SS"]: ' + key)
+        throw new Error('Non Compatible Field [not "S"|"N"|"NS"|"SS"|"BOOL"]: ' + key)
   else
     return dbObj
 

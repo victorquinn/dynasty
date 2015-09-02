@@ -1,6 +1,7 @@
 _ = require('lodash')
 dataTrans = require('./data-translators')
 Promise = require('bluebird')
+debug = require('debug')('dynasty:aws-translators')
 
 module.exports.processAllPages = (deferred, dynamo, functionName, params)->
 
@@ -135,10 +136,20 @@ module.exports.putItem = (obj, options, callback) ->
 
   @parent.dynamo.putItemAsync(awsParams)
 
-module.exports.updateItem = (obj, options, callback) ->
+module.exports.updateItem = (params, obj, options, callback, keySchema) ->
+  key = getKey(params, keySchema)
+
+  # Set up the Expression Attribute Values map.
+  expressionAttributeValues = _.mapKeys obj, (value, key) -> return ':' + key
+  expressionAttributeValues = _.mapValues expressionAttributeValues, (value, key) -> return dataTrans.toDynamo value
+
+  # Set up the Update Expression
+  updateExpression = 'SET ' + _.keys(_.mapKeys obj, (value, key) -> return key + ' = :' + key).join ','
+
   awsParams =
     TableName: @name
-    Item: _.transform(obj, (res, val, key) ->
-      res[key] = dataTrans.toDynamo(val))
+    Key: getKey(params, keySchema)
+    ExpressionAttributeValues: expressionAttributeValues
+    UpdateExpression: updateExpression
 
   @parent.dynamo.updateItemAsync(awsParams)
