@@ -96,6 +96,42 @@ class Dynasty
         ReadCapacityUnits: throughput.read
         WriteCapacityUnits: throughput.write
 
+    # Add GlobalSecondaryIndexes to awsParams if provided
+    if params.global_secondary_indexes?
+      # Verify valid GSI
+      for global_secondary_index in params.global_secondary_indexes
+        key_schema = global_secondary_index.key_schema
+        # Must provide hash type
+        unless key_schema.hash?
+          throw TypeError 'Missing hash index for GlobalSecondaryIndex'
+        typesProvided = Object.keys(key_schema).length
+        # Provide 1-2 types for GSI
+        if typesProvided.length > 2 or typesProvided.length < 1
+          throw RangeError 'Expected one or two types for GlobalSecondaryIndex'
+        # Providing 2 types but the second isn't range type
+        if typesProvided.length is 2 and not key_schema.range?
+          throw TypeError 'Two types provided but the second isn\'t range'
+      awsParams.GlobalSecondaryIndexes = ({
+        IndexName: index.index_name
+        KeySchema: ({
+          AttributeName: key[0]
+          KeyType: type.toUpperCase()
+        } for key in index.key_schema)
+        Projection:
+          ProjectionType: index.projection_type.toUpperCase()
+        # Use the provided or default throughput
+        ProvisionedThroughput: unless index.provisioned_throughput? then awsParams.ProvisionedThroughput else {
+          ReadCapacityUnits: index.provisioned_throughput.read
+          WriteCapacityUnits: index.provisioned_throughput.write
+        }
+      } for type, index of params.global_secondary_indexes)
+      # Add key name for each GlobalSecondaryIndex to attributeDefinitions
+      for global_secondary_index in params.global_secondary_indexes
+        awsParams.AttributeDefinitions = awsParams.AttributeDefinitions.concat ({
+          AttributeName: key[0]
+          AttributeType: typeToAwsType[key[1]]
+        } for key in global_secondary_index.key_schema)
+
     console.log "creating table with params #{JSON.stringify(awsParams, null, 4)}"
 
     @dynamo.createTableAsync(awsParams).nodeify(callback)
