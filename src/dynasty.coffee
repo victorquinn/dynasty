@@ -139,7 +139,7 @@ class Dynasty
               AttributeType: typeToAwsType[key[1]]
             }
 
-    console.log "creating table with params #{JSON.stringify(awsParams, null, 4)}"
+    debug "creating table with params #{JSON.stringify(awsParams, null, 4)}"
 
     @dynamo.createTableAsync(awsParams).nodeify(callback)
 
