@@ -111,6 +111,7 @@ module.exports.scan = (params, options, callback, keySchema) ->
     Limit: params.limit
     TotalSegments: params.totalSegment
     Segment: params.segment
+    ExclusiveStartKey: params.ExclusiveStartKey
 
   scanFilterFunc = (filter) ->
     obj = awsParams.ScanFilter
@@ -125,7 +126,10 @@ module.exports.scan = (params, options, callback, keySchema) ->
 
   @parent.dynamo.scanAsync(awsParams)
     .then (data)->
-      dataTrans.fromDynamo(data.Items)
+      result =
+        Items: dataTrans.fromDynamo(data.Items),
+        Count: data.Count,
+        LastEvaluatedKey: data.LastEvaluatedKey
     .nodeify(callback)
 
 module.exports.putItem = (obj, options, callback) ->
