@@ -7,31 +7,40 @@ _ = require('lodash')
    @throws an error if input object is not compatible
    @return res the converted object
 ###
-module.exports.fromDynamo = (dbObj) ->
+
+convertObject = (obj) ->
+  converted = {}
+  converted[key] = fromDynamo(value) for key, value of obj
+  converted
+
+fromDynamo = (dbObj) ->
   if _.isArray dbObj
+    obj = []
     for element, key in dbObj
-      dbObj[key] = module.exports.fromDynamo element
-    return dbObj
+      obj[key] = fromDynamo element
+    return obj
   if _.isObject dbObj
-    return _.transform dbObj, (res, val, key) ->
-      if(val.BOOL?)
-        res[key] = val.BOOL
-        return #NOTE: need this here since implied return would cause _.transform to cease operating for a false value when compiled to js
-      else if(val.S)
-        res[key] = val.S
-      else if(val.SS)
-        res[key] = val.SS
-      else if(val.N)
-        res[key] = parseFloat(val.N)
-      else if(val.NS)
-        res[key] = _.map(val.NS, parseFloat)
-      else
-        throw new Error('Non Compatible Field [not "S"|"N"|"NS"|"SS"|"BOOL"]: ' + key)
+    if dbObj.M
+      return convertObject(dbObj.M)
+    else if(dbObj.BOOL?)
+      return dbObj.BOOL
+    else if(dbObj.S)
+      return dbObj.S
+    else if(dbObj.SS)
+      return dbObj.SS
+    else if(dbObj.N)
+      return parseFloat(dbObj.N)
+    else if(dbObj.NS)
+      return _.map(dbObj.NS, parseFloat)
+    else
+      return convertObject(dbObj)
   else
     return dbObj
 
+module.exports.fromDynamo = fromDynamo
+
 # See http://vq.io/19EiASB
-module.exports.toDynamo = (item) ->
+toDynamo = (item) ->
   if _.isArray item
     if _.every item, _.isNumber
       obj =
@@ -51,6 +60,12 @@ module.exports.toDynamo = (item) ->
     obj =
       'BOOL': item
   else if _.isObject item
-    throw new TypeError 'Object is not serializable to a dynamo data type'
+    map = {}
+    for key, value of item
+      map[key] = toDynamo(value)
+    obj =
+      'M': map
   else if not item
     throw new TypeError 'Cannot call convert_to_dynamo() with no arguments'
+
+module.exports.toDynamo = toDynamo

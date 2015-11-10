@@ -33,12 +33,8 @@ describe 'toDynamo()', () ->
     expect(converted).to.deep.equal
       'S': str
 
-  it 'should throw an error when given an object', () ->
-    obj = {}
-    _.times 10, () ->
-      obj[chance.string()] = chance.string()
-    expect(() -> dataTrans.toDynamo(obj)).to.
-      throw('Object is not serializable to a dynamo data type')
+  it 'should convert objects to Maps', () ->
+    expect(dataTrans.toDynamo({foo: 'bar'})).to.eql({M: {foo: {S: 'bar'}}})
 
   it 'looks right when given an array of numbers', () ->
     arr = chance.rpg '10d100'
