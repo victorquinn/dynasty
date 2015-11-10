@@ -55,7 +55,7 @@ describe 'aws-translators', () ->
             }
           ]
       )
-  
+
   describe '#deleteItem', () ->
 
     dynastyTable = null
@@ -415,7 +415,7 @@ describe 'aws-translators', () ->
         hashKeyType: 'S'
         rangeKeyName: 'bar'
         rangeKeyType: 'S'
- 
+
       expect(dynastyTable.parent.dynamo.queryAsync.calledOnce)
       expect(dynastyTable.parent.dynamo.queryAsync.getCall(0).args[0]).to.include.keys('TableName', 'KeyConditions')
 
@@ -491,3 +491,32 @@ describe 'aws-translators', () ->
       expect(params.Item).to.be.an('object')
       expect(params.Item.foo).to.be.an('object')
       expect(params.Item.foo.S).to.equal('bar')
+
+  describe '#updateItem', () ->
+
+    dynastyTable = null
+    sandbox = null
+
+    beforeEach () ->
+      sandbox = sinon.sandbox.create()
+      dynastyTable =
+        name: chance.name()
+        parent:
+          dynamo: {
+            updateItemAsync: (params, callback) ->
+              Promise.resolve('lol')
+          }
+
+    afterEach () ->
+      sandbox.restore()
+
+
+    it 'should automatically setup ExpressionAttributeNames mapping', () ->
+      sandbox.spy(dynastyTable.parent.dynamo, "updateItemAsync")
+      promise = lib.updateItem.call(dynastyTable, {}, foo: 'bar', null, null,
+        hashKeyName: 'bar'
+        hashKeyType: 'S'
+      )
+      expect(dynastyTable.parent.dynamo.updateItemAsync.calledOnce)
+      params = dynastyTable.parent.dynamo.updateItemAsync.getCall(0).args[0]
+      expect(params.ExpressionAttributeNames).to.be.eql({"#foo": 'foo'})
