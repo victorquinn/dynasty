@@ -32,6 +32,8 @@ fromDynamo = (dbObj) ->
       return parseFloat(dbObj.N)
     else if(dbObj.NS)
       return _.map(dbObj.NS, parseFloat)
+    else if(dbObj.L)
+      return _.map(dbObj.L, fromDynamo)
     else
       return convertObject(dbObj)
   else
@@ -48,6 +50,12 @@ toDynamo = (item) ->
     else if _.every item, _.isString
       obj =
         'SS': item
+    else if _.every item, _.isObject
+      array = []
+      for value in item
+        array.push(toDynamo(value))
+      obj =
+        'L': array
     else
       throw new TypeError 'Expected homogenous array of numbers or strings'
   else if _.isNumber item
