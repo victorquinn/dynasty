@@ -34,6 +34,8 @@ fromDynamo = (dbObj) ->
       return _.map(dbObj.NS, parseFloat)
     else if(dbObj.L)
       return _.map(dbObj.L, fromDynamo)
+    else if(dbObj.NULL)
+      return null
     else
       return convertObject(dbObj)
   else
@@ -74,6 +76,7 @@ toDynamo = (item) ->
     obj =
       'M': map
   else if not item
-    throw new TypeError 'Cannot call convert_to_dynamo() with no arguments'
+    obj =
+      'NULL': true
 
 module.exports.toDynamo = toDynamo
