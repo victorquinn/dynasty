@@ -73,3 +73,15 @@ describe 'toDynamo()', () ->
         arr.push chance.integer()
     expect(() -> dataTrans.toDynamo(arr)).to.
       throw('Expected homogenous array of numbers or strings')
+
+  it 'supports null values' , () ->
+    expect(dataTrans.toDynamo({foo: null})).to.deep.equal
+      'M':
+        foo:
+          'NULL': true
+
+  it 'supports undefined values' , () ->
+    expect(dataTrans.toDynamo({foo: undefined})).to.deep.equal
+      'M':
+        foo:
+          'NULL': true
