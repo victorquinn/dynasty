@@ -312,65 +312,14 @@ describe 'aws-translators', () ->
       .then (data) ->
         expect(data).to.deep.equal(rofl: 'lol')
 
-    it 'should call getItem of aws', () ->
-      sandbox.spy(dynastyTable.parent.dynamo, "scan")
+    it 'should call scan of aws', () ->
+      sandbox.spy(dynastyTable.parent.dynamo, "scanAsync")
       lib.scan.call dynastyTable, 'foo', null, null,
         hashKeyName: 'bar'
         hashKeyType: 'S'
 
-      expect(dynastyTable.parent.dynamo.scan.calledOnce)
-      expect(dynastyTable.parent.dynamo.scan.getCall(0).args[0].TableName).to.equal(dynastyTable.name)
-
-    it 'should send the table name to AWS', () ->
-      sandbox.spy(dynastyTable.parent.dynamo, "getItemAsync")
-
-      lib.getItem
-      .call dynastyTable, 'foo', null, null,
-        hashKeyName: 'bar'
-        hashKeyType: 'S'
-      .then () ->
-        expect(dynastyTable.parent.dynamo.scan.calledOnce)
-        params = dynastyTable.parent.dynamo.scan.getCall(0).args[0]
-        expect(params.TableName).to.equal(dynastyTable.name)
-
-    it 'should send the hash key to AWS', () ->
-      sandbox.spy(dynastyTable.parent.dynamo, "scan")
-
-      promise = lib.getItem.call dynastyTable, 'foo', null, null,
-        hashKeyName: 'bar'
-        hashKeyType: 'S'
-
-      expect(dynastyTable.parent.dynamo.scan.calledOnce)
-      params = dynastyTable.parent.dynamo.scan.getCall(0).args[0]
-      expect(params.Key).to.include.keys('bar')
-      expect(params.Key.bar).to.include.keys('S')
-      expect(params.Key.bar.S).to.equal('foo')
-
-    it 'should send the hash and range key to AWS', () ->
-      sandbox.spy(dynastyTable.parent.dynamo, "scan")
-
-      promise = lib.scan.call(
-        dynastyTable,
-        hash: 'lol'
-        range: 'rofl',
-        null,
-        null,
-        hashKeyName: 'bar'
-        hashKeyType: 'S'
-        rangeKeyName: 'foo'
-        rangeKeyType: 'S')
-
-      expect(dynastyTable.parent.dynamo.scan.calledOnce)
-      params = dynastyTable.parent.dynamo.scan.getCall(0).args[0]
-
-      expect(params.Key).to.include.keys('bar')
-      expect(params.Key.bar).to.include.keys('S')
-      expect(params.Key.bar.S).to.equal('lol')
-
-      expect(params.Key).to.include.keys('foo')
-      expect(params.Key.foo).to.include.keys('S')
-      expect(params.Key.foo.S).to.equal('rofl')
-
+      expect(dynastyTable.parent.dynamo.scanAsync.calledOnce)
+      expect(dynastyTable.parent.dynamo.scanAsync.getCall(0).args[0].TableName).to.equal(dynastyTable.name)
 
   describe '#queryByHashKey', () ->
 

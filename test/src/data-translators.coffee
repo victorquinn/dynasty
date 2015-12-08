@@ -52,6 +52,18 @@ describe 'toDynamo()', () ->
     expect(converted).to.deep.equal
       'SS': arr
 
+  it 'looks right when given an array of objects', () ->
+    arr = [{foo: 'bar'}, {bar: 'foo'}]
+    converted = dataTrans.toDynamo arr
+    expect(converted).to.be.an 'object'
+    expect(converted).to.eql({ L: [{M: {foo: {S: 'bar'}}},{M: {bar: {S: 'foo'}}}]})
+
+  it 'looks right when given an array of nested objects', () ->
+    arr = [{foo: [1,2,3]}, {bar: {amazon: 'aws'}}]
+    converted = dataTrans.toDynamo arr
+    expect(converted).to.be.an 'object'
+    expect(converted).to.eql({ L: [{M: {foo: {NS: [1,2,3]}}},{M: {bar: {M: {amazon: {S: 'aws'}}}}}]})
+
   it 'should throw an error when given a hetrogeneous array', () ->
     arr = []
     _.times 10, (n) ->
@@ -59,14 +71,5 @@ describe 'toDynamo()', () ->
         arr.push chance.string()
       else
         arr.push chance.integer()
-    expect(() -> dataTrans.toDynamo(arr)).to.
-      throw('Expected homogenous array of numbers or strings')
-
-  it 'should throw an error when given an array of objects', () ->
-    arr = []
-    _.times 10, () ->
-      obj = {}
-      obj[chance.string()] = chance.string()
-      arr.push obj
     expect(() -> dataTrans.toDynamo(arr)).to.
       throw('Expected homogenous array of numbers or strings')

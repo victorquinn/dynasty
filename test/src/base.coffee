@@ -62,7 +62,7 @@ describe 'Dynasty', () ->
       it 'should return an object', () ->
         promise = @table.remove chance.name()
         expect(promise).to.be.an('object')
-    
+
     describe 'batchFind()', () ->
 
       it 'works with an array of keys', () ->
@@ -97,8 +97,3 @@ describe 'Dynasty', () ->
       it 'should return an object', () ->
         promise = @table.describe()
         expect(promise).to.be.an('object')
-
-    describe 'update()', () ->
-
-      it 'should just be insert', () ->
-        expect(@table.insert).to.equal(@table.update)
