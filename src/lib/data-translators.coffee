@@ -1,4 +1,5 @@
 _ = require('lodash')
+util = require('util')
 
 ###
    converts a DynamoDB compatible JSON object into
@@ -34,6 +35,8 @@ fromDynamo = (dbObj) ->
       return _.map(dbObj.NS, parseFloat)
     else if(dbObj.L)
       return _.map(dbObj.L, fromDynamo)
+    else if(dbObj.NULL)
+      return null
     else
       return convertObject(dbObj)
   else
@@ -73,7 +76,10 @@ toDynamo = (item) ->
       map[key] = toDynamo(value)
     obj =
       'M': map
+  else if item is null
+    obj =
+      'NULL': true
   else if not item
-    throw new TypeError 'Cannot call convert_to_dynamo() with no arguments'
+    throw new TypeError "toDynamo() does not support mapping #{util.inspect(item)}"
 
 module.exports.toDynamo = toDynamo

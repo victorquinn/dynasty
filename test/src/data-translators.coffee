@@ -9,7 +9,7 @@ describe 'toDynamo()', () ->
 
   it 'should throw an error if called with no arguments', () ->
     expect(() -> dataTrans.toDynamo()).to.
-      throw('Cannot call convert_to_dynamo() with no arguments')
+      throw(/does not support mapping undefined/)
 
   it 'looks right when given a number', () ->
     num = chance.integer()
@@ -73,3 +73,17 @@ describe 'toDynamo()', () ->
         arr.push chance.integer()
     expect(() -> dataTrans.toDynamo(arr)).to.
       throw('Expected homogenous array of numbers or strings')
+
+  it 'supports null values', () ->
+    expect(dataTrans.toDynamo({foo: null})).to.deep.equal
+      'M':
+        foo:
+          'NULL': true
+
+  it 'throws an error for undefined values', () ->
+    expect(-> dataTrans.toDynamo({foo: undefined})).to.throw(/does not support mapping undefined/)
+
+describe 'fromDynamo()', () ->
+
+  it 'converts dynamo NULLs to javascript nulls' , () ->
+    expect(dataTrans.fromDynamo({NULL: true})).to.be.null
