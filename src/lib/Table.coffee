@@ -23,7 +23,7 @@ class Table
   findAll: (params, callback = null) ->
     debug "findAll() - #{params}"
     @key.then awsTrans.queryByHashKey.bind(this, params, callback)
-    
+
   # Wrapper around DynamoDB's getItem
   find: (params, options = {}, callback = null) ->
     debug "find() - #{params}"
@@ -33,6 +33,11 @@ class Table
   scan: (params, options = {}, callback = null) ->
     debug "scan() - #{params}"
     @key.then awsTrans.scan.bind(this, params, options, callback)
+
+  # Wrapper around DynamoDB's query
+  query: (params, options = {}, callback = null) ->
+    debug "query() - #{params}"
+    @key.then awsTrans.query.bind(this, params, options, callback)
 
   # Wrapper around DynamoDB's putItem
   insert: (obj, options = {}, callback = null) ->

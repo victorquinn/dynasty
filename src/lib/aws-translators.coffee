@@ -3,6 +3,17 @@ dataTrans = require('./data-translators')
 Promise = require('bluebird')
 debug = require('debug')('dynasty:aws-translators')
 
+buildFilters = (target, filters) ->
+  if filters
+    scanFilterFunc(target, filter) for filter in filters
+
+scanFilterFunc = (target, filter) ->
+  target[filter.column] =
+    ComparisonOperator: filter.op || 'EQ'
+    AttributeValueList: [{}]
+  target[filter.column].AttributeValueList[0][filter.type || 'S'] = filter.value
+  target
+
 module.exports.processAllPages = (deferred, dynamo, functionName, params)->
 
   stats =
@@ -112,19 +123,26 @@ module.exports.scan = (params, options, callback, keySchema) ->
     TotalSegments: params.totalSegment
     Segment: params.segment
 
-  scanFilterFunc = (filter) ->
-    obj = awsParams.ScanFilter
-    obj[filter.column] =
-      ComparisonOperator: filter.op || 'EQ'
-      AttributeValueList: [{}]
-    obj[filter.column].AttributeValueList[0][filter.type || 'S'] = filter.value
-    obj
-
-  if (params.filters)
-    scanFilterFunc(filter) for filter in params.filters
+  buildFilters(awsParams.ScanFilter, params.filters)
 
   @parent.dynamo.scanAsync(awsParams)
     .then (data)->
+      dataTrans.fromDynamo(data.Items)
+    .nodeify(callback)
+
+module.exports.query = (params, options, callback, keySchema) ->
+  params ?= {}
+  awsParams =
+    TableName: @name
+    IndexName: params.indexName
+    KeyConditions: {}
+    QueryFilter: {}
+
+  buildFilters(awsParams.KeyConditions, params.keyConditions)
+  buildFilters(awsParams.QueryFilter, params.filters)
+
+  @parent.dynamo.queryAsync(awsParams)
+    .then (data) ->
       dataTrans.fromDynamo(data.Items)
     .nodeify(callback)
 
