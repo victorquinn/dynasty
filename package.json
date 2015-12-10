@@ -27,7 +27,7 @@
     "test"
   ],
   "devDependencies": {
-    "chance": "^0.6.1",
+    "chance": "^0.8.0",
     "chai": "1.5",
     "grunt": "*",
     "grunt-cli": "*",
