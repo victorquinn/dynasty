@@ -29,7 +29,7 @@ fromDynamo = (dbObj) ->
       return dbObj.S
     else if(dbObj.SS)
       return dbObj.SS
-    else if(dbObj.N)
+    else if(dbObj.N?)
       return parseFloat(dbObj.N)
     else if(dbObj.NS)
       return _.map(dbObj.NS, parseFloat)
