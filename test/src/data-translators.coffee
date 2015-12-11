@@ -87,3 +87,23 @@ describe 'fromDynamo()', () ->
 
   it 'converts dynamo NULLs to javascript nulls' , () ->
     expect(dataTrans.fromDynamo({NULL: true})).to.be.null
+
+  it 'converts string lists correctly', () ->
+    dynamoData =
+      L: [
+        S: 'foo'
+      ,
+        S: 'bar'
+      ]
+    expect(dataTrans.fromDynamo(dynamoData)).to.eql(['foo', 'bar'])
+
+  it 'converts numbered lists correctly',() ->
+    dynamoData =
+      M:
+        foo:
+          L: [
+            N: 0
+          ,
+            N: 1
+          ]
+    expect(dataTrans.fromDynamo(dynamoData)).to.eql({foo: [0, 1]})
