@@ -64,6 +64,11 @@ describe 'toDynamo()', () ->
     expect(converted).to.be.an 'object'
     expect(converted).to.eql({ L: [{M: {foo: {NS: ['1', '2', '3']}}},{M: {bar: {M: {amazon: {S: 'aws'}}}}}]})
 
+  it 'converts an empty array to a list', () ->
+    expect(dataTrans.toDynamo([])).to.eql(
+      L: []
+    )
+
   it 'should throw an error when given a hetrogeneous array', () ->
     arr = []
     _.times 10, (n) ->
