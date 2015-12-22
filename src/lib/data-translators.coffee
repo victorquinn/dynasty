@@ -47,10 +47,10 @@ module.exports.fromDynamo = fromDynamo
 # See http://vq.io/19EiASB
 toDynamo = (item) ->
   if _.isArray item
-    if _.every item, _.isNumber
+    if item.length > 0 and _.every item, _.isNumber
       obj =
         'NS': (num.toString() for num in item)
-    else if _.every item, _.isString
+    else if item.length > 0 and _.every item, _.isString
       obj =
         'SS': item
     else if _.every item, _.isObject
