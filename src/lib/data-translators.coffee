@@ -49,7 +49,7 @@ toDynamo = (item) ->
   if _.isArray item
     if _.every item, _.isNumber
       obj =
-        'NS': item
+        'NS': (num.toString() for num in item)
     else if _.every item, _.isString
       obj =
         'SS': item

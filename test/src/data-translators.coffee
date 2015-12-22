@@ -37,11 +37,11 @@ describe 'toDynamo()', () ->
     expect(dataTrans.toDynamo({foo: 'bar'})).to.eql({M: {foo: {S: 'bar'}}})
 
   it 'looks right when given an array of numbers', () ->
-    arr = chance.rpg '10d100'
+    arr = [0, 1, 2, 3]
     converted = dataTrans.toDynamo arr
     expect(converted).to.be.an 'object'
     expect(converted).to.deep.equal
-      'NS': arr
+      NS: ['0', '1', '2', '3']
 
   it 'looks right when given an array of strings', () ->
     arr = []
@@ -62,7 +62,7 @@ describe 'toDynamo()', () ->
     arr = [{foo: [1,2,3]}, {bar: {amazon: 'aws'}}]
     converted = dataTrans.toDynamo arr
     expect(converted).to.be.an 'object'
-    expect(converted).to.eql({ L: [{M: {foo: {NS: [1,2,3]}}},{M: {bar: {M: {amazon: {S: 'aws'}}}}}]})
+    expect(converted).to.eql({ L: [{M: {foo: {NS: ['1', '2', '3']}}},{M: {bar: {M: {amazon: {S: 'aws'}}}}}]})
 
   it 'should throw an error when given a hetrogeneous array', () ->
     arr = []
