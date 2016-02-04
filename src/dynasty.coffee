@@ -172,6 +172,6 @@ class Dynasty
         else if params.start is not null
           awsParams.ExclusiveStartTableName = params.start
 
-    @dynamo.listTablesAsync(awsParams)
+    @dynamo.listTablesAsync(awsParams).nodeify(callback)
 
 module.exports = (credentials, url) -> new Dynasty(credentials, url)
