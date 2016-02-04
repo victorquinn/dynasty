@@ -161,7 +161,7 @@ class Dynasty
     debug "list() - #{params}"
     awsParams = {}
 
-    if params is not null
+    if params isnt null
       if _.isString params
         awsParams.ExclusiveStartTableName = params
       else if _.isFunction params
