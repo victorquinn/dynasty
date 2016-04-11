@@ -117,8 +117,7 @@ module.exports.scan = (params, options, callback, keySchema) ->
   awsParams =
     TableName: @name
     ScanFilter: {}
-    Select: 'SPECIFIC_ATTRIBUTES'
-    AttributesToGet: params.attrsGet || [keySchema.hashKeyName]
+    AttributesToGet: params.attrsGet || null
     Limit: params.limit
     TotalSegments: params.totalSegment
     Segment: params.segment
