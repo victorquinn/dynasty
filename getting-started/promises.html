@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../assets/style.css?t=a44c9e9d">
+    <link rel="stylesheet" href="../dynasty.css?t=c144c861">
+    <script src="../assets/script.js?t=2bcc4b59"></script>
+    <title>promises</title>
+    <meta name="viewport" content="width=device-width">
+  </head>
+  <body class="-menu-visible">
+    <div class="doc-layout">
+      <div class="toggle menu-toggle js-menu-toggle"></div>
+      <div class="body page-getting-startedpromises">
+        <div class="header-nav">
+          <div class="right"><a href="https://github.com/victorquinn/dynasty" data-title="victorquinn/dynasty" class="iconlink">
+              <!-- span.title Open in GitHub--><span class="icon -github"></span></a>
+          </div>
+        </div>
+        <div class="markdown-body"><p>As shown above, we performed a query and set its return to a variable we called
+<code>promise</code>. Of course we could have called the variable anything, but we called
+it that for clarity because that thing it returned was a <a href="http://wiki.commonjs.org/wiki/Promises/A"><em>Promise</em></a>.</p>
+<p><em>Under the hood, we are using the <a href="https://github.com/petkaantonov/bluebird">Bluebird Promise library</a></em></p>
+<h4 id="overview">Overview</h4>
+<p>In brief Promises are a way clean up the callback stack and provide a way for programs to
+pass the flow off as it sees fit rather than trying to jam it all into a single
+callback function. It offers an inversion of control so the code requesting the
+asyncronous operation need not relinquish it.</p>
+<h4 id="in-programming">In Programming</h4>
+<p>In more concrete terms, a <em>Promise</em> is an object that has callbacks which will
+be called when the asynchronous action finishes.</p>
+<p>Those callbacks do not need to be set or determined at the time the <em>Promise</em> is
+formed, so they can be added on later.</p>
+<p>This means that a program can ask for something that will take time (such as
+going off into the intarwebs to hit DynamoDB and return a result) and from that
+request receive in return a <em>Promise</em> to which it can attach callbacks which
+will be called when the network call returns and the object is ready for use.</p>
+<h4 id="real-world-counter-example-restaurant-pager">Real World Counter-example - Restaurant Pager</h4>
+<p>For something like this which is rather complex, I prefer a real world tangible
+example, or in this case a counter-example.</p>
+<p>What follows is an example of a Callback and not a promise.</p>
+<p>Imagine one of those flashy pagers that some restaurants will give you
+when they have a long wait for a table.</p>
+<p><img src="../restaurant-pager.jpg" alt="Restaurant Pager"></p>
+<p>You no longer have to stand and wait in a line, you can take that pager, go do
+something else, and eventually the pager will flash and vibrate you to alert you
+that your table is ready.</p>
+<p>So this is already better than the blocking request most other systems use
+exclusively to handle the time spent waiting for a response.</p>
+<p>This pager is the more analogous to a <a href="http://recurial.com/programming/understanding-callback-functions-in-javascript/">Callback</a> in Node. You had to
+tell the ma&#xEE;tre d&apos; up front that you wanted a table and for how many and all
+that.</p>
+<p>The restaurant in this situation holds the control. You have to give them
+your request up front and when they&apos;re ready they call you and you get what
+you asked for at the time they gave you the pager. If you changed your mind
+between the time you were handed the pager and the time you&apos;re called you&apos;re
+out of luck.</p>
+<p>But what if you wanted to invert that control?</p>
+<p>What if you could say to them, I will want something when you can handle me,
+I&apos;m not sure exactly what I&apos;ll want, but I can take my time figuring it out
+because you&apos;re busy anyway.</p>
+<h4 id="real-world-example-deli">Real World Example - Deli</h4>
+<p>For a real world example of a <em>Promise</em>, think of a deli.</p>
+<p>In a deli, you grab a slip of paper which represents
+a <em>Promise</em> that when they have capacity, one of the workers will serve you.</p>
+<p><img src="../delinumber.jpg" alt="Deli Number"></p>
+<p>You don&apos;t have to tell them what you want up front. You could change your mind
+in the time between when you pulled that number, or you could ignore it
+completely when the number came up, or you could pass it off to a friend who
+could do what they&apos;d like when the number comes up.</p>
+<p>The applications and benefits of <em>Promises</em> in JavaScript may not be immediately
+noticeable but there are many and a lot of people are really excited about
+<em>Promises</em>.</p>
+<p>You can certainly count me, the author of this library, among those who are
+excited :)</p>
+<h4 id="learn-more">Learn More</h4>
+<p>If you want to learn more about <em>Promises</em> and async JavaScript programming
+generally I strongly recommend the book <a href="http://www.amazon.com/gp/product/B00AKM4RVG/ref=as_li_ss_tl?ie=UTF8&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B00AKM4RVG&amp;linkCode=as2&amp;tag=victorqcom-20">Async JavaScript: Build More Responsive Apps with Less Code</a>
+<img src="http://ir-na.amazon-adsystem.com/e/ir?t=victorqcom-20&amp;l=as2&amp;o=1&amp;a=B00AKM4RVG" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;">  by Trevor Burnham.</p>
+<p>It does a fantastic job of explaining a lot of async JavaScript concepts
+and covers <em>Promises</em> in great detail in Chapter 3.</p>
+<h4 id="code!">Code!</h4>
+<p>Enough of the Jibber Jabber though, let&apos;s see an example:</p>
+<pre><code class="lang-js"><span class="pl-c">// Get a promise back from the query command</span>
+<span class="pl-k">var</span> promise = users.find(<span class="pl-s">&apos;victorquinn&apos;</span>);
+
+<span class="pl-c">// Tell the promise what we want to do when it gets data back from DynamoDB</span>
+promise.then(<span class="hljs-function"><span class="pl-k">function</span>(<span class="hljs-params">user</span>) </span>{
+    <span class="pl-c">// Not doing much useful here, but you get the point, now we have the</span>
+    <span class="pl-c">// user object so we can do cool things with it.</span>
+    <span class="pl-c1">console</span>.log(user.first);
+});
+</code></pre>
+<p>Above we just told the <em>Promise</em> what to do when it got data back immediately
+but we could have passed that promise off to some other method and it could
+have added that.</p>
+<p>We also could have done other neat things with the <em>Promise</em> like chaining,
+error handling, and more, but that&apos;s outside the scope of this brief intro
+to <strong>Dynasty</strong>.</p>
+<h4 id="callbacks-are-cool-too-though!">Callbacks are cool too though!</h4>
+<p>Also worth noting, Dynasty also works fine with traditional callbacks too! So it&apos;s perfectly valid to do the same thing we did above as follows:</p>
+<pre><code class="lang-js"><span class="pl-c">// Supply a traditional node callback as the last argument to specify what</span>
+<span class="pl-c">// we want to do when we get a response from DynamoDB</span>
+
+users.find(<span class="pl-s">&apos;victorquinn&apos;</span>, <span class="hljs-function"><span class="pl-k">function</span>(<span class="hljs-params">err, user</span>) </span>{
+    <span class="pl-c">// Not doing much useful here, but you get the point, now we have the</span>
+    <span class="pl-c">// user object so we can do cool things with it.</span>
+    <span class="pl-c1">console</span>.log(user.first);
+});
+</code></pre>
+<p>Though it may seem this way, this section wasn&apos;t created to hate on callbacks, but rather to espouse the glory of Promises which the aws sdk did not support when this module was written. I think they&apos;ve since adopted them too so some of this evangelism is a bit outdated/unnecessary but at the time it was a really novel feature/benefit!</p>
+
+        </div>
+        <div class="footer-nav">
+          <div class="left"><a href="../getting-started/table-object.html"><span class="title">table object</span></a></div>
+          <div class="right"><a href="../getting-started/combined.html"><span class="label">Next: </span><span class="title">combined</span></a></div>
+        </div>
+      </div>
+      <div class="menu toc-menu">
+        <li class="menu-item -level-0 -parent">
+          <ul class="submenu">
+            <li class="menu-item -level-1"><a href="../index.html" class="link title  link-index">Dynasty</a>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">Getting Started</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../getting-started/node.html" class="link title  link-getting-startednode">node</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/instantiate.html" class="link title  link-getting-startedinstantiate">instantiate</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/primer.html" class="link title  link-getting-startedprimer">primer</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/table-object.html" class="link title  link-getting-startedtable-object">table object</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/promises.html" class="link title -active link-getting-startedpromises">promises</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/combined.html" class="link title  link-getting-startedcombined">combined</a>
+                </li>
+              </ul>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">General</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../table.html" class="link title  link-table">table</a>
+                </li>
+              </ul>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">Table</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../table/overview.html" class="link title  link-tableoverview">table overview</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/alter.html" class="link title  link-tablealter">alter</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/create.html" class="link title  link-tablecreate">create</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/describe.html" class="link title  link-tabledescribe">describe</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/drop.html" class="link title  link-tabledrop">drop</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/list.html" class="link title  link-tablelist">list</a>
+                </li>
+              </ul>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">Item</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../item/overview.html" class="link title  link-itemoverview">overview</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/batch-find.html" class="link title  link-itembatch-find">batchFind</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/find.html" class="link title  link-itemfind">find</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/findAll.html" class="link title  link-itemfindall">findAll</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/insert.html" class="link title  link-iteminsert">insert</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/remove.html" class="link title  link-itemremove">remove</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/scan.html" class="link title  link-itemscan">scan</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/update.html" class="link title  link-itemupdate">update</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </div>
+    </div>
+  </body>
+</html>

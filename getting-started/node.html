@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../assets/style.css?t=a44c9e9d">
+    <link rel="stylesheet" href="../dynasty.css?t=c144c861">
+    <script src="../assets/script.js?t=2bcc4b59"></script>
+    <title>node</title>
+    <meta name="viewport" content="width=device-width">
+  </head>
+  <body class="-menu-visible">
+    <div class="doc-layout">
+      <div class="toggle menu-toggle js-menu-toggle"></div>
+      <div class="body page-getting-startednode">
+        <div class="header-nav">
+          <div class="right"><a href="https://github.com/victorquinn/dynasty" data-title="victorquinn/dynasty" class="iconlink">
+              <!-- span.title Open in GitHub--><span class="icon -github"></span></a>
+          </div>
+        </div>
+        <div class="markdown-body"><h3 id="installation">installation</h3>
+<p>Easy to install in <a href="http://nodejs.org">Node.js</a></p>
+<pre><code class="lang-bash">npm install dynasty
+</code></pre>
+<h3 id="credentials">credentials</h3>
+<p>Amazon uses a 2 key system for access to its APIs. They are the <em>Access Key Id</em> and
+the <em>Secret Access Key</em>.</p>
+<p>Simply create an object with at least these 2 keys and your specific keys as the
+values:</p>
+<pre><code class="lang-js"><span class="pl-k">var</span> credentials = {
+    accessKeyId: <span class="pl-s">&apos;&lt;YOUR ACCESS_KEY_ID&gt;&apos;</span>,
+    secretAccessKey: <span class="pl-s">&apos;&lt;YOUR_SECRET_ACCESS_KEY&gt;&apos;</span>
+};
+</code></pre>
+<p>Your <code>accessKeyId</code> and <code>secretAccessKey</code> can be obtained in the
+<a href="https://console.aws.amazon.com/iam/home?#users">AWS console</a> under the IAM (Identity Account Management) menu which has
+a green key as its icon.</p>
+<p>Amazon recommends that you create a new User to limit access to DynamoDB
+if you haven&apos;t already.</p>
+<p><a href="http://docs.aws.amazon.com/IAM/latest/UserGuide/IAMGettingStarted.html">More info on getting started with credentials</a></p>
+<p>Recommend storing these credentials in environment variables and loading them
+in a config file.</p>
+<p>So rather than the text strings appearing in your code (and worse, getting
+committed to your repo!), set them as environment variables and load them
+in your code as follows:</p>
+<pre><code class="lang-js"><span class="pl-k">var</span> credentials = {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+};
+</code></pre>
+<p>Can optionally specify a region. If none is specified, <em>us-east-1</em> is the default.</p>
+<p>For example, to use the <em>eu-west-1</em> region based in Ireland, use the following
+credentials:</p>
+<pre><code class="lang-js"><span class="pl-k">var</span> credentials = {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: <span class="pl-s">&apos;eu-west-1&apos;</span>
+};
+</code></pre>
+<p>Only this short string is necessary to specify the region, <strong>Dynasty</strong> will convert it into the full endpoint URL for you.</p>
+<p>As of the time of this writing (August 2016), <a href="http://docs.aws.amazon.com/general/latest/gr/rande.html#ddb_region">Amazon supported DynamoDB</a> in the following regions:</p>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>us-east-1</td>
+<td>US East (N. Virginia)</td>
+</tr>
+<tr>
+<td>us-west-1</td>
+<td>US West (N. California)</td>
+</tr>
+<tr>
+<td>us-west-2</td>
+<td>US West (Oregon)</td>
+</tr>
+<tr>
+<td>ap-south-1</td>
+<td>Asia Pacific (Mumbai)</td>
+</tr>
+<tr>
+<td>ap-northeast-2</td>
+<td>Asia Pacific (Seoul)</td>
+</tr>
+<tr>
+<td>ap-southeast-1</td>
+<td>Asia Pacific (Singapore)</td>
+</tr>
+<tr>
+<td>ap-southeast-2</td>
+<td>Asia Pacific (Sydney)</td>
+</tr>
+<tr>
+<td>ap-northeast-1</td>
+<td>Asia Pacific (Tokyo)</td>
+</tr>
+<tr>
+<td>eu-central-1</td>
+<td>EU (Frankfurt)</td>
+</tr>
+<tr>
+<td>eu-west-1</td>
+<td>EU (Ireland)</td>
+</tr>
+<tr>
+<td>sa-east-1</td>
+<td>South America (S&#xE3;o Paulo)</td>
+</tr>
+</tbody>
+</table>
+
+        </div>
+        <div class="footer-nav">
+          <div class="left"><a href="../index.html"><span class="title">Dynasty</span></a></div>
+          <div class="right"><a href="../getting-started/instantiate.html"><span class="label">Next: </span><span class="title">instantiate</span></a></div>
+        </div>
+      </div>
+      <div class="menu toc-menu">
+        <li class="menu-item -level-0 -parent">
+          <ul class="submenu">
+            <li class="menu-item -level-1"><a href="../index.html" class="link title  link-index">Dynasty</a>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">Getting Started</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../getting-started/node.html" class="link title -active link-getting-startednode">node</a>
+                  <ul class="headings heading-list">
+                    <li class="heading-item -depth-3"><a href="#installation" class="hlink link-installation">installation</a>
+                    </li>
+                    <li class="heading-item -depth-3"><a href="#credentials" class="hlink link-credentials">credentials</a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/instantiate.html" class="link title  link-getting-startedinstantiate">instantiate</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/primer.html" class="link title  link-getting-startedprimer">primer</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/table-object.html" class="link title  link-getting-startedtable-object">table object</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/promises.html" class="link title  link-getting-startedpromises">promises</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/combined.html" class="link title  link-getting-startedcombined">combined</a>
+                </li>
+              </ul>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">General</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../table.html" class="link title  link-table">table</a>
+                </li>
+              </ul>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">Table</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../table/overview.html" class="link title  link-tableoverview">table overview</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/alter.html" class="link title  link-tablealter">alter</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/create.html" class="link title  link-tablecreate">create</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/describe.html" class="link title  link-tabledescribe">describe</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/drop.html" class="link title  link-tabledrop">drop</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/list.html" class="link title  link-tablelist">list</a>
+                </li>
+              </ul>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">Item</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../item/overview.html" class="link title  link-itemoverview">overview</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/batch-find.html" class="link title  link-itembatch-find">batchFind</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/find.html" class="link title  link-itemfind">find</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/findAll.html" class="link title  link-itemfindall">findAll</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/insert.html" class="link title  link-iteminsert">insert</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/remove.html" class="link title  link-itemremove">remove</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/scan.html" class="link title  link-itemscan">scan</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/update.html" class="link title  link-itemupdate">update</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </div>
+    </div>
+  </body>
+</html>

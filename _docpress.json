@@ -1,0 +1,324 @@
+{
+  "toc": {
+    "sections": [
+      {
+        "title": "Dynasty",
+        "source": "README.md",
+        "url": "index.html",
+        "slug": "index"
+      },
+      {
+        "title": "Getting Started",
+        "sections": [
+          {
+            "title": "node",
+            "source": "docs/getting-started/node.md",
+            "url": "getting-started/node.html",
+            "slug": "getting-startednode",
+            "headings": [
+              {
+                "title": "installation",
+                "depth": 3,
+                "id": "installation"
+              },
+              {
+                "title": "credentials",
+                "depth": 3,
+                "id": "credentials"
+              }
+            ]
+          },
+          {
+            "title": "instantiate",
+            "source": "docs/getting-started/instantiate.md",
+            "url": "getting-started/instantiate.html",
+            "slug": "getting-startedinstantiate"
+          },
+          {
+            "title": "primer",
+            "source": "docs/getting-started/primer.md",
+            "url": "getting-started/primer.html",
+            "slug": "getting-startedprimer"
+          },
+          {
+            "title": "table object",
+            "source": "docs/getting-started/table-object.md",
+            "url": "getting-started/table-object.html",
+            "slug": "getting-startedtable-object"
+          },
+          {
+            "title": "promises",
+            "source": "docs/getting-started/promises.md",
+            "url": "getting-started/promises.html",
+            "slug": "getting-startedpromises"
+          },
+          {
+            "title": "combined",
+            "source": "docs/getting-started/combined.md",
+            "url": "getting-started/combined.html",
+            "slug": "getting-startedcombined"
+          }
+        ]
+      },
+      {
+        "title": "General",
+        "sections": [
+          {
+            "title": "table",
+            "source": "docs/table.md",
+            "url": "table.html",
+            "slug": "table"
+          }
+        ]
+      },
+      {
+        "title": "Table",
+        "sections": [
+          {
+            "title": "table overview",
+            "source": "docs/table/overview.md",
+            "url": "table/overview.html",
+            "slug": "tableoverview"
+          },
+          {
+            "title": "alter",
+            "source": "docs/table/alter.md",
+            "url": "table/alter.html",
+            "slug": "tablealter"
+          },
+          {
+            "title": "create",
+            "source": "docs/table/create.md",
+            "url": "table/create.html",
+            "slug": "tablecreate"
+          },
+          {
+            "title": "describe",
+            "source": "docs/table/describe.md",
+            "url": "table/describe.html",
+            "slug": "tabledescribe"
+          },
+          {
+            "title": "drop",
+            "source": "docs/table/drop.md",
+            "url": "table/drop.html",
+            "slug": "tabledrop"
+          },
+          {
+            "title": "list",
+            "source": "docs/table/list.md",
+            "url": "table/list.html",
+            "slug": "tablelist"
+          }
+        ]
+      },
+      {
+        "title": "Item",
+        "sections": [
+          {
+            "title": "overview",
+            "source": "docs/item/overview.md",
+            "url": "item/overview.html",
+            "slug": "itemoverview"
+          },
+          {
+            "title": "batchFind",
+            "source": "docs/item/batch-find.md",
+            "url": "item/batch-find.html",
+            "slug": "itembatch-find"
+          },
+          {
+            "title": "find",
+            "source": "docs/item/find.md",
+            "url": "item/find.html",
+            "slug": "itemfind"
+          },
+          {
+            "title": "findAll",
+            "source": "docs/item/findAll.md",
+            "url": "item/findAll.html",
+            "slug": "itemfindall"
+          },
+          {
+            "title": "insert",
+            "source": "docs/item/insert.md",
+            "url": "item/insert.html",
+            "slug": "iteminsert"
+          },
+          {
+            "title": "remove",
+            "source": "docs/item/remove.md",
+            "url": "item/remove.html",
+            "slug": "itemremove"
+          },
+          {
+            "title": "scan",
+            "source": "docs/item/scan.md",
+            "url": "item/scan.html",
+            "slug": "itemscan"
+          },
+          {
+            "title": "update",
+            "source": "docs/item/update.md",
+            "url": "item/update.html",
+            "slug": "itemupdate"
+          }
+        ]
+      }
+    ]
+  },
+  "index": {
+    "index.html": {
+      "source": "README.md",
+      "title": "Dynasty",
+      "slug": "index"
+    },
+    "getting-started/node.html": {
+      "source": "docs/getting-started/node.md",
+      "title": "node",
+      "slug": "getting-startednode",
+      "headings": [
+        {
+          "title": "installation",
+          "depth": 3,
+          "id": "installation"
+        },
+        {
+          "title": "credentials",
+          "depth": 3,
+          "id": "credentials"
+        }
+      ]
+    },
+    "getting-started/instantiate.html": {
+      "source": "docs/getting-started/instantiate.md",
+      "title": "instantiate",
+      "slug": "getting-startedinstantiate"
+    },
+    "getting-started/primer.html": {
+      "source": "docs/getting-started/primer.md",
+      "title": "primer",
+      "slug": "getting-startedprimer"
+    },
+    "getting-started/table-object.html": {
+      "source": "docs/getting-started/table-object.md",
+      "title": "table object",
+      "slug": "getting-startedtable-object"
+    },
+    "getting-started/promises.html": {
+      "source": "docs/getting-started/promises.md",
+      "title": "promises",
+      "slug": "getting-startedpromises"
+    },
+    "getting-started/combined.html": {
+      "source": "docs/getting-started/combined.md",
+      "title": "combined",
+      "slug": "getting-startedcombined"
+    },
+    "table.html": {
+      "source": "docs/table.md",
+      "title": "table",
+      "slug": "table"
+    },
+    "table/overview.html": {
+      "source": "docs/table/overview.md",
+      "title": "table overview",
+      "slug": "tableoverview"
+    },
+    "table/alter.html": {
+      "source": "docs/table/alter.md",
+      "title": "alter",
+      "slug": "tablealter"
+    },
+    "table/create.html": {
+      "source": "docs/table/create.md",
+      "title": "create",
+      "slug": "tablecreate"
+    },
+    "table/describe.html": {
+      "source": "docs/table/describe.md",
+      "title": "describe",
+      "slug": "tabledescribe"
+    },
+    "table/drop.html": {
+      "source": "docs/table/drop.md",
+      "title": "drop",
+      "slug": "tabledrop"
+    },
+    "table/list.html": {
+      "source": "docs/table/list.md",
+      "title": "list",
+      "slug": "tablelist"
+    },
+    "item/overview.html": {
+      "source": "docs/item/overview.md",
+      "title": "overview",
+      "slug": "itemoverview"
+    },
+    "item/batch-find.html": {
+      "source": "docs/item/batch-find.md",
+      "title": "batchFind",
+      "slug": "itembatch-find"
+    },
+    "item/find.html": {
+      "source": "docs/item/find.md",
+      "title": "find",
+      "slug": "itemfind"
+    },
+    "item/findAll.html": {
+      "source": "docs/item/findAll.md",
+      "title": "findAll",
+      "slug": "itemfindall"
+    },
+    "item/insert.html": {
+      "source": "docs/item/insert.md",
+      "title": "insert",
+      "slug": "iteminsert"
+    },
+    "item/remove.html": {
+      "source": "docs/item/remove.md",
+      "title": "remove",
+      "slug": "itemremove"
+    },
+    "item/scan.html": {
+      "source": "docs/item/scan.md",
+      "title": "scan",
+      "slug": "itemscan"
+    },
+    "item/update.html": {
+      "source": "docs/item/update.md",
+      "title": "update",
+      "slug": "itemupdate"
+    }
+  },
+  "sources": {
+    "README.md": "index.html",
+    "docs/getting-started/node.md": "getting-started/node.html",
+    "docs/getting-started/instantiate.md": "getting-started/instantiate.html",
+    "docs/getting-started/primer.md": "getting-started/primer.html",
+    "docs/getting-started/table-object.md": "getting-started/table-object.html",
+    "docs/getting-started/promises.md": "getting-started/promises.html",
+    "docs/getting-started/combined.md": "getting-started/combined.html",
+    "docs/table.md": "table.html",
+    "docs/table/overview.md": "table/overview.html",
+    "docs/table/alter.md": "table/alter.html",
+    "docs/table/create.md": "table/create.html",
+    "docs/table/describe.md": "table/describe.html",
+    "docs/table/drop.md": "table/drop.html",
+    "docs/table/list.md": "table/list.html",
+    "docs/item/overview.md": "item/overview.html",
+    "docs/item/batch-find.md": "item/batch-find.html",
+    "docs/item/find.md": "item/find.html",
+    "docs/item/findAll.md": "item/findAll.html",
+    "docs/item/insert.md": "item/insert.html",
+    "docs/item/remove.md": "item/remove.html",
+    "docs/item/scan.md": "item/scan.html",
+    "docs/item/update.md": "item/update.html",
+    "docs/CNAME": "CNAME",
+    "docs/delinumber.jpg": "delinumber.jpg",
+    "docs/dynasty.css": "dynasty.css",
+    "docs/logo.png": "logo.png",
+    "docs/logobg.png": "logobg.png",
+    "docs/restaurant-pager.jpg": "restaurant-pager.jpg"
+  }
+}

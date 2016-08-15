@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../assets/style.css?t=a44c9e9d">
+    <link rel="stylesheet" href="../dynasty.css?t=c144c861">
+    <script src="../assets/script.js?t=2bcc4b59"></script>
+    <title>remove</title>
+    <meta name="viewport" content="width=device-width">
+  </head>
+  <body class="-menu-visible">
+    <div class="doc-layout">
+      <div class="toggle menu-toggle js-menu-toggle"></div>
+      <div class="body page-itemremove">
+        <div class="header-nav">
+          <div class="right"><a href="https://github.com/victorquinn/dynasty" data-title="victorquinn/dynasty" class="iconlink">
+              <!-- span.title Open in GitHub--><span class="icon -github"></span></a>
+          </div>
+        </div>
+        <div class="markdown-body"><h4 id="remove">remove</h4>
+<ul>
+<li><code>lands.remove(&lt;hashkey&gt;) &#x21D2; promise</code></li>
+<li><code>lands.remove({hash: &lt;hashkey&gt;}) &#x21D2; promise</code></li>
+<li><code>lands.remove(&lt;hashkey&gt;, &lt;callback&gt;)</code></li>
+<li><code>counties.remove({hash: &lt;hashkey&gt;, range: &lt;rangekey&gt;}) &#x21D2; promise</code></li>
+</ul>
+<p><em>Use: Remove an item.</em></p>
+<p>Same flexible format as <a href="#find">find()</a> above, can take any series of:
+string/object, object/callback, callback</p>
+<p>Simplest case, just supply a hash key, everything else defaults.</p>
+<pre><code class="lang-js">lands
+    .remove(<span class="pl-s">&apos;Russia&apos;</span>)
+    .then(<span class="hljs-function"><span class="pl-k">function</span>(<span class="hljs-params">land</span>) </span>{
+        <span class="pl-c1">console</span>.log(land.name + <span class="pl-s">&apos; has been deleted&apos;</span>);
+    });
+</code></pre>
+
+        </div>
+        <div class="footer-nav">
+          <div class="left"><a href="../item/insert.html"><span class="title">insert</span></a></div>
+          <div class="right"><a href="../item/scan.html"><span class="label">Next: </span><span class="title">scan</span></a></div>
+        </div>
+      </div>
+      <div class="menu toc-menu">
+        <li class="menu-item -level-0 -parent">
+          <ul class="submenu">
+            <li class="menu-item -level-1"><a href="../index.html" class="link title  link-index">Dynasty</a>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">Getting Started</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../getting-started/node.html" class="link title  link-getting-startednode">node</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/instantiate.html" class="link title  link-getting-startedinstantiate">instantiate</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/primer.html" class="link title  link-getting-startedprimer">primer</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/table-object.html" class="link title  link-getting-startedtable-object">table object</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/promises.html" class="link title  link-getting-startedpromises">promises</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/combined.html" class="link title  link-getting-startedcombined">combined</a>
+                </li>
+              </ul>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">General</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../table.html" class="link title  link-table">table</a>
+                </li>
+              </ul>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">Table</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../table/overview.html" class="link title  link-tableoverview">table overview</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/alter.html" class="link title  link-tablealter">alter</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/create.html" class="link title  link-tablecreate">create</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/describe.html" class="link title  link-tabledescribe">describe</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/drop.html" class="link title  link-tabledrop">drop</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/list.html" class="link title  link-tablelist">list</a>
+                </li>
+              </ul>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">Item</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../item/overview.html" class="link title  link-itemoverview">overview</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/batch-find.html" class="link title  link-itembatch-find">batchFind</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/find.html" class="link title  link-itemfind">find</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/findAll.html" class="link title  link-itemfindall">findAll</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/insert.html" class="link title  link-iteminsert">insert</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/remove.html" class="link title -active link-itemremove">remove</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/scan.html" class="link title  link-itemscan">scan</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/update.html" class="link title  link-itemupdate">update</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </div>
+    </div>
+  </body>
+</html>

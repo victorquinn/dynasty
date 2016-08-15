@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../assets/style.css?t=a44c9e9d">
+    <link rel="stylesheet" href="../dynasty.css?t=c144c861">
+    <script src="../assets/script.js?t=2bcc4b59"></script>
+    <title>batchFind</title>
+    <meta name="viewport" content="width=device-width">
+  </head>
+  <body class="-menu-visible">
+    <div class="doc-layout">
+      <div class="toggle menu-toggle js-menu-toggle"></div>
+      <div class="body page-itembatch-find">
+        <div class="header-nav">
+          <div class="right"><a href="https://github.com/victorquinn/dynasty" data-title="victorquinn/dynasty" class="iconlink">
+              <!-- span.title Open in GitHub--><span class="icon -github"></span></a>
+          </div>
+        </div>
+        <div class="markdown-body"><h4 id="batchfind">batchFind</h4>
+<ul>
+<li><code>states.batchFind([&lt;hashkey&gt;, &lt;hashkey&gt;]) &#x21D2; promise</code></li>
+<li><code>counties.batchFind([{hash: &lt;hashkey&gt;, range: &lt;rangekey&gt;}, {hash: &lt;hashkey&gt;, range: &lt;rangekey&gt;}, ... ]) &#x21D2; promise</code></li>
+<li><code>states.batchFind([&lt;hashkey&gt;, &lt;hashkey&gt;], &lt;callback&gt;)</code></li>
+</ul>
+<p><em>Use: Find multiple items in batch via a single call. That is find all the
+items in a table associated with a hash key.</em></p>
+<p>Promise resolves with an array including all items matching your search.</p>
+<pre><code class="lang-js"><span class="pl-c">// Simplest case, table with only hash keys:</span>
+<span class="pl-k">var</span> promise = states.batchFind([<span class="pl-s">&apos;Virginia&apos;</span>, <span class="pl-s">&apos;Maryland&apos;</span>, <span class="pl-s">&apos;New York&apos;</span>]);
+
+promise.then(<span class="hljs-function"><span class="pl-k">function</span>(<span class="hljs-params">states</span>) </span>{
+    <span class="pl-c">// The states variable is an array including the full info on the</span>
+    <span class="pl-c">// state that had a HashKey of &apos;Virginia&apos;, &apos;Maryland&apos;, or &apos;New York&apos;</span>
+    states.forEach(<span class="hljs-function"><span class="pl-k">function</span>(<span class="hljs-params">state</span>) </span>{
+        <span class="pl-c1">console</span>.log(state.population);
+    });
+});
+
+<span class="pl-c">// Prints to the console:</span>
+<span class="pl-c">// 8326289</span>
+<span class="pl-c">// 5976407</span>
+<span class="pl-c">// 19746227</span>
+</code></pre>
+<p>In a more complex case, you can specify both the hash and range keys for each item you&apos;d like returned:</p>
+<pre><code class="lang-js"><span class="pl-c">// More complex case, table with hash and range keys</span>
+counties
+    .batchFind([
+        { hash: <span class="pl-s">&apos;Ireland&apos;</span>, range: <span class="pl-s">&apos;Cork&apos;</span> },
+        { hash: <span class="pl-s">&apos;Ireland&apos;</span>, range: <span class="pl-s">&apos;Galway&apos;</span> }
+    ])
+    .then(<span class="hljs-function"><span class="pl-k">function</span>(<span class="hljs-params">counties</span>) </span>{
+        <span class="pl-c">// The counties variable is an array including the full info on the</span>
+        <span class="pl-c">// counties matching the supplied hash and range keys</span>
+        counties.forEach(<span class="hljs-function"><span class="pl-k">function</span>(<span class="hljs-params">county</span>) </span>{
+            <span class="pl-c1">console</span>.log(county);
+        });
+    });
+</code></pre>
+<p>Of course this method, like the others, can take a traditional node callback as well:</p>
+<pre><code class="lang-js"><span class="pl-c">// Simplest case, table with only hash keys:</span>
+states.batchFind([<span class="pl-s">&apos;Virginia&apos;</span>, <span class="pl-s">&apos;Maryland&apos;</span>, <span class="pl-s">&apos;New York&apos;</span>], <span class="hljs-function"><span class="pl-k">function</span>(<span class="hljs-params">err, states</span>) </span>{
+    <span class="pl-k">if</span> (err) {
+        <span class="pl-c">// Handle error</span>
+    } <span class="pl-k">else</span> {
+        <span class="pl-c">// The states variable is an array including the full info on the</span>
+        <span class="pl-c">// state that had a HashKey of &apos;Virginia&apos;, &apos;Maryland&apos;, or &apos;New York&apos;</span>
+        states.forEach(<span class="hljs-function"><span class="pl-k">function</span>(<span class="hljs-params">state</span>) </span>{
+            <span class="pl-c1">console</span>.log(state.population);
+        });
+    }
+});
+</code></pre>
+
+        </div>
+        <div class="footer-nav">
+          <div class="left"><a href="../item/overview.html"><span class="title">overview</span></a></div>
+          <div class="right"><a href="../item/find.html"><span class="label">Next: </span><span class="title">find</span></a></div>
+        </div>
+      </div>
+      <div class="menu toc-menu">
+        <li class="menu-item -level-0 -parent">
+          <ul class="submenu">
+            <li class="menu-item -level-1"><a href="../index.html" class="link title  link-index">Dynasty</a>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">Getting Started</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../getting-started/node.html" class="link title  link-getting-startednode">node</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/instantiate.html" class="link title  link-getting-startedinstantiate">instantiate</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/primer.html" class="link title  link-getting-startedprimer">primer</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/table-object.html" class="link title  link-getting-startedtable-object">table object</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/promises.html" class="link title  link-getting-startedpromises">promises</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../getting-started/combined.html" class="link title  link-getting-startedcombined">combined</a>
+                </li>
+              </ul>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">General</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../table.html" class="link title  link-table">table</a>
+                </li>
+              </ul>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">Table</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../table/overview.html" class="link title  link-tableoverview">table overview</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/alter.html" class="link title  link-tablealter">alter</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/create.html" class="link title  link-tablecreate">create</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/describe.html" class="link title  link-tabledescribe">describe</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/drop.html" class="link title  link-tabledrop">drop</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../table/list.html" class="link title  link-tablelist">list</a>
+                </li>
+              </ul>
+            </li>
+            <li class="menu-item -level-1 -parent"><span class="title">Item</span>
+              <ul class="submenu">
+                <li class="menu-item -level-2"><a href="../item/overview.html" class="link title  link-itemoverview">overview</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/batch-find.html" class="link title -active link-itembatch-find">batchFind</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/find.html" class="link title  link-itemfind">find</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/findAll.html" class="link title  link-itemfindall">findAll</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/insert.html" class="link title  link-iteminsert">insert</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/remove.html" class="link title  link-itemremove">remove</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/scan.html" class="link title  link-itemscan">scan</a>
+                </li>
+                <li class="menu-item -level-2"><a href="../item/update.html" class="link title  link-itemupdate">update</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </div>
+    </div>
+  </body>
+</html>
