@@ -1,0 +1,26 @@
+* [Dynasty](../README.md)
+* Getting Started
+  * [node](getting-started/node.md)
+  * [instantiate](getting-started/instantiate.md)
+  * [primer](getting-started/primer.md)
+  * [table object](getting-started/table-object.md)
+  * [promises](getting-started/promises.md)
+  * [combined](getting-started/combined.md)
+* General
+  * [table](table.md)
+* Table
+  * [table overview](table/overview.md)
+  * [alter](table/alter.md)
+  * [create](table/create.md)
+  * [describe](table/describe.md)
+  * [drop](table/drop.md)
+  * [list](table/list.md)
+* Item
+  * [overview](item/overview.md)
+  * [batchFind](item/batch-find.md)
+  * [find](item/find.md)
+  * [findAll](item/findAll.md)
+  * [insert](item/insert.md)
+  * [remove](item/remove.md)
+  * [scan](item/scan.md)
+  * [update](item/update.md)

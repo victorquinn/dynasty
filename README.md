@@ -1,52 +1,19 @@
-<a href="http://promisesaplus.com/">
-    <img src="http://promisesaplus.com/assets/logo-small.png" alt="Promises/A+ logo"
-         title="Promises/A+ 1.0 compliant" align="right" />
-</a>
-
-## Dynasty
-
 [![Dynasty](http://dynastyjs.com/logobg.png)](http://dynastyjs.com)
 
-[![Build Status](https://travis-ci.org/victorquinn/dynasty.png?branch=master)](https://travis-ci.org/victorquinn/dynasty)
+**Dynasty** is a clean and simple [Amazon DynamoDB](https://aws.amazon.com/dynamodb/) client for [Node](http://nodejs.org) with baked in Promise support.
 
-Much more detailed documentation on the website: [http://dynastyjs.com](http://dynastyjs.com)
+[DynamoDB](https://aws.amazon.com/dynamodb/) is Amazon's high performance, all SSD backed, fully managed NoSQL database offering. This library was built in an attempt to make it a bit more easy to work with.
 
-Dynasty - Promise-based DynamoDB client with a focus on simplicity
+Dynasty is open source software and is released under the developer and business-friendly [MIT license](http://en.wikipedia.org/wiki/MIT_License).
 
-## Author
-### Victor Quinn
-[http://victorquinn.com](http://victorquinn.com)
+[Full documentation](http://dynastyjs.com)
 
-[![endorse](http://api.coderwall.com/victorquinn/endorsecount.png)](http://coderwall.com/victorquinn)
+Written by [Victor Quinn](https://www.victorquinn.com)
 
 Please feel free to reach out to me if you have any questions or suggestions.
 
-### Contributors
-
-THANK YOU!
-
-```
- project  : dynasty
- repo age : 2 years, 3 months
- active   : 50 days
- commits  : 183
- files    : 15
- authors  :
-    96	Victor Quinn       52.5%
-    37	Mike Atkins        20.2%
-    23	Tim Huff           12.6%
-     5	danieljoppi        2.7%
-     5	ahassani           2.7%
-     3	Amir Hassani       1.6%
-     2	williamcoates      1.1%
-     2	Alex               1.1%
-     2	Ben McIlwain       1.1%
-     2	Patrick Brandt     1.1%
-     2	rowan              1.1%
-     1	Christie Williams  0.5%
-     1	Adam Savitzky      0.5%
-     1	Aaron Mead         0.5%
-     1	Liam Ma            0.5%
-```
-
-This project is licensed under the [MIT License](http://en.wikipedia.org/wiki/MIT_License) so feel free to hack away :)
+<a href="https://nodei.co/npm/dynasty/"><img src="https://nodei.co/npm/dynasty.png?downloads=true"></a>
+<iframe src="http://ghbtns.com/github-btn.html?user=victorquinn&repo=dynasty&type=watch&count=true"
+      allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
+<iframe src="http://ghbtns.com/github-btn.html?user=victorquinn&repo=dynasty&type=fork&count=true"
+allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>

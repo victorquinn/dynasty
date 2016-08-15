@@ -4,3 +4,9 @@ node_js:
   - "4.0.0"
   - "0.11"
   - "0.10"
+
+script:
+  - ./node_modules/.bin/docpress build
+
+after_success:
+  - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then ./node_modules/.bin/git-update-ghpages -e; fi
