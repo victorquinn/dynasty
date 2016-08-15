@@ -16,12 +16,7 @@
     "type": "git",
     "url": "https://github.com/victorquinn/dynasty.git"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://dynastyjs.com/license/"
-    }
-  ],
+  "license": "MIT",
   "files": [
     "lib",
     "test"
