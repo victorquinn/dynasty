@@ -58,3 +58,7 @@ ul.heading-list .hlink::before {
 .footer-nav .label, .footer-nav .left .title {
     color: #d35400;
 }
+
+.header-nav.-expanded .icon {
+    color: #fff;
+}
