@@ -30,16 +30,6 @@ class Dynasty
     if url and _.isString url
       debug "connecting to local dynamo at #{url}"
       credentials.endpoint = new aws.Endpoint url
-    
-    # Workaround DynamoDB write EPROTO error
-    # https://github.com/aws/aws-sdk-js/issues/862
-    if not credentials.httpOptions?.agent
-      credentials.httpOptions =
-        agent: new https.Agent
-          rejectUnauthorized: yes
-          keepAlive: yes
-          secureProtocol: 'TLSv1_method'
-          ciphers: 'ALL'
 
     @dynamo = new aws.DynamoDB credentials
     Promise.promisifyAll @dynamo
