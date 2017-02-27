@@ -11,7 +11,7 @@ instance that is not on AWS. For example if you are running Dynamo
 you would instantiate it as follows:
 
 ```js
-var dynasty = require('dynasty')(credentials, 'localhost:8000');
+var dynasty = require('dynasty')(credentials, 'http://localhost:8000');
 ```
 
 Note, you still have to provide credentials, even if running locally doesn't
