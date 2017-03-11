@@ -13,10 +13,6 @@ env:
     - GITHUB_REPO: victorquinn/dynasty
     - GIT_SOURCE: _docpress
 
-# cache:
-#   directories:
-#     - $HOME/dynamo-local
-
 before_install:
   - curl -O https://s3-us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.tar.gz
   - tar xzvf dynamodb_local_latest.tar.gz

@@ -9,11 +9,8 @@ _ = require('lodash')
 chance = new Chance()
 
 getCredentials = () ->
-  accessKeyId: chance.string
-    length: 20
-    pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  secretAccessKey: chance.string
-    length: 40
+  accessKeyId: process.env.AWS_ACCESS_KEY
+  secretAccessKey: process.env.AWS_SECRET_KEY
 
 describe 'Dynasty', () ->
   describe 'Base', () ->
