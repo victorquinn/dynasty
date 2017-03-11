@@ -8,13 +8,13 @@
   * [combined](getting-started/combined.md)
 * General
   * [table](table.md)
+  * [list](table/list.md)
 * Table
   * [table overview](table/overview.md)
   * [alter](table/alter.md)
   * [create](table/create.md)
   * [describe](table/describe.md)
   * [drop](table/drop.md)
-  * [list](table/list.md)
 * Item
   * [overview](item/overview.md)
   * [batchFind](item/batch-find.md)

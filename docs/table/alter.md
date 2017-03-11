@@ -3,7 +3,7 @@
 * `dynasty.alter('Lands', { throughput: { read: 25, write: 50 } }) ⇒ promise`
 * `dynasty.alter('Lands', { throughput: { read: 25, write: 50 } }, <callback>)`
 
-*Use: Alter a table.*
+*Use: Alter a table with the specified options.*
 
 Note: The only use case Amazon supports for altering is changing the throughput. There is no way, at current, to rename a table or alter its key schema with this method in this library.
 

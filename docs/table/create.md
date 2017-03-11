@@ -3,7 +3,7 @@
 * `dynasty.create('Lands', {key_schema: { hash: ['name', 'string']}, ... }) ⇒ promise`
 * `dynasty.create('Lands', {key_schema: { hash: ['name', 'string']}, ... }, <callback>)`
 
-*Use: Create a table.*
+*Use: Create a Dynamo table with the specified key schema.*
 
 Simplest case, the first argument is the name of the table, the second is an
 object with at least a key_schema key.

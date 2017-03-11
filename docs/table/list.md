@@ -7,7 +7,7 @@
 * `dynasty.list({start: <table name>, limit: <limit>}, <callback>) ⇒ promise`
 * `dynasty.list(<callback>)`
 
-*Use: List tables*
+*Use: List all of your Dynamo tables*
 
 Simplest case, just call it.
 
