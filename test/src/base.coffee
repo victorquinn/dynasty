@@ -30,6 +30,14 @@ describe 'Dynasty', () ->
       t = dynasty.table chance.name()
       expect(t).to.be.an('object')
 
+    describe 'list()', () ->
+      it 'can list tables', () ->
+        dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
+        dynasty.list().then (resp) ->
+          expect(resp).to.be.an('object')
+          expect(resp).to.have.all.keys('tables', 'offset')
+          expect(resp.offset).to.be.a('string')
+
     describe 'create()', () ->
 
       beforeEach () ->

@@ -22,7 +22,7 @@
     "test"
   ],
   "devDependencies": {
-    "chai": "1.5",
+    "chai": "3.5",
     "chai-as-promised": "~3.3.1",
     "chance": "^0.8.0",
     "coffee-script": "^1.6.3",

@@ -61,3 +61,16 @@ dynasty.list(function(err, resp) {
     console.log(resp.TableNames);
 });
 ```
+
+Of course this can be used with generators in Node 7.x+ (or with Babel on earlier versions of Node):
+
+```js
+
+async function listTables() {
+    const tables = await dynasty.list();
+    console.log(tables);
+}
+
+listTables();
+
+```

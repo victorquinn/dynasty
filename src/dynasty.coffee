@@ -173,6 +173,16 @@ class Dynasty
         else if params.start is not null
           awsParams.ExclusiveStartTableName = params.start
 
-    @dynamo.listTablesAsync(awsParams).nodeify(callback)
+    @dynamo.listTablesAsync(awsParams)
+      .then (data) ->
+        debug "list() - got response from dynamo", data
+        resp =
+          tables:
+            data.TableNames
+          offset:
+            data.LastEvaluatedTableName || ""
+        debug "list() - formatted response", resp
+        return resp
+      .nodeify(callback)
 
 module.exports = (credentials, url) -> new Dynasty(credentials, url)
