@@ -122,6 +122,11 @@ module.exports.scan = (params, options, callback, keySchema) ->
     TotalSegments: params.totalSegment
     Segment: params.segment
 
+  if params.ExclusiveStartKey?
+    awsParams.ExclusiveStartKey = {}
+    for prop, val of params.ExclusiveStartKey
+      awsParams.ExclusiveStartKey[prop] = dataTrans.toDynamo val
+
   buildFilters(awsParams.ScanFilter, params.filters)
 
   @parent.dynamo.scanAsync(awsParams)
