@@ -13,17 +13,12 @@ env:
     - GITHUB_REPO: victorquinn/dynasty
     - GIT_SOURCE: _docpress
 
-cache:
-  directories:
-    - $HOME/dynamo-local
+# cache:
+#   directories:
+#     - $HOME/dynamo-local
 
 before_install:
-  - cd ~
-  - mkdir dynamo-local
-  - cd dynamo-local
-  - curl -O https://s3-us-west-2.amazonaws.com/dynamodb-local/dynamodb_local_latest.tar.gz
-  - tar xzvf dynamodb_local_latest.tar.gz
-  - java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb
+  - ./install-local-dynamo.sh
 
 script:
   - grunt test
