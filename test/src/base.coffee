@@ -12,6 +12,9 @@ getCredentials = () ->
   accessKeyId: process.env.AWS_ACCESS_KEY
   secretAccessKey: process.env.AWS_SECRET_KEY
 
+getKey = () ->
+  chance.word({ length: 20 })
+
 describe 'Dynasty', () ->
   describe 'Base', () ->
     it 'constructor exists and is a function', () ->
@@ -24,7 +27,7 @@ describe 'Dynasty', () ->
 
     it 'can retrieve a table object', () ->
       dynasty = Dynasty(getCredentials())
-      t = dynasty.table chance.name()
+      t = dynasty.table getKey()
       expect(t).to.be.an('object')
 
     describe 'list()', () ->
@@ -41,17 +44,17 @@ describe 'Dynasty', () ->
         @dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
 
       it 'should return an object with valid key_schema', () ->
-        promise = @dynasty.create chance.word({ length: 20 }),
+        promise = @dynasty.create getKey(),
           key_schema:
-            hash: [chance.name(), 'string']
+            hash: [getKey(), 'string']
 
         expect(promise).to.be.an('object')
 
       it 'should accept a hash and range key_schema', () ->
-        promise = @dynasty.create chance.word({ length: 20 }),
+        promise = @dynasty.create getKey(),
           key_schema:
-            hash: [chance.name(), 'string']
-            range: [chance.name(), 'string']
+            hash: [getKey(), 'string']
+            range: [getKey(), 'string']
 
         expect(promise).to.be.an('object')
 
@@ -59,36 +62,36 @@ describe 'Dynasty', () ->
 
     beforeEach () ->
       @dynasty = Dynasty(getCredentials())
-      @table = @dynasty.table chance.name()
+      @table = @dynasty.table getKey()
       @dynamo = @dynasty.dynamo
 
     describe 'remove()', () ->
 
       it 'should return an object', () ->
-        promise = @table.remove chance.name()
+        promise = @table.remove getKey()
         expect(promise).to.be.an('object')
 
     describe 'batchFind()', () ->
 
       it 'works with an array of keys', () ->
-        promise = @table.batchFind [chance.name()]
+        promise = @table.batchFind [getKey()]
         expect(promise).to.be.an('object')
 
     describe 'find()', () ->
 
       it 'works with just a string', () ->
-        promise = @table.find chance.name()
+        promise = @table.find getKey()
         expect(promise).to.be.an('object')
 
       it 'works with an object with just a hash key', () ->
         promise = @table.find
-          hash: chance.name()
+          hash: getKey()
         expect(promise).to.be.an('object')
 
       it 'works with an object with both a hash and range key', () ->
         promise = @table.find
-          hash: chance.name()
-          range: chance.name()
+          hash: getKey()
+          range: getKey()
         expect(promise).to.be.an('object')
 
     describe 'describe()', () ->
