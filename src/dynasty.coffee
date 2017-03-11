@@ -22,6 +22,7 @@ class Dynasty
 
   constructor: (credentials, url) ->
     debug "dynasty constructed."
+    credentials = credentials || {}
     credentials.region = credentials.region || 'us-east-1'
 
     # Lock API version

@@ -41,17 +41,17 @@ describe 'Dynasty', () ->
     describe 'create()', () ->
 
       beforeEach () ->
-        @dynasty = Dynasty(getCredentials())
+        @dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
 
       it 'should return an object with valid key_schema', () ->
-        promise = @dynasty.create chance.name(),
+        promise = @dynasty.create chance.word({ length: 20 }),
           key_schema:
             hash: [chance.name(), 'string']
 
         expect(promise).to.be.an('object')
 
       it 'should accept a hash and range key_schema', () ->
-        promise = @dynasty.create chance.name(),
+        promise = @dynasty.create chance.word({ length: 20 }),
           key_schema:
             hash: [chance.name(), 'string']
             range: [chance.name(), 'string']
