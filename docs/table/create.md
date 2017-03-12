@@ -13,6 +13,24 @@ dynasty
     .create('Lands', { key_schema: { hash: ['name', 'string'] } })
     .then(function(resp) {
 		// Your table has been created!
+        // resp contains the details of the newly created table:
+        //
+        // {
+        //   arn: 'arn:aws:dynamodb:ddblocal:000000000000:table/atogoagubialorevilpe',
+        //   bytes: 0,
+        //   count: 0,
+        //   created_at: 2017-03-12T22:03:06.922Z,
+        //   key_schema: { hash: [ 'vanumobigtecvanrizti', 'string' ] },
+        //   name: 'atogoagubialorevilpe',
+        //   status: 'ACTIVE',
+        //   throughput: {
+        //     write: 5,
+        //     read: 10,
+        //     last_increased_at: 1970-01-01T00:00:00.000Z,
+        //     last_decreased_at: 1970-01-01T00:00:00.000Z,
+        //     decreases_today: 0
+        //   },
+        // }
     });
 ```
 

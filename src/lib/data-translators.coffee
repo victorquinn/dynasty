@@ -10,6 +10,18 @@ debug = require('debug')('dynasty:data-translators')
    @return res the converted object
 ###
 
+awsTypeToReadable =
+  S: 'string'
+  SS: 'string_set'
+  N: 'number'
+  NS: 'number_set'
+  B: 'binary'
+  BS: 'binary_set'
+  BOOL: 'bool'
+  L: 'list'
+  M: 'map'
+  NULL: 'null'
+
 convertObject = (obj) ->
   converted = {}
   converted[key] = fromDynamo(value) for key, value of obj
@@ -42,8 +54,6 @@ fromDynamo = (dbObj) ->
       return convertObject(dbObj)
   else
     return dbObj
-
-module.exports.fromDynamo = fromDynamo
 
 # See http://vq.io/19EiASB
 toDynamo = (item) ->
@@ -83,4 +93,26 @@ toDynamo = (item) ->
   else if not item
     throw new TypeError "toDynamo() does not support mapping #{util.inspect(item)}"
 
-module.exports.toDynamo = toDynamo
+keySchemaFromDynamo = (tableDescription, keySchema) ->
+  debug "keySchemaFromDynamo() - Before: #{JSON.stringify(keySchema, null, 4)}"
+  convertedKeySchema = {}
+
+  # First find hash
+  hashRaw = tableDescription.AttributeDefinitions.find (val) ->
+    val.AttributeName == tableDescription.KeySchema[0].AttributeName
+
+  # Then translate this hash
+  convertedKeySchema.hash = [ hashRaw.AttributeName, awsTypeToReadable[hashRaw.AttributeType] ]
+
+  if keySchema.length == 2
+    rangeRaw = tableDescription.AttributeDefinitions.find (val) ->
+      val.AttributeName == tableDescription.KeySchema[1].AttributeName
+    convertedKeySchema.range = [ rangeRaw.AttributeName, awsTypeToReadable[rangeRaw.AttributeType] ]
+
+  debug "keySchemaFromDynamo() - After: #{JSON.stringify(convertedKeySchema, null, 4)}"
+  convertedKeySchema
+
+module.exports =
+  fromDynamo: fromDynamo
+  keySchemaFromDynamo: keySchemaFromDynamo
+  toDynamo: toDynamo

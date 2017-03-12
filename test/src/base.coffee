@@ -11,8 +11,6 @@ getCredentials = () ->
   accessKeyId: process.env.AWS_ACCESS_KEY
   secretAccessKey: process.env.AWS_SECRET_KEY
 
-console.log "CREDENTIALS", getCredentials()
-
 getKey = () ->
   chance.word({ length: 20 })
 
@@ -98,19 +96,37 @@ describe 'Dynasty', () ->
         @dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
 
       it 'should return an object with valid key_schema', () ->
+        hashKey = getKey()
         @dynasty.create getKey(),
           key_schema:
-            hash: [getKey(), 'string']
+            hash: [hashKey, 'string']
         .then (resp) ->
-          console.log resp
+          expect(resp.name).to.be.a('string')
+          expect(resp.count).to.be.a('number')
+          expect(resp.key_schema).to.be.an('object')
+          expect(resp.key_schema).to.have.property('hash')
+          expect(resp.key_schema.hash).to.be.an('array')
+          expect(resp.key_schema.hash[0]).to.equal(hashKey)
+          expect(resp.key_schema.hash[1]).to.equal('string')
 
       it 'should accept a hash and range key_schema', () ->
-        promise = @dynasty.create getKey(),
+        hashKey = getKey()
+        rangeKey = getKey()
+        @dynasty.create getKey(),
           key_schema:
-            hash: [getKey(), 'string']
-            range: [getKey(), 'string']
-
-        expect(promise).to.be.an('object')
+            hash: [hashKey, 'string']
+            range: [rangeKey, 'string']
+        .then (resp) ->
+          expect(resp.name).to.be.a('string')
+          expect(resp.count).to.be.a('number')
+          expect(resp.key_schema).to.be.an('object')
+          expect(resp.key_schema).to.have.property('hash')
+          expect(resp.key_schema.hash).to.be.an('array')
+          expect(resp.key_schema.hash[0]).to.equal(hashKey)
+          expect(resp.key_schema.hash[1]).to.equal('string')
+          expect(resp.key_schema.range).to.be.an('array')
+          expect(resp.key_schema.range[0]).to.equal(rangeKey)
+          expect(resp.key_schema.range[1]).to.equal('string')
 
   describe 'Table', () ->
 

@@ -6,6 +6,8 @@ Promise = require('bluebird')
 debug = require('debug')('dynasty')
 https = require('https')
 helpers = require('./lib/helpers')
+awsTranslators = require('./lib/aws-translators')
+dataTranslators = require('./lib/data-translators')
 
 # See http://vq.io/19EiASB
 typeToAwsType =
@@ -143,7 +145,27 @@ class Dynasty
 
     debug "creating table with params #{JSON.stringify(awsParams, null, 4)}"
 
-    @dynamo.createTableAsync(awsParams).nodeify(callback)
+    @dynamo
+      .createTableAsync(awsParams)
+      .then (resp) ->
+        # clean up the key schema
+        key_schema = dataTranslators.keySchemaFromDynamo resp.TableDescription, resp.TableDescription.KeySchema
+
+        output =
+          arn: resp.TableDescription.TableArn
+          bytes: resp.TableDescription.TableSizeBytes
+          count: resp.TableDescription.ItemCount
+          created_at: resp.TableDescription.CreationDateTime
+          key_schema: key_schema
+          name: resp.TableDescription.TableName
+          status: resp.TableDescription.TableStatus
+          throughput:
+            write: resp.TableDescription.ProvisionedThroughput.WriteCapacityUnits
+            read: resp.TableDescription.ProvisionedThroughput.ReadCapacityUnits
+            last_increased_at: resp.TableDescription.ProvisionedThroughput.LastIncreaseDateTime
+            last_decreased_at: resp.TableDescription.ProvisionedThroughput.LastDecreaseDateTime
+            decreases_today: resp.TableDescription.ProvisionedThroughput.NumberOfDecreasesToday
+      .nodeify(callback)
 
   # describe
   describe: (name, callback) ->
