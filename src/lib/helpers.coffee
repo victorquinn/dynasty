@@ -10,4 +10,3 @@ promiseWhile = Promise.method (condition, action) ->
 
 module.exports =
   promiseWhile: promiseWhile
-  

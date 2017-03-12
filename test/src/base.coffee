@@ -16,6 +16,20 @@ getCredentials = () ->
 getKey = () ->
   chance.word({ length: 20 })
 
+# create test tables
+createTables = (dynasty, num) ->
+  tables = chance.n(chance.word, num, { length: 20 })
+  Promise.all tables.map (table) ->
+    options =
+      key_schema:
+        hash: [
+          'name',
+          'string'
+        ]
+    dynasty.create(table, options)
+  .then () ->
+    tables
+
 describe 'Dynasty', () ->
   describe 'Base', () ->
     it 'constructor exists and is a function', () ->
@@ -28,43 +42,44 @@ describe 'Dynasty', () ->
 
     it 'can retrieve a table object', () ->
       dynasty = Dynasty(getCredentials())
-      options =
-        key_schema:
-          hash: [
-            'name',
-            'string'
-          ]
-      table_name = getKey()
       # First we need to create this table
-      dynasty
-        .create(table_name, options)
-        .then (resp) ->
+      createTables(dynasty, 1)
+        .then (tables) ->
+          console.log "TABLEEEEEEEE", tables
+          table_name = tables[0]
           # Then create the table object and see that it exists
-          t = dynasty.table table_name
+          t = dynasty.table tables[0]
           expect(t).to.be.an('object')
 
     describe 'list()', () ->
       beforeEach () ->
         @timeout(5000)
-        dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
+        @dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
         # create test tables
-        tables = chance.n(chance.word, 20, { length: 20 })
-        @dynasty = dynasty
-        Promise.all tables.map (table) ->
-          options =
-            key_schema:
-              hash: [
-                'name',
-                'string'
-              ]
-
-          dynasty.create(table, options)
+        createTables(@dynasty, 20)
 
       it 'can list tables', () ->
         @dynasty.list().then (resp) ->
           expect(resp).to.be.an('object')
           expect(resp).to.have.all.keys('tables', 'offset')
           expect(resp.offset).to.be.a('string')
+
+      it 'has an offset if many tables that works', () ->
+        @timeout(3000)
+        # we need more than 100 tables for paging
+        createTables(@dynasty, 100)
+          .bind(this)
+          .then () ->
+            @dynasty.list()
+          .then (resp) ->
+            @tables = resp.tables
+            expect(resp).to.be.an('object')
+            expect(resp).to.have.all.keys('tables', 'offset')
+            expect(resp.offset).to.be.a('string')
+            @dynasty.list(resp.offset)
+          .then (resp) ->
+            expect(@tables).to.not.deep.equal(resp.tables)
+            delete @tables
 
       afterEach () ->
         @timeout(5000)
