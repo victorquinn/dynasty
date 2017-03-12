@@ -1,10 +1,10 @@
 #### list
 
 * `dynasty.list() ⇒ promise`
-* `dynasty.list(<table name>) ⇒ promise`
+* `dynasty.list(<offset table name>) ⇒ promise`
 * `dynasty.list({limit: <limit>}) ⇒ promise`
-* `dynasty.list({start: <table name>, limit: <limit>}) ⇒ promise`
-* `dynasty.list({start: <table name>, limit: <limit>}, <callback>) ⇒ promise`
+* `dynasty.list({offset: <table name>, limit: <limit>}) ⇒ promise`
+* `dynasty.list({offset: <table name>, limit: <limit>}, <callback>) ⇒ promise`
 * `dynasty.list(<callback>)`
 
 *Use: List all of your Dynamo tables*

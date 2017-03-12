@@ -28,6 +28,11 @@ createTables = (dynasty, num) ->
   .then () ->
     tables
 
+insertMultiple = (table, num) ->
+  rows = chance.n(chance.word, num, { length: 20 })
+  Promise.all rows.map (val) ->
+    table.insert({ name: val })
+
 describe 'Dynasty', () ->
   @timeout(5000)
 
@@ -52,10 +57,9 @@ describe 'Dynasty', () ->
 
     describe 'list()', () ->
       beforeEach () ->
-        @timeout(7500)
         @dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
         # create test tables
-        createTables(@dynasty, 20)
+        createTables(@dynasty, 5)
 
       it 'can list tables', () ->
         @dynasty.list().then (resp) ->
@@ -63,24 +67,27 @@ describe 'Dynasty', () ->
           expect(resp).to.have.all.keys('tables', 'offset')
           expect(resp.offset).to.be.a('string')
 
-      it 'has an offset if many tables that works', () ->
-        # we need more than 100 tables for paging
-        createTables(@dynasty, 100)
+      it 'can take and obey a limit', () ->
+        @dynasty.list({ limit: 2 }).then (resp) ->
+          expect(resp).to.be.an('object')
+          expect(resp).to.have.all.keys('tables', 'offset')
+          expect(resp.offset).to.be.a('string')
+          expect(resp.tables.length).to.equal(2)
+
+      it 'has an offset of many tables that works', () ->
+        @dynasty.list({ limit: 2 })
           .bind(this)
-          .then () ->
-            @dynasty.list()
           .then (resp) ->
             @tables = resp.tables
             expect(resp).to.be.an('object')
             expect(resp).to.have.all.keys('tables', 'offset')
             expect(resp.offset).to.be.a('string')
-            @dynasty.list(resp.offset)
+            @dynasty.list resp.offset
           .then (resp) ->
             expect(@tables).to.not.deep.equal(resp.tables)
             delete @tables
 
       afterEach () ->
-        @timeout(7500)
         @dynasty.dropAll()
 
     describe 'create()', () ->
@@ -92,8 +99,8 @@ describe 'Dynasty', () ->
         @dynasty.create getKey(),
           key_schema:
             hash: [getKey(), 'string']
-
-        expect(promise).to.be.an('object')
+        .then (resp) ->
+          console.log resp
 
       it 'should accept a hash and range key_schema', () ->
         promise = @dynasty.create getKey(),
@@ -162,3 +169,20 @@ describe 'Dynasty', () ->
           .then (resp) ->
             expect(resp.TableDescription.ProvisionedThroughput.ReadCapacityUnits).to.equal(50)
             expect(resp.TableDescription.ProvisionedThroughput.WriteCapacityUnits).to.equal(50)
+
+    describe 'count()', () ->
+      it 'should exist', () ->
+        expect(@table).to.have.property('count')
+        expect(@table.count).to.be.a('function')
+
+        @table.count()
+          .bind(this)
+          .then (cnt) ->
+            expect(cnt).to.be.a('number')
+            expect(cnt).to.equal(0)
+            insertMultiple(@table, 25)
+          .then () ->
+            @table.count()
+          .then (cnt) ->
+            expect(cnt).to.be.a('number')
+            expect(cnt).to.equal(25)

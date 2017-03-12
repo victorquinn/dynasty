@@ -17,7 +17,7 @@ typeToAwsType =
   binary_set: 'BS'
 
 lib = require('./lib')
-Table = lib.Table
+Table = lib.table
 
 class Dynasty
 
@@ -189,7 +189,7 @@ class Dynasty
 
   # List tables. Wrapper around AWS listTables
   list: (params, callback) ->
-    debug "list() - #{params}"
+    debug "list() - #{JSON.stringify(params, null, 4)}"
     awsParams = {}
 
     if params isnt null
@@ -198,9 +198,11 @@ class Dynasty
       else if _.isFunction params
         callback = params
       else if _.isObject params
-        if params.limit is not null
+        if params.limit
+          debug "list() - setting limit to #{params.limit}"
           awsParams.Limit = params.limit
-        else if params.start is not null
+        if params.offset
+          debug "list() - setting offset to #{params.offset}"
           awsParams.ExclusiveStartTableName = params.start
 
     @dynamo.listTablesAsync(awsParams)

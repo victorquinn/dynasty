@@ -64,6 +64,16 @@ class Table
   Table Operations
   ###
 
+  # Shortcut to run Describe and return a count of items in a table
+  count: (callback = null) ->
+    debug "count() - #{@name}"
+    @parent
+      .dynamo
+      .describeTableAsync(TableName: @name)
+      .then (resp) ->
+        return resp.Table.ItemCount
+      .nodeify(callback)
+
   # describe
   describe: (callback = null) ->
     debug 'describe() - ' + @name
