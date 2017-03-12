@@ -89,7 +89,7 @@ describe 'Dynasty', () ->
         @dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
 
       it 'should return an object with valid key_schema', () ->
-        promise = @dynasty.create getKey(),
+        @dynasty.create getKey(),
           key_schema:
             hash: [getKey(), 'string']
 
@@ -107,8 +107,10 @@ describe 'Dynasty', () ->
 
     beforeEach () ->
       @dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
-      @table = @dynasty.table getKey()
-      @dynamo = @dynasty.dynamo
+      createTables(@dynasty, 1)
+        .bind(this)
+        .then (tables) ->
+          @table = @dynasty.table tables[0]
 
     describe 'remove()', () ->
 
@@ -144,9 +146,19 @@ describe 'Dynasty', () ->
       it 'should return an object', () ->
         promise = @table.describe()
         expect(promise).to.be.an('object')
+        promise.bind(this).then (resp) ->
+          expect(resp.Table).to.be.an('object')
+          expect(resp.Table.TableName).to.equal(@table.name)
 
     describe 'alter()', () ->
 
-      it 'should return an object', () ->
+      it 'should work to change throughput', () ->
         promise = @table.describe()
         expect(promise).to.be.an('object')
+        promise.bind(this)
+          .then (resp) ->
+            expect(resp).to.be.an('object')
+            @dynasty.alter resp.Table.TableName, { throughput: { read: 50, write: 50 } }
+          .then (resp) ->
+            expect(resp.TableDescription.ProvisionedThroughput.ReadCapacityUnits).to.equal(50)
+            expect(resp.TableDescription.ProvisionedThroughput.WriteCapacityUnits).to.equal(50)
