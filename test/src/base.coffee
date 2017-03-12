@@ -29,7 +29,7 @@ createTables = (dynasty, num) ->
     tables
 
 describe 'Dynasty', () ->
-  @timeout(1000)
+  @timeout(5000)
 
   describe 'Base', () ->
     it 'constructor exists and is a function', () ->
@@ -52,7 +52,7 @@ describe 'Dynasty', () ->
 
     describe 'list()', () ->
       beforeEach () ->
-        @timeout(5000)
+        @timeout(7500)
         @dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
         # create test tables
         createTables(@dynasty, 20)
@@ -64,7 +64,6 @@ describe 'Dynasty', () ->
           expect(resp.offset).to.be.a('string')
 
       it 'has an offset if many tables that works', () ->
-        @timeout(3000)
         # we need more than 100 tables for paging
         createTables(@dynasty, 100)
           .bind(this)
@@ -81,7 +80,7 @@ describe 'Dynasty', () ->
             delete @tables
 
       afterEach () ->
-        @timeout(5000)
+        @timeout(7500)
         @dynasty.dropAll()
 
     describe 'create()', () ->
@@ -107,7 +106,7 @@ describe 'Dynasty', () ->
   describe 'Table', () ->
 
     beforeEach () ->
-      @dynasty = Dynasty(getCredentials())
+      @dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
       @table = @dynasty.table getKey()
       @dynamo = @dynasty.dynamo
 
