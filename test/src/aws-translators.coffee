@@ -1,7 +1,5 @@
 chai = require('chai')
 expect = chai.expect
-chaiAsPromised = require('chai-as-promised')
-chai.use(chaiAsPromised)
 chance = require('chance').Chance()
 lib = require('../lib/lib')["aws-translators"]
 sinon = require('sinon')
