@@ -1,6 +1,4 @@
 chai = require('chai')
-chaiAsPromised = require('chai-as-promised')
-chai.use(chaiAsPromised)
 Promise = require('bluebird')
 expect = require('chai').expect
 Chance = require('chance')
@@ -31,21 +29,22 @@ createTables = (dynasty, num) ->
     tables
 
 describe 'Dynasty', () ->
+  @timeout(1000)
+
   describe 'Base', () ->
     it 'constructor exists and is a function', () ->
       expect(require('../lib/dynasty')).to.be.a('function')
 
     it 'can construct', () ->
-      dynasty = Dynasty(getCredentials())
+      dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
       expect(dynasty).to.exist
       expect(dynasty.tables).to.exist
 
     it 'can retrieve a table object', () ->
-      dynasty = Dynasty(getCredentials())
+      dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
       # First we need to create this table
       createTables(dynasty, 1)
         .then (tables) ->
-          console.log "TABLEEEEEEEE", tables
           table_name = tables[0]
           # Then create the table object and see that it exists
           t = dynasty.table tables[0]
