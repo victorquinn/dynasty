@@ -1,5 +1,6 @@
 _ = require('lodash')
 util = require('util')
+debug = require('debug')('dynasty:data-translators')
 
 ###
    converts a DynamoDB compatible JSON object into

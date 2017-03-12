@@ -22,7 +22,7 @@ dynasty.drop('Lands', function(err, resp) {
     if (err) {
         // Something went wrong!
     } else {
-        // Your table has been created!
+        // Your table has been dropped!
         console.log(resp);
     }
 });

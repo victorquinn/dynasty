@@ -5,6 +5,7 @@ _ = require('lodash')
 Promise = require('bluebird')
 debug = require('debug')('dynasty')
 https = require('https')
+helpers = require('./lib/helpers')
 
 # See http://vq.io/19EiASB
 typeToAwsType =
@@ -20,9 +21,8 @@ Table = lib.Table
 
 class Dynasty
 
-  constructor: (credentials, url) ->
+  constructor: (credentials = {}, url) ->
     debug "dynasty constructed."
-    credentials = credentials || {}
     credentials.region = credentials.region || 'us-east-1'
 
     # Lock API version
@@ -158,6 +158,35 @@ class Dynasty
 
     @dynamo.deleteTableAsync(params).nodeify(callback)
 
+  # Drop all tables. CAUTION, DANGEROUS
+  dropAll: (callback) ->
+    debug "dropAll()"
+    # While tables still left, drop 'em
+
+    # Start with assumption that there is at least 1 table. This is ok because
+    # worst case we fetch the list once and there are 0 that's still fine
+    numTables = 1
+    self = this
+    helpers.promiseWhile () ->
+      numTables > 0
+    , () ->
+      return self
+        .list()
+        .then (resp) ->
+          numTables = resp.tables.length
+          if numTables == 0
+            return
+          Promise.all resp.tables.map (table) ->
+            return self.drop(table)
+          .then () ->
+            if resp.offset == ''
+              debug "no more tables to delete"
+              return
+            else
+              debug "getting more tables with offset #{resp.offset}"
+              self.list(resp.offset)
+    .nodeify(callback)
+
   # List tables. Wrapper around AWS listTables
   list: (params, callback) ->
     debug "list() - #{params}"
@@ -176,13 +205,12 @@ class Dynasty
 
     @dynamo.listTablesAsync(awsParams)
       .then (data) ->
-        debug "list() - got response from dynamo", data
+        debug "list() - got #{data.TableNames.length} table names response from dynamo"
         resp =
           tables:
             data.TableNames
           offset:
             data.LastEvaluatedTableName || ""
-        debug "list() - formatted response", resp
         return resp
       .nodeify(callback)
 

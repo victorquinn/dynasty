@@ -16,7 +16,7 @@ dynasty
     .list()
     .then(function(resp) {
         // List tables
-        console.log(resp.TableNames);
+        console.log(resp.tables);
     });
 ```
 
@@ -24,16 +24,26 @@ Optionally specify the name of a table to start the list. This is useful for
 paging.
 
 If you had previously done a `list()` command and there were more tables
-than a response can handle, you would have received a `LastEvaluatedTableName` with the response which was the last table it could return. Pass this back in a subsequent request to start the list where you left off.
+than a response can handle, you would have received an `offset` with the response which was the last table it could return. Pass this back in a subsequent request to start the list where you left off.
 
 ```js
-dynasty
-    .list('Lands')
+// First time
+dynasty.list()
     .then(function(resp) {
-        // List tables
-        console.log(resp.TableNames);
+        // Resp looks like:
+        // { tables: [...], offset: 'last' }
+
+        // to fetch the next batch, call it again, this time by supplying
+        // the offset
+        return dynasty.list(resp.offset);
+    })
+    .then(function(resp) {
+        // Now you've got the next batch
+        // { tables: [...], offset: 'last2' }
     });
 ```
+
+If you are at the end of the list or do not have enough tables to get an offset, the offset will be an empty string.
 
 Optionally specify a limit which is the max number of table names to return.
 

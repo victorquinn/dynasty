@@ -1,6 +1,7 @@
 chai = require('chai')
 chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
+Promise = require('bluebird')
 expect = require('chai').expect
 Chance = require('chance')
 Dynasty = require('../lib/dynasty')
@@ -27,16 +28,47 @@ describe 'Dynasty', () ->
 
     it 'can retrieve a table object', () ->
       dynasty = Dynasty(getCredentials())
-      t = dynasty.table getKey()
-      expect(t).to.be.an('object')
+      options =
+        key_schema:
+          hash: [
+            'name',
+            'string'
+          ]
+      table_name = getKey()
+      # First we need to create this table
+      dynasty
+        .create(table_name, options)
+        .then (resp) ->
+          # Then create the table object and see that it exists
+          t = dynasty.table table_name
+          expect(t).to.be.an('object')
 
     describe 'list()', () ->
-      it 'can list tables', () ->
+      beforeEach () ->
+        @timeout(5000)
         dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
-        dynasty.list().then (resp) ->
+        # create test tables
+        tables = chance.n(chance.word, 20, { length: 20 })
+        @dynasty = dynasty
+        Promise.all tables.map (table) ->
+          options =
+            key_schema:
+              hash: [
+                'name',
+                'string'
+              ]
+
+          dynasty.create(table, options)
+
+      it 'can list tables', () ->
+        @dynasty.list().then (resp) ->
           expect(resp).to.be.an('object')
           expect(resp).to.have.all.keys('tables', 'offset')
           expect(resp.offset).to.be.a('string')
+
+      afterEach () ->
+        @timeout(5000)
+        @dynasty.dropAll()
 
     describe 'create()', () ->
 

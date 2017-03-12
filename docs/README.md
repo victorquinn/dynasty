@@ -9,6 +9,7 @@
 * General
   * [table](table.md)
   * [list](table/list.md)
+  * [dropAll](dropAll.md)
 * Table
   * [table overview](table/overview.md)
   * [alter](table/alter.md)
