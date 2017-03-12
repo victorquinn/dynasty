@@ -19,6 +19,7 @@
 * Item
   * [overview](item/overview.md)
   * [batchFind](item/batch-find.md)
+  * [count](item/count.md)
   * [find](item/find.md)
   * [findAll](item/findAll.md)
   * [insert](item/insert.md)
