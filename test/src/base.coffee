@@ -157,42 +157,131 @@ describe 'Dynasty', () ->
       it 'exists', () ->
         expect(@table).to.have.property('insert')
 
-      it 'works', () ->
-        value = chance.word({ length: 20 })
-        @table
-          .insert({ my_hash_key: value })
-          .bind(@)
-          .then (resp) ->
-            # Now look it up and ensure it's in the table
-            @table.find(value)
-          .then (resp) ->
-            expect(resp).to.have.property('my_hash_key')
-            expect(resp.my_hash_key).to.equal(value)
-
-      it 'works with an additional attribute', () ->
-        value = chance.word({ length: 20 })
-        @table
-          .insert({ my_hash_key: value, val: value })
-          .bind(@)
-          .then (resp) ->
-            @table.find(value)
-          .then (resp) ->
-            expect(resp).to.have.property('my_hash_key')
-            expect(resp.my_hash_key).to.equal(value)
-            expect(resp.val).to.equal(value)
-
-      it 'works with a callback', (done) ->
-        value = chance.word({ length: 20 })
-        table = @table
-        table
-          .insert({ my_hash_key: value, val: value }, (err, resp) ->
-            table.find value, (err, resp) ->
+      describe 'works with just a hash key', () ->
+        it 'alone', () ->
+          value = chance.word({ length: 20 })
+          @table
+            .insert({ my_hash_key: value })
+            .bind(@)
+            .then (resp) ->
+              # Now look it up and ensure it's in the table
+              @table.find(value)
+            .then (resp) ->
+              expect(resp).to.have.property('my_hash_key')
+              expect(resp.my_hash_key).to.equal(value)
+  
+        it 'and an additional attribute', () ->
+          value = chance.word({ length: 20 })
+          @table
+            .insert({ my_hash_key: value, val: value })
+            .bind(@)
+            .then (resp) ->
+              @table.find(value)
+            .then (resp) ->
               expect(resp).to.have.property('my_hash_key')
               expect(resp.my_hash_key).to.equal(value)
               expect(resp.val).to.equal(value)
-              done(err)
-        )
-        return null
+  
+        it 'with a callback', (done) ->
+          value = chance.word({ length: 20 })
+          table = @table
+          table
+            .insert({ my_hash_key: value, val: value }, (err, resp) ->
+              table.find value, (err, resp) ->
+                expect(resp).to.have.property('my_hash_key')
+                expect(resp.my_hash_key).to.equal(value)
+                expect(resp.val).to.equal(value)
+                done(err)
+          )
+          return null
+
+      describe 'works with a hash and range key', () ->
+        beforeEach () ->
+          # need to create a table wish a hash and range key
+          @dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
+          options =
+            key_schema:
+              hash: [
+                'my_hash_key',
+                'string'
+              ]
+              range: [
+                'my_range_key',
+                'number'
+              ]
+          @dynasty
+            .create('hashrangetable', options)
+            .bind(@)
+            .then (resp) ->
+              @table = @dynasty.table 'hashrangetable'
+
+        it 'alone', () ->
+          hash_value = chance.word({ length: 20 })
+          range_value = chance.natural()
+          @table
+            .insert({
+              my_hash_key: hash_value,
+              my_range_key: range_value
+            })
+            .bind(@)
+            .then (resp) ->
+              # Now look it up and ensure it's in the table
+              @table.find({
+                hash: hash_value,
+                range: range_value
+              })
+            .then (resp) ->
+              expect(resp).to.have.property('my_hash_key')
+              expect(resp.my_hash_key).to.equal(hash_value)
+              expect(resp.my_range_key).to.equal(range_value)
+
+        it 'and an additional attribute', () ->
+          hash_value = chance.word({ length: 20 })
+          range_value = chance.natural()
+          @table
+            .insert({
+              my_hash_key: hash_value,
+              my_range_key: range_value,
+              random_key: hash_value
+            })
+            .bind(@)
+            .then (resp) ->
+              # Now look it up and ensure it's in the table
+              @table.find({
+                hash: hash_value,
+                range: range_value
+              })
+            .then (resp) ->
+              expect(resp).to.have.property('my_hash_key')
+              expect(resp.my_hash_key).to.equal(hash_value)
+              expect(resp.my_range_key).to.equal(range_value)
+              expect(resp.random_key).to.equal(hash_value)
+
+        it 'with a callback', (done) ->
+          hash_value = chance.word({ length: 20 })
+          range_value = chance.natural()
+          table = @table
+          table.insert({
+            my_hash_key: hash_value,
+            my_range_key: range_value
+          }, (err, resp) ->
+            expect(err).to.not.exist
+            table.find({
+              hash: hash_value,
+              range: range_value
+            }, (err, resp) ->
+                expect(resp).to.have.property('my_hash_key')
+                expect(resp.my_hash_key).to.equal(hash_value)
+                expect(resp.my_range_key).to.equal(range_value)
+                done(err)
+            )
+          )
+          return null
+
+        it 'rejects find with bogus params'
+
+        afterEach () ->
+          @dynasty.drop 'hashrangetable'
 
     describe 'remove()', () ->
 
@@ -223,6 +312,7 @@ describe 'Dynasty', () ->
           range: getKey()
         expect(promise).to.be.an('object')
 
+      it 'throws an error if called with bad inputs'
     describe 'alter()', () ->
 
       it 'should work to change throughput', () ->

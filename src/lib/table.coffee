@@ -1,5 +1,6 @@
 awsTrans = require('./aws-translators')
 dataTrans = require('./data-translators')
+helpers = require('./helpers')
 _ = require('lodash')
 debug = require('debug')('dynasty')
 
@@ -17,29 +18,44 @@ class Table
   # Wrapper around DynamoDB's batchGetItem
   batchFind: (params, callback = null) ->
     debug "batchFind() - #{params}"
+    if _.isFunction options
+      callback = options
+      options = {}
     @key.then awsTrans.batchGetItem.bind(this, params, callback)
 
   findAll: (params, callback = null) ->
     debug "findAll() - #{params}"
+    if _.isFunction options
+      callback = options
+      options = {}
     @key.then awsTrans.queryByHashKey.bind(this, params, callback)
 
   # Wrapper around DynamoDB's getItem
   find: (params, options = {}, callback = null) ->
-    debug "find() - #{params}"
+    debug "find() - ", JSON.stringify(params, null, 4)
     if _.isFunction options
       callback = options
       options = {}
+
+    if not helpers.hasValidFindParams(params)
+      throw RangeError("Dynasty: Invalid parameters specified for find")
 
     @key.then awsTrans.getItem.bind(this, params, options, callback)
 
   # Wrapper around DynamoDB's scan
   scan: (params, options = {}, callback = null) ->
     debug "scan() - #{params}"
+    if _.isFunction options
+      callback = options
+      options = {}
     @key.then awsTrans.scan.bind(this, params, options, callback)
 
   # Wrapper around DynamoDB's query
   query: (params, options = {}, callback = null) ->
     debug "query() - #{params}"
+    if _.isFunction options
+      callback = options
+      options = {}
     @key.then awsTrans.query.bind(this, params, options, callback)
 
   # Wrapper around DynamoDB's putItem
@@ -48,10 +64,13 @@ class Table
     if _.isFunction options
       callback = options
       options = {}
-
     @key.then awsTrans.putItem.bind(this, obj, options, callback)
 
   remove: (params, options, callback = null) ->
+    debug "remove() - " + JSON.stringify params
+    if _.isFunction options
+      callback = options
+      options = {}
     @key.then awsTrans.deleteItem.bind(this, params, options, callback)
 
   # Wrapper around DynamoDB's updateItem
@@ -60,7 +79,6 @@ class Table
     if _.isFunction options
       callback = options
       options = {}
-
     @key.then awsTrans.updateItem.bind(this, params, obj, options, callback)
 
   ###
