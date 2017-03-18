@@ -26,6 +26,10 @@ class Table
   # Wrapper around DynamoDB's getItem
   find: (params, options = {}, callback = null) ->
     debug "find() - #{params}"
+    if _.isFunction options
+      callback = options
+      options = {}
+
     @key.then awsTrans.getItem.bind(this, params, options, callback)
 
   # Wrapper around DynamoDB's scan

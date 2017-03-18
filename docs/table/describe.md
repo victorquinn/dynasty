@@ -38,7 +38,7 @@ The response will be a cleanly formatted object which looks like this:
 }
 ```
 
-Note: This is a change from Dynasty < 1.x. In prior versions, Dynasty returned the messy Amazon response directly, but now it will always return a nice clean response. However, this may require updating some code if you expect the response to be in the [Amazon format](http://vq.io/GEFijX).
+Note: This is a change from Dynasty < 1.x. In prior versions, Dynasty returned the Amazon response directly, but now it will always return a nice clean response. However, this may require updating some code if you expect the response to be in the [Amazon format](http://vq.io/GEFijX).
 
 Or create a table object and call it on that table object
 

@@ -152,6 +152,47 @@ describe 'Dynasty', () ->
             expect(resp.throughput.write).to.equal(5)
             expect(resp.attributes).to.be.an('array')
 
+    describe 'insert()', () ->
+
+      it 'exists', () ->
+        expect(@table).to.have.property('insert')
+
+      it 'works', () ->
+        value = chance.word({ length: 20 })
+        @table
+          .insert({ my_hash_key: value })
+          .bind(@)
+          .then (resp) ->
+            # Now look it up and ensure it's in the table
+            @table.find(value)
+          .then (resp) ->
+            expect(resp).to.have.property('my_hash_key')
+            expect(resp.my_hash_key).to.equal(value)
+
+      it 'works with an additional attribute', () ->
+        value = chance.word({ length: 20 })
+        @table
+          .insert({ my_hash_key: value, val: value })
+          .bind(@)
+          .then (resp) ->
+            @table.find(value)
+          .then (resp) ->
+            expect(resp).to.have.property('my_hash_key')
+            expect(resp.my_hash_key).to.equal(value)
+            expect(resp.val).to.equal(value)
+
+      it 'works with a callback', (done) ->
+        value = chance.word({ length: 20 })
+        table = @table
+        table
+          .insert({ my_hash_key: value, val: value }, (err, resp) ->
+            table.find value, (err, resp) ->
+              expect(resp).to.have.property('my_hash_key')
+              expect(resp.my_hash_key).to.equal(value)
+              expect(resp.val).to.equal(value)
+              done(err)
+        )
+
     describe 'remove()', () ->
 
       it 'should return an object', () ->
@@ -189,6 +230,10 @@ describe 'Dynasty', () ->
         promise.bind(this)
           .then (resp) ->
             expect(resp).to.be.an('object')
+            expect(resp.throughput.write).to.equal(5)
+            expect(resp.throughput.read).to.equal(10)
+            expect(resp.throughput.last_increased_at).to.deep.equal(new Date("1970-01-01T00:00:00.000Z"))
+            expect(resp.throughput.last_decreased_at).to.deep.equal(new Date("1970-01-01T00:00:00.000Z"))
             @dynasty.alter resp.name, { throughput: { read: 50, write: 50 } }
           .then (resp) ->
             expect(resp.throughput.read).to.equal(50)
