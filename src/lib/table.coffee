@@ -10,7 +10,6 @@ class Table
       @hasRangeKey = (4 == _.size _.compact _.values keySchema)
       keySchema
 
-
   ###
   Item Operations
   ###

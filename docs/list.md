@@ -53,11 +53,11 @@ Useful for paging.
 dynasty.list({ limit: 3 })
     .then(function(resp) {
         // List 3 tables
-        console.log(resp.TableNames);
+        console.log(resp.tables);
 
         // Name of Last Table Returned, to be used if following up with another
         // request so you can start where you left off.
-        console.log(resp.LastEvaluatedTableName);
+        console.log(resp.offset);
     });
 ```
 
@@ -68,7 +68,7 @@ dynasty.list(function(err, resp) {
     if (err) // Something went wrong!
     
     // List tables
-    console.log(resp.TableNames);
+    console.log(resp.tables);
 });
 ```
 

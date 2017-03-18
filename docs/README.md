@@ -7,13 +7,13 @@
   * [promises](getting-started/promises.md)
   * [combined](getting-started/combined.md)
 * General
-  * [table](table.md)
-  * [list](table/list.md)
+  * [create](create.md)
+  * [list](list.md)
   * [dropAll](dropAll.md)
+  * [table](table.md)
 * Table
   * [table overview](table/overview.md)
   * [alter](table/alter.md)
-  * [create](table/create.md)
   * [describe](table/describe.md)
   * [drop](table/drop.md)
 * Item

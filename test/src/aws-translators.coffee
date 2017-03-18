@@ -10,49 +10,56 @@ describe 'aws-translators', () ->
     it 'should parse out a hash key from an aws response', () ->
       hashKeyName = chance.word()
       result = lib.getKeySchema(
-        Table:
-          KeySchema:[
-            AttributeName: hashKeyName
-            KeyType: 'HASH'
-          ]
-          AttributeDefinitions: [
-            AttributeName: hashKeyName
-            AttributeType: 'N'
-          ]
+        arn: 'arn:aws:dynamodb:ddblocal:000000000000:table/rosihmipiruegopliovt'
+        attributes: [ [ hashKeyName, "string" ] ]
+        bytes: 0
+        count: 0
+        created_at: '2017-03-18T13:39:43.435Z'
+        key_schema:
+          hash: [ hashKeyName, "string" ]
+        name: 'rosihmipiruegopliovt'
+        status: 'ACTIVE',
+        throughput:
+          write: 5
+          read: 10
+          last_increased_at: '1970-01-01T00:00:00.000Z'
+          last_decreased_at: '1970-01-01T00:00:00.000Z'
+          decreases_today: 0
       )
 
       expect(result).to.have.property('hashKeyName')
       expect(result.hashKeyName).to.equal(hashKeyName)
 
       expect(result).to.have.property('hashKeyType')
-      expect(result.hashKeyType).to.equal('N')
+      expect(result.hashKeyType).to.equal('S')
+
+      expect(result.rangeKeyName).to.be.null
 
     it 'should parse out a range key from an aws response', () ->
       hashKeyName = chance.word()
       rangeKeyName = chance.word()
       result = lib.getKeySchema(
-        Table:
-          KeySchema:[
-            {
-              AttributeName: hashKeyName
-              KeyType: 'HASH'
-            },
-            {
-              AttributeName: rangeKeyName
-              KeyType: 'RANGE'
-            }
-          ]
-          AttributeDefinitions: [
-            {
-              AttributeName: hashKeyName
-              AttributeType: 'S'
-            },
-            {
-              AttributeName: rangeKeyName
-              AttributeType: 'B'
-            }
-          ]
+        arn: 'arn:aws:dynamodb:ddblocal:000000000000:table/rosihmipiruegopliovt'
+        attributes: [ [ hashKeyName, "string" ], [ rangeKeyName, "number" ] ]
+        bytes: 0
+        count: 0
+        created_at: '2017-03-18T13:39:43.435Z'
+        key_schema:
+          hash: [ hashKeyName, "string" ]
+          range: [ rangeKeyName, "number" ]
+        name: 'rosihmipiruegopliovt'
+        status: 'ACTIVE',
+        throughput:
+          write: 5
+          read: 10
+          last_increased_at: '1970-01-01T00:00:00.000Z'
+          last_decreased_at: '1970-01-01T00:00:00.000Z'
+          decreases_today: 0
       )
+      expect(result.hashKeyName).to.equal(hashKeyName)
+      expect(result.hashKeyType).to.equal("S")
+      expect(result.rangeKeyName).to.equal(rangeKeyName)
+      expect(result.rangeKeyType).to.equal("N")
 
   describe '#deleteItem', () ->
 

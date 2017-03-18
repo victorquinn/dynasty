@@ -10,6 +10,15 @@ debug = require('debug')('dynasty:data-translators')
    @return res the converted object
 ###
 
+# See http://vq.io/19EiASB
+typeToAwsType =
+  string: 'S'
+  string_set: 'SS'
+  number: 'N'
+  number_set: 'NS'
+  binary: 'B'
+  binary_set: 'BS'
+
 awsTypeToReadable =
   S: 'string'
   SS: 'string_set'
@@ -139,3 +148,4 @@ module.exports =
   tableFromDynamo: tableFromDynamo
   throughputFromDynamo: throughputFromDynamo
   toDynamo: toDynamo
+  typeToAwsType: typeToAwsType

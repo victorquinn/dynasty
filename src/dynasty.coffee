@@ -9,15 +9,6 @@ helpers = require('./lib/helpers')
 awsTranslators = require('./lib/aws-translators')
 dataTranslators = require('./lib/data-translators')
 
-# See http://vq.io/19EiASB
-typeToAwsType =
-  string: 'S'
-  string_set: 'SS'
-  number: 'N'
-  number_set: 'NS'
-  binary: 'B'
-  binary_set: 'BS'
-
 lib = require('./lib')
 Table = lib.table
 
@@ -67,7 +58,11 @@ class Dynasty
         ReadCapacityUnits: throughput.read
         WriteCapacityUnits: throughput.write
 
-    @dynamo.updateTableAsync(awsParams).nodeify(callback)
+    @dynamo
+      .updateTableAsync(awsParams)
+      .then (resp) ->
+        return dataTranslators.tableFromDynamo resp.TableDescription
+      .nodeify(callback)
 
   # Create a new table. Wrapper around AWS createTable
   create: (name, params, callback = null) ->
@@ -81,7 +76,7 @@ class Dynasty
 
     attributeDefinitions = [
       AttributeName: params.key_schema.hash[0]
-      AttributeType: typeToAwsType[params.key_schema.hash[1]]
+      AttributeType: dataTranslators.typeToAwsType[params.key_schema.hash[1]]
     ]
 
     if params.key_schema.range?
@@ -90,7 +85,7 @@ class Dynasty
         AttributeName: params.key_schema.range[0]
       attributeDefinitions.push
         AttributeName: params.key_schema.range[0]
-        AttributeType: typeToAwsType[params.key_schema.range[1]]
+        AttributeType: dataTranslators.typeToAwsType[params.key_schema.range[1]]
 
     awsParams =
       AttributeDefinitions: attributeDefinitions
@@ -140,7 +135,7 @@ class Dynasty
           for key in keys
             awsParams.AttributeDefinitions.push {
               AttributeName: key[0]
-              AttributeType: typeToAwsType[key[1]]
+              AttributeType: dataTranslators.typeToAwsType[key[1]]
             }
 
     debug "creating table with params #{JSON.stringify(awsParams, null, 4)}"
@@ -171,7 +166,11 @@ class Dynasty
     params =
       TableName: name
 
-    @dynamo.deleteTableAsync(params).nodeify(callback)
+    @dynamo
+      .deleteTableAsync(params)
+      .then (resp) ->
+        return dataTranslators.tableFromDynamo resp.TableDescription
+      .nodeify(callback)
 
   # Drop all tables. CAUTION, DANGEROUS
   dropAll: (callback) ->

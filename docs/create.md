@@ -16,12 +16,12 @@ dynasty
         // resp contains the details of the newly created table:
         //
         // {
-        //   arn: 'arn:aws:dynamodb:ddblocal:000000000000:table/atogoagubialorevilpe',
+        //   arn: 'arn:aws:dynamodb:ddblocal:000000000000:table/Lands',
         //   bytes: 0,
         //   count: 0,
         //   created_at: 2017-03-12T22:03:06.922Z,
-        //   key_schema: { hash: [ 'vanumobigtecvanrizti', 'string' ] },
-        //   name: 'atogoagubialorevilpe',
+        //   key_schema: { hash: [ 'name', 'string' ] },
+        //   name: 'Lands',
         //   status: 'ACTIVE',
         //   throughput: {
         //     write: 5,
@@ -77,4 +77,21 @@ dynasty
     .then(function(resp) {
         // Your table has been created!
     });
+```
+
+Of course this can be used with async/await in Node 7.x+ (or with Babel on earlier versions of Node):
+
+```js
+
+async function createTable() {
+    var table_options = {
+        key_schema: { hash: ['name', 'string'] },
+        throughput: { write: 5, read: 10 }
+    };
+    const table = await dynasty.create('Lands', table_options);
+    console.log(table);
+}
+
+createTable();
+
 ```

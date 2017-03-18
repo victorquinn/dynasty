@@ -33,26 +33,19 @@ module.exports.processAllPages = (deferred, dynamo, functionName, params)->
   dynamo[functionName] params, resultHandler
   deferred.promise
 
+module.exports.getKeySchema = (table) ->
+  output =
+    hashKeyName: table.key_schema.hash[0]
+    hashKeyType: dataTrans.typeToAwsType[table.key_schema.hash[1]]
 
-module.exports.getKeySchema = (tableDescription) ->
-  getKeyAndType = (keyType) ->
-    keyName = _.find tableDescription.Table.KeySchema, (key) ->
-      key.KeyType is keyType
-    ?.AttributeName
+  if table.key_schema.hasOwnProperty("range")
+    output['rangeKeyName'] = table.key_schema.range[0]
+    output['rangeKeyType'] = dataTrans.typeToAwsType[table.key_schema.range[1]]
+  else
+    output['rangeKeyName'] = null
+    output['rangeKeyType'] = null
 
-    keyDataType = _.find tableDescription.Table.AttributeDefinitions,
-    (attribute) ->
-      attribute.AttributeName is keyName
-    ?.AttributeType
-    [keyName, keyDataType]
-
-  [hashKeyName, hashKeyType] = getKeyAndType 'HASH'
-  [rangeKeyName, rangeKeyType] = getKeyAndType 'RANGE'
-
-  hashKeyName: hashKeyName
-  hashKeyType: hashKeyType
-  rangeKeyName: rangeKeyName
-  rangeKeyType: rangeKeyType
+  return output
 
 getKey = (params, keySchema) ->
   if !_.isObject params

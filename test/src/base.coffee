@@ -54,6 +54,7 @@ describe 'Dynasty', () ->
           # Then create the table object and see that it exists
           t = dynasty.table tables[0]
           expect(t).to.be.an('object')
+          dynasty.dropAll()
 
     describe 'list()', () ->
       beforeEach () ->
