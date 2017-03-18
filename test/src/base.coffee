@@ -360,20 +360,63 @@ describe 'Dynasty', () ->
 
       it 'works with just a string', () ->
         promise = @table.find getKey()
-        expect(promise).to.be.an('object')
+        value = getKey()
+        @table
+          .insert({ my_hash_key: value, val: value })
+          .bind(@)
+          .then (resp) ->
+            @table.find(value)
+          .then (resp) ->
+            expect(resp).to.have.property('my_hash_key')
+            expect(resp.my_hash_key).to.equal(value)
+            expect(resp.val).to.equal(value)
+
 
       it 'works with an object with just a hash key', () ->
-        promise = @table.find
-          hash: getKey()
-        expect(promise).to.be.an('object')
+        value = getKey()
+        @table
+          .insert({ my_hash_key: value, val: value })
+          .bind(@)
+          .then (resp) ->
+            @table.find({ hash: value })
+          .then (resp) ->
+            expect(resp).to.have.property('my_hash_key')
+            expect(resp.my_hash_key).to.equal(value)
+            expect(resp.val).to.equal(value)
 
       it 'works with an object with both a hash and range key', () ->
-        promise = @table.find
-          hash: getKey()
-          range: getKey()
-        expect(promise).to.be.an('object')
+        hash_value = getKey()
+        range_value = chance.natural()
+        # need to create a table wish a hash and range key
+        @dynasty = Dynasty(getCredentials(), 'http://localhost:8000')
+        options =
+          key_schema:
+            hash: [
+              'my_hash_key',
+              'string'
+            ]
+            range: [
+              'my_range_key',
+              'number'
+            ]
+        @dynasty
+          .create('hashrangetable', options)
+          .bind(@)
+          .then (resp) ->
+            @table = @dynasty.table 'hashrangetable'
+            @table.insert({ my_hash_key: hash_value, my_range_key: range_value })
+          .bind(@)
+          .then (resp) ->
+            @table.find({ hash: hash_value, range: range_value })
+          .then (resp) ->
+            expect(resp).to.have.property('my_hash_key')
+            expect(resp.my_hash_key).to.equal(hash_value)
+            expect(resp.my_range_key).to.equal(range_value)
 
-      it 'throws an error if called with bad inputs'
+      it 'throws an error if called with bad inputs', () ->
+        table = @table
+        expect(() -> table.find(null)).to.throw('Dynasty: Invalid parameters specified')
+
     describe 'alter()', () ->
 
       it 'should work to change throughput', () ->

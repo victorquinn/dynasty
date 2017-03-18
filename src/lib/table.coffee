@@ -38,7 +38,7 @@ class Table
       options = {}
 
     if not helpers.hasValidFindParams(params)
-      throw RangeError("Dynasty: Invalid parameters specified for find")
+      throw Error("Dynasty: Invalid parameters specified for find")
 
     @key.then awsTrans.getItem.bind(this, params, options, callback)
 
