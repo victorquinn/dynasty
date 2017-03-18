@@ -149,28 +149,21 @@ class Dynasty
       .createTableAsync(awsParams)
       .then (resp) ->
         # clean up the key schema
-        key_schema = dataTranslators.keySchemaFromDynamo resp.TableDescription, resp.TableDescription.KeySchema
-
-        output =
-          arn: resp.TableDescription.TableArn
-          bytes: resp.TableDescription.TableSizeBytes
-          count: resp.TableDescription.ItemCount
-          created_at: resp.TableDescription.CreationDateTime
-          key_schema: key_schema
-          name: resp.TableDescription.TableName
-          status: resp.TableDescription.TableStatus
-          throughput:
-            write: resp.TableDescription.ProvisionedThroughput.WriteCapacityUnits
-            read: resp.TableDescription.ProvisionedThroughput.ReadCapacityUnits
-            last_increased_at: resp.TableDescription.ProvisionedThroughput.LastIncreaseDateTime
-            last_decreased_at: resp.TableDescription.ProvisionedThroughput.LastDecreaseDateTime
-            decreases_today: resp.TableDescription.ProvisionedThroughput.NumberOfDecreasesToday
+        return dataTranslators.tableFromDynamo resp.TableDescription
       .nodeify(callback)
 
   # describe
   describe: (name, callback) ->
     debug "describe() - #{name}"
-    @dynamo.describeTableAsync(TableName: name).nodeify(callback)
+    # if no name provided, throw an exception
+    if not name
+      throw new Error('Dynasty: Cannot invoke describe without providing a table name')
+    @dynamo
+      .describeTableAsync(TableName: name)
+      .then (resp) ->
+        # translate response
+        output = dataTranslators.tableFromDynamo resp.Table
+      .nodeify(callback)
 
   # Drop a table. Wrapper around AWS deleteTable
   drop: (name, callback = null) ->

@@ -21,7 +21,7 @@ createTables = (dynasty, num) ->
     options =
       key_schema:
         hash: [
-          'name',
+          'my_hash_key',
           'string'
         ]
     dynasty.create(table, options)
@@ -31,7 +31,7 @@ createTables = (dynasty, num) ->
 insertMultiple = (table, num) ->
   rows = chance.n(chance.word, num, { length: 20 })
   Promise.all rows.map (val) ->
-    table.insert({ name: val })
+    table.insert({ my_hash_key: val })
 
 describe 'Dynasty', () ->
   @timeout(5000)
@@ -137,6 +137,20 @@ describe 'Dynasty', () ->
         .then (tables) ->
           @table = @dynasty.table tables[0]
 
+    describe 'describe()', () ->
+
+      it 'should return an object', () ->
+        @table
+          .describe()
+          .bind(this)
+          .then (resp) ->
+            # Ensure we've cleaned up the response from Amazon
+            expect(resp.Table).to.not.exist
+            expect(resp.name).to.be.a('string')
+            expect(resp.throughput).to.exist
+            expect(resp.throughput.write).to.equal(5)
+            expect(resp.attributes).to.be.an('array')
+
     describe 'remove()', () ->
 
       it 'should return an object', () ->
@@ -166,15 +180,6 @@ describe 'Dynasty', () ->
           range: getKey()
         expect(promise).to.be.an('object')
 
-    describe 'describe()', () ->
-
-      it 'should return an object', () ->
-        promise = @table.describe()
-        expect(promise).to.be.an('object')
-        promise.bind(this).then (resp) ->
-          expect(resp.Table).to.be.an('object')
-          expect(resp.Table.TableName).to.equal(@table.name)
-
     describe 'alter()', () ->
 
       it 'should work to change throughput', () ->
@@ -183,10 +188,10 @@ describe 'Dynasty', () ->
         promise.bind(this)
           .then (resp) ->
             expect(resp).to.be.an('object')
-            @dynasty.alter resp.Table.TableName, { throughput: { read: 50, write: 50 } }
+            @dynasty.alter resp.name, { throughput: { read: 50, write: 50 } }
           .then (resp) ->
-            expect(resp.TableDescription.ProvisionedThroughput.ReadCapacityUnits).to.equal(50)
-            expect(resp.TableDescription.ProvisionedThroughput.WriteCapacityUnits).to.equal(50)
+            expect(resp.throughput.read).to.equal(50)
+            expect(resp.throughput.write).to.equal(50)
 
     describe 'count()', () ->
       it 'should exist', () ->

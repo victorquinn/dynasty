@@ -112,3 +112,40 @@ describe 'fromDynamo()', () ->
             N: 1
           ]
     expect(dataTrans.fromDynamo(dynamoData)).to.eql({foo: [0, 1]})
+
+  describe 'tableFromDynamo()', ->
+    it 'converts as expected', () ->
+      dynamoData =
+        AttributeDefinitions: [ { AttributeName: 'test_attribute', AttributeType: 'S' } ],
+        TableName: 'rosihmipiruegopliovt',
+        KeySchema: [ { KeyType: "Hash", AttributeName: "test_attribute" } ],
+        TableStatus: 'ACTIVE',
+        CreationDateTime: '2017-03-18T13:39:43.435Z',
+        ProvisionedThroughput:
+          LastIncreaseDateTime: '1970-01-01T00:00:00.000Z',
+          LastDecreaseDateTime: '1970-01-01T00:00:00.000Z',
+          NumberOfDecreasesToday: 0,
+          ReadCapacityUnits: 10,
+          WriteCapacityUnits: 5
+        TableSizeBytes: 0,
+        ItemCount: 0,
+        TableArn: 'arn:aws:dynamodb:ddblocal:000000000000:table/rosihmipiruegopliovt'
+
+      cleaned =
+        arn: 'arn:aws:dynamodb:ddblocal:000000000000:table/rosihmipiruegopliovt'
+        attributes: [ [ "test_attribute", "string" ] ]
+        bytes: 0
+        count: 0
+        created_at: '2017-03-18T13:39:43.435Z'
+        key_schema:
+          hash: [ "test_attribute", "string" ]
+        name: 'rosihmipiruegopliovt'
+        status: 'ACTIVE',
+        throughput:
+          write: 5
+          read: 10
+          last_increased_at: '1970-01-01T00:00:00.000Z'
+          last_decreased_at: '1970-01-01T00:00:00.000Z'
+          decreases_today: 0
+
+      expect(dataTrans.tableFromDynamo(dynamoData)).to.deep.equal(cleaned)

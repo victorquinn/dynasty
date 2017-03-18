@@ -93,26 +93,49 @@ toDynamo = (item) ->
   else if not item
     throw new TypeError "toDynamo() does not support mapping #{util.inspect(item)}"
 
-keySchemaFromDynamo = (tableDescription, keySchema) ->
-  debug "keySchemaFromDynamo() - Before: #{JSON.stringify(keySchema, null, 4)}"
+keySchemaFromDynamo = (table, keySchema) ->
   convertedKeySchema = {}
 
   # First find hash
-  hashRaw = tableDescription.AttributeDefinitions.find (val) ->
-    val.AttributeName == tableDescription.KeySchema[0].AttributeName
+  hashRaw = table.AttributeDefinitions.find (val) ->
+    val.AttributeName == table.KeySchema[0].AttributeName
 
   # Then translate this hash
   convertedKeySchema.hash = [ hashRaw.AttributeName, awsTypeToReadable[hashRaw.AttributeType] ]
 
   if keySchema.length == 2
-    rangeRaw = tableDescription.AttributeDefinitions.find (val) ->
-      val.AttributeName == tableDescription.KeySchema[1].AttributeName
+    rangeRaw = table.AttributeDefinitions.find (val) ->
+      val.AttributeName == table.KeySchema[1].AttributeName
     convertedKeySchema.range = [ rangeRaw.AttributeName, awsTypeToReadable[rangeRaw.AttributeType] ]
 
-  debug "keySchemaFromDynamo() - After: #{JSON.stringify(convertedKeySchema, null, 4)}"
   convertedKeySchema
+
+throughputFromDynamo = (table) ->
+  write: table.ProvisionedThroughput.WriteCapacityUnits
+  read: table.ProvisionedThroughput.ReadCapacityUnits
+  last_increased_at: table.ProvisionedThroughput.LastIncreaseDateTime
+  last_decreased_at: table.ProvisionedThroughput.LastDecreaseDateTime
+  decreases_today: table.ProvisionedThroughput.NumberOfDecreasesToday
+
+attributesFromDynamo = (table) ->
+  table.AttributeDefinitions.map (attribute) ->
+    [ attribute.AttributeName, awsTypeToReadable[attribute.AttributeType] ]
+
+tableFromDynamo = (table) ->
+  output =
+    arn: table.TableArn
+    attributes: attributesFromDynamo table
+    bytes: table.TableSizeBytes
+    count: table.ItemCount
+    created_at: table.CreationDateTime
+    key_schema: keySchemaFromDynamo table, table.KeySchema
+    name: table.TableName
+    status: table.TableStatus
+    throughput: throughputFromDynamo table
 
 module.exports =
   fromDynamo: fromDynamo
   keySchemaFromDynamo: keySchemaFromDynamo
+  tableFromDynamo: tableFromDynamo
+  throughputFromDynamo: throughputFromDynamo
   toDynamo: toDynamo

@@ -166,7 +166,7 @@ describe 'aws-translators', () ->
                 foo: S: "baz"
                 bazzoo: N: 123
               ]
-              Promise.resolve(result);
+              Promise.resolve(result)
 
     afterEach () ->
       sandbox.restore()

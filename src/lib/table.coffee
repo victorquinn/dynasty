@@ -77,7 +77,13 @@ class Table
   # describe
   describe: (callback = null) ->
     debug 'describe() - ' + @name
-    @parent.dynamo.describeTableAsync(TableName: @name).nodeify(callback)
+    @parent
+      .dynamo
+      .describeTableAsync(TableName: @name)
+      .then (resp) ->
+        # Translate this response from Amazon to clean Dynasty version
+        return dataTrans.tableFromDynamo resp.Table
+      .nodeify(callback)
 
   # drop
   drop: (callback = null) ->
