@@ -192,6 +192,7 @@ describe 'Dynasty', () ->
               expect(resp.val).to.equal(value)
               done(err)
         )
+        return null
 
     describe 'remove()', () ->
 
