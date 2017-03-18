@@ -48,6 +48,7 @@ module.exports.getKeySchema = (table) ->
   return output
 
 getKey = (params, keySchema) ->
+  # debug "getKey()", params, keySchema
   if !_.isObject params
     params = hash: params+''
 

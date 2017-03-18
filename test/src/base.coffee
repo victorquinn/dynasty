@@ -140,17 +140,78 @@ describe 'Dynasty', () ->
 
     describe 'describe()', () ->
 
-      it 'should return an object', () ->
-        @table
-          .describe()
-          .bind(this)
-          .then (resp) ->
-            # Ensure we've cleaned up the response from Amazon
-            expect(resp.Table).to.not.exist
-            expect(resp.name).to.be.a('string')
-            expect(resp.throughput).to.exist
-            expect(resp.throughput.write).to.equal(5)
-            expect(resp.attributes).to.be.an('array')
+      describe 'called with dynasty', () ->
+
+        it 'works', () ->
+          @dynasty
+            .describe(@table.name)
+            .bind(this)
+            .then (resp) ->
+              # Ensure we've cleaned up the response from Amazon
+              expect(resp.Table).to.not.exist
+              expect(resp.name).to.be.a('string')
+              expect(resp.throughput).to.exist
+              expect(resp.throughput.write).to.equal(5)
+              expect(resp.attributes).to.be.an('array')
+
+        it 'throws error if called with no name', () ->
+          self = @
+          expect(() -> self.dynasty.describe()).to.throw('Dynasty: Cannot invoke describe()')
+
+      describe 'called with table object', () ->
+  
+        it 'works', () ->
+          @table
+            .describe()
+            .bind(this)
+            .then (resp) ->
+              # Ensure we've cleaned up the response from Amazon
+              expect(resp.Table).to.not.exist
+              expect(resp.name).to.be.a('string')
+              expect(resp.throughput).to.exist
+              expect(resp.throughput.write).to.equal(5)
+              expect(resp.attributes).to.be.an('array')
+
+    describe 'count()', () ->
+
+      describe 'called with dynasty', () ->
+
+        it 'works', () ->
+          # First let's add a few values
+          Promise
+            .all([
+              @table.insert({ my_hash_key: 'a' }),
+              @table.insert({ my_hash_key: 'b' }),
+              @table.insert({ my_hash_key: 'c' })
+            ])
+            .bind(@)
+            .then () ->
+              @dynasty.count(@table.name)
+            .then (resp) ->
+              # Ensure we've cleaned up the response from Amazon
+              expect(resp).to.be.a('number')
+              expect(resp).to.equal(3)
+
+        it 'throws error if called with no name', () ->
+          self = @
+          expect(() -> self.dynasty.count()).to.throw('Dynasty: Cannot invoke count()')
+
+      describe 'called with table object', () ->
+
+        it 'works', () ->
+          Promise
+            .all([
+              @table.insert({ my_hash_key: 'a' }),
+              @table.insert({ my_hash_key: 'b' }),
+              @table.insert({ my_hash_key: 'c' })
+            ])
+            .bind(@)
+            .then () ->
+              @table.count()
+            .then (resp) ->
+              # Ensure we've cleaned up the response from Amazon
+              expect(resp).to.be.a('number')
+              expect(resp).to.equal(3)
 
     describe 'insert()', () ->
 

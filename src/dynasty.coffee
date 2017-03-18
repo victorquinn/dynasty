@@ -147,12 +147,21 @@ class Dynasty
         return dataTranslators.tableFromDynamo resp.TableDescription
       .nodeify(callback)
 
+  # Count the number of items in a table. Convenience wrapper around describe
+  count: (name, callback) ->
+    debug "count() - #{name}"
+    if not name
+      throw new Error('Dynasty: Cannot invoke count() without providing a table name')
+    @dynamo.describeTableAsync(TableName: name)
+      .then (resp) ->
+        return resp.Table.ItemCount
+
   # describe
   describe: (name, callback) ->
     debug "describe() - #{name}"
     # if no name provided, throw an exception
     if not name
-      throw new Error('Dynasty: Cannot invoke describe without providing a table name')
+      throw new Error('Dynasty: Cannot invoke describe() without providing a table name')
     @dynamo
       .describeTableAsync(TableName: name)
       .then (resp) ->
