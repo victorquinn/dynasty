@@ -20,11 +20,25 @@ dynasty
     });
 ```
 
+The response body is a JavaScript object that contains a list of the names
+of the tables and, if there are more results than could fit in this response,
+there will be an `offset` which is a string you can pass in to the next `list`
+request to fetch the next list. This looks like this:
+
+```js
+{
+  tables: ['Lands', 'Counties'],
+  offset: 'Cities'
+}
+```
+
 Optionally specify the name of a table to start the list. This is useful for
 paging.
 
 If you had previously done a `list()` command and there were more tables
-than a response can handle, you would have received an `offset` with the response which was the last table it could return. Pass this back in a subsequent request to start the list where you left off.
+than a response can handle, you would have received an `offset` with the
+response which was the last table it could return. Pass this back in a
+subsequent request to start the list where you left off.
 
 ```js
 // First time
@@ -43,11 +57,14 @@ dynasty.list()
     });
 ```
 
-If you are at the end of the list or do not have enough tables to get an offset, the offset will be an empty string.
+If you are at the end of the list or do not have enough tables to get an offset,
+the offset will be an empty string.
 
 Optionally specify a limit which is the max number of table names to return.
 
 Useful for paging.
+
+The default value for the limit is `100`.
 
 ```js
 dynasty.list({ limit: 3 })

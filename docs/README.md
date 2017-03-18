@@ -10,9 +10,9 @@
   * [create](create.md)
   * [list](list.md)
   * [dropAll](dropAll.md)
-  * [table](table.md)
 * Table
   * [table overview](table/overview.md)
+  * [table](table/table.md)
   * [alter](table/alter.md)
   * [describe](table/describe.md)
   * [drop](table/drop.md)

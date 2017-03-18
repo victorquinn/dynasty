@@ -13,25 +13,29 @@ dynasty
     .create('Lands', { key_schema: { hash: ['name', 'string'] } })
     .then(function(resp) {
 		// Your table has been created!
-        // resp contains the details of the newly created table:
-        //
-        // {
-        //   arn: 'arn:aws:dynamodb:ddblocal:000000000000:table/Lands',
-        //   bytes: 0,
-        //   count: 0,
-        //   created_at: 2017-03-12T22:03:06.922Z,
-        //   key_schema: { hash: [ 'name', 'string' ] },
-        //   name: 'Lands',
-        //   status: 'ACTIVE',
-        //   throughput: {
-        //     write: 5,
-        //     read: 10,
-        //     last_increased_at: 1970-01-01T00:00:00.000Z,
-        //     last_decreased_at: 1970-01-01T00:00:00.000Z,
-        //     decreases_today: 0
-        //   },
-        // }
+        // resp contains the details of the newly created table.
     });
+```
+
+This response body is an object that looks like this:
+
+```js
+{
+  arn: 'arn:aws:dynamodb:ddblocal:000000000000:table/Lands',
+  bytes: 0,
+  count: 0,
+  created_at: 2017-03-12T22:03:06.922Z,
+  key_schema: { hash: [ 'name', 'string' ] },
+  name: 'Lands',
+  status: 'ACTIVE',
+  throughput: {
+    write: 5,
+    read: 10,
+    last_increased_at: 1970-01-01T00:00:00.000Z,
+    last_decreased_at: 1970-01-01T00:00:00.000Z,
+    decreases_today: 0
+  },
+}
 ```
 
 In this simplest case, we'll default the throughput for you at:
