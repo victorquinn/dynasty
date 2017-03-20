@@ -24,6 +24,28 @@ dynasty
     });
 ```
 
+In response you will get back an object describing the new status of the table:
+
+```js
+{
+  arn: 'arn:aws:dynamodb:ddblocal:000000000000:table/hifemepnetginudidilh',
+  attributes: [ [ 'my_hash_key', 'string' ] ],
+  bytes: 0,
+  count: 0,
+  created_at: 2017-03-20T12:16:16.082Z,
+  key_schema: { hash: [ 'my_hash_key', 'string' ] },
+  name: 'hifemepnetginudidilh',
+  status: 'ACTIVE',
+  throughput: {
+     write: 50,
+     read: 50,
+     last_increased_at: 2017-03-20T12:35:38.283Z,
+     last_decreased_at: 1970-01-01T00:00:00.000Z,
+     decreases_today: 0
+  }
+}
+```
+
 Optionally specify a callback function
 
 ```js
