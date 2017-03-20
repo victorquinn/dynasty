@@ -350,6 +350,28 @@ describe 'Dynasty', () ->
         promise = @table.remove getKey()
         expect(promise).to.be.an('object')
 
+      it 'should work', () ->
+        value = getKey()
+        # First insert this item
+        @table
+          .insert({ my_hash_key: value, val: value })
+          .bind(@)
+          .then (resp) ->
+            # Then check that it exists
+            @table.find(value)
+          .then (resp) ->
+            expect(resp).to.have.property('my_hash_key')
+            expect(resp.my_hash_key).to.equal(value)
+            expect(resp.val).to.equal(value)
+            # Then remove it
+            @table.remove(value)
+          .then (resp) ->
+            # Look for it again
+            @table.find(value)
+          .then (resp) ->
+            # And check that it no longer exists
+            expect(resp).to.equal(undefined)
+
     describe 'batchFind()', () ->
 
       it 'works with an array of keys', () ->
@@ -359,7 +381,6 @@ describe 'Dynasty', () ->
     describe 'find()', () ->
 
       it 'works with just a string', () ->
-        promise = @table.find getKey()
         value = getKey()
         @table
           .insert({ my_hash_key: value, val: value })
