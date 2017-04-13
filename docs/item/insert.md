@@ -34,7 +34,7 @@ lands
 Can optionally supply a traditional node callback
 
 ```js
-lands.insert({ name: 'China' }, function(err, resp) {
+lands.insert({ name: 'China' }, null, function(err, resp) {
     console.log(resp);
 });
 ```
