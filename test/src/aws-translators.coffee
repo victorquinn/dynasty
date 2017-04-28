@@ -310,7 +310,11 @@ describe 'aws-translators', () ->
         hashKeyName: 'bar'
         hashKeyType: 'S'
       .then (data) ->
-        expect(data).to.deep.equal(rofl: 'lol')
+        expect(data).to.deep.equal({
+          Count: undefined
+          Items: {rofl: 'lol'}
+          LastEvaluatedKey
+        })
 
     it 'should call scan of aws', () ->
       sandbox.spy(dynastyTable.parent.dynamo, "scanAsync")

@@ -121,6 +121,7 @@ module.exports.scan = (params, options, callback, keySchema) ->
     Limit: params.limit
     TotalSegments: params.totalSegment
     Segment: params.segment
+    ExclusiveStartKey: params.ExclusiveStartKey
 
   if params.ExclusiveStartKey?
     awsParams.ExclusiveStartKey = {}
@@ -131,7 +132,10 @@ module.exports.scan = (params, options, callback, keySchema) ->
 
   @parent.dynamo.scanAsync(awsParams)
     .then (data)->
-      dataTrans.fromDynamo(data.Items)
+      result =
+        Items: dataTrans.fromDynamo(data.Items),
+        Count: data.Count,
+        LastEvaluatedKey: data.LastEvaluatedKey
     .nodeify(callback)
 
 module.exports.query = (params, options, callback, keySchema) ->
