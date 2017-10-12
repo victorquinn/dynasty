@@ -137,7 +137,7 @@ class Dynasty
           awsParams.AttributeDefinitions.push {
             AttributeName: keys[0]
             AttributeType: typeToAwsType[keys[1]]
-          }
+          } if awsParams.AttributeDefinitions.filter( (ad) -> ad.AttributeName == keys[0] ).length == 0
 
     debug "creating table with params #{JSON.stringify(awsParams, null, 4)}"
 
