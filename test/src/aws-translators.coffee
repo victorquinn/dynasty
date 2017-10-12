@@ -383,6 +383,59 @@ describe 'aws-translators', () ->
       expect(params.KeyConditions.foo.AttributeValueList[0].S)
         .to.equal('bar')
 
+  describe '#query', () ->
+
+    dynastyTable = null
+    sandbox = null
+
+    beforeEach () ->
+      sandbox = sinon.sandbox.create()
+      dynastyTable =
+        name: chance.name()
+        parent:
+          dynamo: {
+            queryAsync: (params, callback) ->
+              Promise.resolve Items: [{
+                  foo: {S: 'bar'},
+                  bar: {S: 'baz'}
+                }]
+          }
+
+    afterEach () ->
+      sandbox.restore()
+
+    it 'should translate the response', () ->
+
+      lib.query
+        .call dynastyTable, 
+          {
+            indexName: chance.name(),
+            keyConditions: [
+              column: 'foo'
+              value: 'bar'
+            ]
+          }, null, null,
+        .then (data) ->
+          expect(data).to.deep.equal [
+            foo: 'bar'
+            bar: 'baz'
+          ]
+
+    it 'should call query', () ->
+      sandbox.spy(dynastyTable.parent.dynamo, "queryAsync")
+
+      lib.query.call dynastyTable, 
+        {
+          indexName: chance.name(),
+          keyConditions: [
+            column: 'foo'
+            value: 'bar'
+          ]
+        }, null, null
+
+      expect(dynastyTable.parent.dynamo.queryAsync.calledOnce)
+      expect(dynastyTable.parent.dynamo.queryAsync.getCall(0).args[0]).to.include.keys('TableName', 'IndexName', 'KeyConditions')
+
   describe '#putItem', () ->
 
     dynastyTable = null

@@ -49,6 +49,19 @@ describe 'Dynasty', () ->
             range: [chance.name(), 'string']
 
         expect(promise).to.be.an('object')
+      
+      it 'should accept global secondary indexes', () ->
+        promise = @dynasty.create chance.name(),
+          key_schema:
+            hash: [chance.name(), 'string']
+          global_secondary_indexes: [
+            index_name: chance.name()
+            key_schema:
+              hash: [chance.name(), 'string']
+            projection_type: 'all'
+          ]
+
+        expect(promise).to.be.an('object')
 
   describe 'Table', () ->
 
