@@ -118,9 +118,9 @@ class Dynasty
         keySchema = []
         for type, keys of index.key_schema
           keySchema.push({
-            AttributeName: key[0]
+            AttributeName: keys[0]
             KeyType: type.toUpperCase()
-          }) for key in keys
+          })
         awsParams.GlobalSecondaryIndexes.push {
           IndexName: index.index_name
           KeySchema: keySchema
@@ -134,11 +134,10 @@ class Dynasty
         }
         # Add key name to attributeDefinitions
         for type, keys of index.key_schema
-          for key in keys
-            awsParams.AttributeDefinitions.push {
-              AttributeName: key[0]
-              AttributeType: typeToAwsType[key[1]]
-            }
+          awsParams.AttributeDefinitions.push {
+            AttributeName: keys[0]
+            AttributeType: typeToAwsType[keys[1]]
+          } if awsParams.AttributeDefinitions.filter( (ad) -> ad.AttributeName == keys[0] ).length == 0
 
     debug "creating table with params #{JSON.stringify(awsParams, null, 4)}"
 
