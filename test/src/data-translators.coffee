@@ -41,7 +41,7 @@ describe 'toDynamo()', () ->
     converted = dataTrans.toDynamo arr
     expect(converted).to.be.an 'object'
     expect(converted).to.deep.equal
-      NS: ['0', '1', '2', '3']
+      L: arr.map((item) -> { 'N': item + '' })
 
   it 'looks right when given an array of strings', () ->
     arr = []
@@ -50,7 +50,7 @@ describe 'toDynamo()', () ->
     converted = dataTrans.toDynamo arr
     expect(converted).to.be.an 'object'
     expect(converted).to.deep.equal
-      'SS': arr
+        L: arr.map((item) -> { 'S': item })
 
   it 'looks right when given an array of objects', () ->
     arr = [{foo: 'bar'}, {bar: 'foo'}]
@@ -62,22 +62,12 @@ describe 'toDynamo()', () ->
     arr = [{foo: [1,2,3]}, {bar: {amazon: 'aws'}}]
     converted = dataTrans.toDynamo arr
     expect(converted).to.be.an 'object'
-    expect(converted).to.eql({ L: [{M: {foo: {NS: ['1', '2', '3']}}},{M: {bar: {M: {amazon: {S: 'aws'}}}}}]})
+    expect(converted).to.eql({ L: [{M: {foo: {L: [1, 2, 3].map((num) -> { 'N': num + ''})}}},{M: {bar: {M: {amazon: {S: 'aws'}}}}}]})
 
   it 'converts an empty array to a list', () ->
     expect(dataTrans.toDynamo([])).to.eql(
       L: []
     )
-
-  it 'should throw an error when given a hetrogeneous array', () ->
-    arr = []
-    _.times 10, (n) ->
-      if n % 2
-        arr.push chance.string()
-      else
-        arr.push chance.integer()
-    expect(() -> dataTrans.toDynamo(arr)).to.
-      throw('Expected homogenous array of numbers or strings')
 
   it 'supports null values', () ->
     expect(dataTrans.toDynamo({foo: null})).to.deep.equal
