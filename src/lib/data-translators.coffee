@@ -47,20 +47,11 @@ module.exports.fromDynamo = fromDynamo
 # See http://vq.io/19EiASB
 toDynamo = (item) ->
   if _.isArray item
-    if item.length > 0 and _.every item, _.isNumber
-      obj =
-        'NS': (num.toString() for num in item)
-    else if item.length > 0 and _.every item, _.isString
-      obj =
-        'SS': item
-    else if _.every item, _.isObject
-      array = []
-      for value in item
-        array.push(toDynamo(value))
-      obj =
-        'L': array
-    else
-      throw new TypeError 'Expected homogenous array of numbers or strings'
+    array = []
+    for value in item
+      array.push(toDynamo(value))
+    obj =
+      'L': array
   else if _.isNumber item
     obj =
       'N': item.toString()
