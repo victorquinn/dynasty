@@ -14,6 +14,11 @@ scanFilterFunc = (target, filter) ->
   target[filter.column].AttributeValueList[0][filter.type || 'S'] = filter.value
   target
 
+addAwsParams = (target, params) ->
+  for key, value of params
+    if key not in target and key[0] == key[0].toUpperCase()
+      target[key] = value
+
 module.exports.processAllPages = (deferred, dynamo, functionName, params)->
 
   stats =
@@ -72,6 +77,9 @@ module.exports.deleteItem = (params, options, callback, keySchema) ->
   awsParams =
     TableName: @name
     Key: getKey(params, keySchema)
+
+  addAwsParams(awsParams, options)
+
   @parent.dynamo.deleteItemAsync awsParams
 
 module.exports.batchGetItem = (params, callback, keySchema) ->
@@ -79,6 +87,9 @@ module.exports.batchGetItem = (params, callback, keySchema) ->
   awsParams.RequestItems = {}
   name = @name
   awsParams.RequestItems[@name] = Keys: _.map(params, (param) -> getKey(param, keySchema))
+
+  addAwsParams(awsParams, params)
+
   @parent.dynamo.batchGetItemAsync(awsParams)
     .then (data) ->
       dataTrans.fromDynamo(data.Responses[name])
@@ -88,6 +99,8 @@ module.exports.getItem = (params, options, callback, keySchema) ->
   awsParams =
     TableName: @name
     Key: getKey(params, keySchema)
+
+  addAwsParams(awsParams, options)
 
   @parent.dynamo.getItemAsync(awsParams)
     .then (data)->
@@ -129,6 +142,8 @@ module.exports.scan = (params, options, callback, keySchema) ->
 
   buildFilters(awsParams.ScanFilter, params.filters)
 
+  addAwsParams(awsParams, options)
+
   @parent.dynamo.scanAsync(awsParams)
     .then (data)->
       dataTrans.fromDynamo(data.Items)
@@ -145,6 +160,8 @@ module.exports.query = (params, options, callback, keySchema) ->
   buildFilters(awsParams.KeyConditions, params.keyConditions)
   buildFilters(awsParams.QueryFilter, params.filters)
 
+  addAwsParams(awsParams, options)
+
   @parent.dynamo.queryAsync(awsParams)
     .then (data) ->
       dataTrans.fromDynamo(data.Items)
@@ -155,6 +172,8 @@ module.exports.putItem = (obj, options, callback) ->
     TableName: @name
     Item: _.transform(obj, (res, val, key) ->
       res[key] = dataTrans.toDynamo(val))
+
+  addAwsParams(awsParams, options)
 
   @parent.dynamo.putItemAsync(awsParams)
 
@@ -179,4 +198,7 @@ module.exports.updateItem = (params, obj, options, callback, keySchema) ->
     ExpressionAttributeNames: expressionAttributeNames
     ExpressionAttributeValues: expressionAttributeValues
     UpdateExpression: updateExpression
+
+  addAwsParams(awsParams, options)
+
   @parent.dynamo.updateItemAsync(awsParams)

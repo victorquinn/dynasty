@@ -96,6 +96,17 @@ describe 'aws-translators', () ->
       )
       expect(dynastyTable.parent.dynamo.deleteItemAsync.calledOnce)
 
+    it 'should call deleteItem of aws with extra params', () ->
+      sandbox.spy(dynastyTable.parent.dynamo, "deleteItemAsync")
+      options =
+        ReturnValues: 'NONE'
+      lib.deleteItem.call(dynastyTable, 'foo', options, null,
+        hashKeyName: 'bar'
+        hashKeyType: 'S'
+      )
+      expect(dynastyTable.parent.dynamo.deleteItemAsync.calledOnce)
+      expect(dynastyTable.parent.dynamo.deleteItemAsync.getCall(0).args[0]).to.include.keys('ReturnValues')
+
     it 'should send the table name to AWS', () ->
       sandbox.spy(dynastyTable.parent.dynamo, "deleteItemAsync")
 
@@ -227,6 +238,18 @@ describe 'aws-translators', () ->
       expect(dynastyTable.parent.dynamo.getItemAsync.calledOnce)
       expect(dynastyTable.parent.dynamo.getItemAsync.getCall(0).args[0].TableName).to.equal(dynastyTable.name)
 
+    it 'should call getItem of aws with extra params', () ->
+      sandbox.spy(dynastyTable.parent.dynamo, "getItemAsync")
+      options =
+        ProjectionExpression: 'id, name'
+      lib.getItem.call dynastyTable, 'foo', options, null,
+        hashKeyName: 'bar'
+        hashKeyType: 'S'
+
+      expect(dynastyTable.parent.dynamo.getItemAsync.calledOnce)
+      expect(dynastyTable.parent.dynamo.getItemAsync.getCall(0).args[0].TableName).to.equal(dynastyTable.name)
+      expect(dynastyTable.parent.dynamo.getItemAsync.getCall(0).args[0].ProjectionExpression).to.equal('id, name')
+
     it 'should send the table name to AWS', () ->
       sandbox.spy(dynastyTable.parent.dynamo, "getItemAsync")
 
@@ -320,6 +343,18 @@ describe 'aws-translators', () ->
 
       expect(dynastyTable.parent.dynamo.scanAsync.calledOnce)
       expect(dynastyTable.parent.dynamo.scanAsync.getCall(0).args[0].TableName).to.equal(dynastyTable.name)
+
+    it 'should call scan of aws with extra params', () ->
+      sandbox.spy(dynastyTable.parent.dynamo, "scanAsync")
+      options =
+        ReturnConsumedCapacity: 'NONE'
+      lib.scan.call dynastyTable, 'foo', options, null,
+        hashKeyName: 'bar'
+        hashKeyType: 'S'
+
+      expect(dynastyTable.parent.dynamo.scanAsync.calledOnce)
+      expect(dynastyTable.parent.dynamo.scanAsync.getCall(0).args[0].TableName).to.equal(dynastyTable.name)
+      expect(dynastyTable.parent.dynamo.scanAsync.getCall(0).args[0].ReturnConsumedCapacity).to.equal('NONE')
 
   describe '#queryByHashKey', () ->
 
@@ -472,6 +507,17 @@ describe 'aws-translators', () ->
 
       expect(dynastyTable.parent.dynamo.putItemAsync.calledOnce)
       expect(dynastyTable.parent.dynamo.putItemAsync.getCall(0).args[0]).to.include.keys('Item', 'TableName')
+
+    it 'should add extra params from options', () ->
+      sandbox.spy(dynastyTable.parent.dynamo, "putItemAsync")
+
+      options =
+        ReturnValues: 'ALL_NEW'
+
+      lib.putItem.call(dynastyTable, foo: 'bar', options, null)
+
+      expect(dynastyTable.parent.dynamo.putItemAsync.calledOnce)
+      expect(dynastyTable.parent.dynamo.putItemAsync.getCall(0).args[0]).to.include.keys('Item', 'TableName', 'ReturnValues')
 
     it 'should send the table name to AWS', () ->
       sandbox.spy(dynastyTable.parent.dynamo, "putItemAsync")
