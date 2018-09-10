@@ -67,7 +67,7 @@ class Table
   # describe
   describe: (callback = null) ->
     debug 'describe() - ' + @name
-    @parent.dynamo.describeTableAsync(TableName: @name).nodeify(callback)
+    @parent.dynamo.describeTablePromise(TableName: @name).nodeify(callback)
 
   # drop
   drop: (callback = null) ->
