@@ -32,7 +32,7 @@ class Dynasty
       credentials.endpoint = new aws.Endpoint url
 
     @dynamo = new aws.DynamoDB credentials
-    Promise.promisifyAll @dynamo
+    Promise.promisifyAll(@dynamo, {suffix: 'Promise'})
     @name = 'Dynasty'
     @tables = {}
 
@@ -64,7 +64,7 @@ class Dynasty
         ReadCapacityUnits: throughput.read
         WriteCapacityUnits: throughput.write
 
-    @dynamo.updateTableAsync(awsParams).nodeify(callback)
+    @dynamo.updateTablePromise(awsParams).nodeify(callback)
 
   # Create a new table. Wrapper around AWS createTable
   create: (name, params, callback = null) ->
@@ -141,12 +141,12 @@ class Dynasty
 
     debug "creating table with params #{JSON.stringify(awsParams, null, 4)}"
 
-    @dynamo.createTableAsync(awsParams).nodeify(callback)
+    @dynamo.createTablePromise(awsParams).nodeify(callback)
 
   # describe
   describe: (name, callback) ->
     debug "describe() - #{name}"
-    @dynamo.describeTableAsync(TableName: name).nodeify(callback)
+    @dynamo.describeTablePromise(TableName: name).nodeify(callback)
 
   # Drop a table. Wrapper around AWS deleteTable
   drop: (name, callback = null) ->
@@ -154,7 +154,7 @@ class Dynasty
     params =
       TableName: name
 
-    @dynamo.deleteTableAsync(params).nodeify(callback)
+    @dynamo.deleteTablePromise(params).nodeify(callback)
 
   # List tables. Wrapper around AWS listTables
   list: (params, callback) ->
@@ -172,6 +172,6 @@ class Dynasty
         else if params.start is not null
           awsParams.ExclusiveStartTableName = params.start
 
-    @dynamo.listTablesAsync(awsParams).nodeify(callback)
+    @dynamo.listTablesPromise(awsParams).nodeify(callback)
 
 module.exports = (credentials, url) -> new Dynasty(credentials, url)
