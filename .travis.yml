@@ -1,8 +1,8 @@
 language: node_js
 node_js:
   - "6"
-  - "5"
-  - "4"
+  - "8"
+  - "10"
 
 sudo: false
 
@@ -14,6 +14,7 @@ env:
     - GIT_SOURCE: _docpress
 
 script:
+  - yarn test
   - ./node_modules/.bin/docpress build
 
 after_success:
