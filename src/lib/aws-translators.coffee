@@ -80,7 +80,7 @@ module.exports.deleteItem = (params, options, callback, keySchema) ->
 
   addAwsParams(awsParams, options)
 
-  @parent.dynamo.deleteItemAsync awsParams
+  @parent.dynamo.deleteItemPromise awsParams
 
 module.exports.batchGetItem = (params, callback, keySchema) ->
   awsParams = {}
@@ -90,7 +90,7 @@ module.exports.batchGetItem = (params, callback, keySchema) ->
 
   addAwsParams(awsParams, params)
 
-  @parent.dynamo.batchGetItemAsync(awsParams)
+  @parent.dynamo.batchGetItemPromise(awsParams)
     .then (data) ->
       dataTrans.fromDynamo(data.Responses[name])
     .nodeify(callback)
@@ -102,7 +102,7 @@ module.exports.getItem = (params, options, callback, keySchema) ->
 
   addAwsParams(awsParams, options)
 
-  @parent.dynamo.getItemAsync(awsParams)
+  @parent.dynamo.getItemPromise(awsParams)
     .then (data)->
       dataTrans.fromDynamo(data.Item)
     .nodeify(callback)
@@ -120,7 +120,7 @@ module.exports.queryByHashKey = (key, callback, keySchema) ->
     AttributeValueList: [{}]
   awsParams.KeyConditions[hashKeyName].AttributeValueList[0][hashKeyType] = key
 
-  @parent.dynamo.queryAsync(awsParams)
+  @parent.dynamo.queryPromise(awsParams)
     .then (data) ->
       dataTrans.fromDynamo(data.Items)
     .nodeify(callback)
@@ -144,7 +144,7 @@ module.exports.scan = (params, options, callback, keySchema) ->
 
   addAwsParams(awsParams, options)
 
-  @parent.dynamo.scanAsync(awsParams)
+  @parent.dynamo.scanPromise(awsParams)
     .then (data)->
       dataTrans.fromDynamo(data.Items)
     .nodeify(callback)
@@ -162,7 +162,7 @@ module.exports.query = (params, options, callback, keySchema) ->
 
   addAwsParams(awsParams, options)
 
-  @parent.dynamo.queryAsync(awsParams)
+  @parent.dynamo.queryPromise(awsParams)
     .then (data) ->
       dataTrans.fromDynamo(data.Items)
     .nodeify(callback)
@@ -175,7 +175,7 @@ module.exports.putItem = (obj, options, callback) ->
 
   addAwsParams(awsParams, options)
 
-  @parent.dynamo.putItemAsync(awsParams)
+  @parent.dynamo.putItemPromise(awsParams)
 
 module.exports.updateItem = (params, obj, options, callback, keySchema) ->
   key = getKey(params, keySchema)
@@ -201,4 +201,4 @@ module.exports.updateItem = (params, obj, options, callback, keySchema) ->
 
   addAwsParams(awsParams, options)
 
-  @parent.dynamo.updateItemAsync(awsParams)
+  @parent.dynamo.updateItemPromise(awsParams)
