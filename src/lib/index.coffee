@@ -1,3 +1,5 @@
-requireDirectory = require('require-directory')
-
-module.exports = requireDirectory module
+module.exports = {
+	Table: require('./Table'),
+	'aws-translators': require('./aws-translators'),
+	'data-translators': require('./data-translators')
+};
