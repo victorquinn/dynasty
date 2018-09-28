@@ -28,6 +28,8 @@ class Dynasty
     # Fall back on env variables
     else if process.env.AWS_DEFAULT_REGION
       credentials.region = process.env.AWS_DEFAULT_REGION
+    else
+      credentials.region = 'us-east-1'
 
     if !credentials.accessKeyId
       credentials.accessKeyId = process.env.AWS_ACCESS_KEY_ID
