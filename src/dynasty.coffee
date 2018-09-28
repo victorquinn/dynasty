@@ -22,7 +22,6 @@ class Dynasty
 
   constructor: (credentials, url) ->
     debug "dynasty constructed."
-    credentials.region = 'us-east-1'
     # Default to credentials passed in, if any
     if credentials.region
       credentials.region = credentials.region
