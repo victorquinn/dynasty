@@ -22,20 +22,6 @@ class Dynasty
 
   constructor: (credentials, url) ->
     debug "dynasty constructed."
-    # Default to credentials passed in, if any
-    if credentials.region
-      credentials.region = credentials.region
-    # Fall back on env variables
-    else if process.env.AWS_DEFAULT_REGION
-      credentials.region = process.env.AWS_DEFAULT_REGION
-    else
-      credentials.region = 'us-east-1'
-
-    if !credentials.accessKeyId
-      credentials.accessKeyId = process.env.AWS_ACCESS_KEY_ID
-
-    if !credentials.secretAccessKey
-      credentials.accessKeyId = process.env.AWS_SECRET_ACCESS_KEY
 
     # Lock API version
     credentials.apiVersion = '2012-08-10'

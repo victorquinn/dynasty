@@ -14,6 +14,7 @@ getCredentials = () ->
     pool: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
   secretAccessKey: chance.string
     length: 40
+  region: 'us-east-1'
 
 describe 'Dynasty', () ->
   describe 'Base', () ->
