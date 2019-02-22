@@ -36,6 +36,9 @@ class Dynasty
 
     if !credentials.secretAccessKey
       credentials.accessKeyId = process.env.AWS_SECRET_ACCESS_KEY
+      
+    if !credentials.sessionToken
+       credentials.sessionToken = process.env.AWS_SESSION_TOKEN
 
     # Lock API version
     credentials.apiVersion = '2012-08-10'
