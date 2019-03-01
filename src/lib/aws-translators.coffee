@@ -10,8 +10,13 @@ buildFilters = (target, filters) ->
 scanFilterFunc = (target, filter) ->
   target[filter.column] =
     ComparisonOperator: filter.op || 'EQ'
-    AttributeValueList: [{}]
-  target[filter.column].AttributeValueList[0][filter.type || 'S'] = filter.value
+    AttributeValueList: []
+  columnType = filter.type || 'S'
+  if Array.isArray(filter.value)
+    for key, value of filter.value
+      target[filter.column].AttributeValueList.push({ [columnType] : value })
+  else
+    target[filter.column].AttributeValueList.push({ [columnType] : filter.value })
   target
 
 addAwsParams = (target, params) ->
